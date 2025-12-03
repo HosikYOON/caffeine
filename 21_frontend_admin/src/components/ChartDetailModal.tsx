@@ -24,7 +24,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { formatCurrency, formatDate } from '@/utils/format';
+import { formatCurrency, formatDate } from '../utils/format';
+
 
 /**
  * 차트 상세 데이터 타입

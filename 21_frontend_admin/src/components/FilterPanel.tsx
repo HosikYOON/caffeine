@@ -22,7 +22,7 @@
 'use client';
 
 import { useState } from 'react';
-import { RiskLevel } from '@/types/anomaly';
+import { RiskLevel } from '../types/anomaly';
 
 /**
  * 필터 상태 인터페이스
@@ -253,12 +253,12 @@ export default function FilterPanel({
                                     key={level}
                                     onClick={() => toggleRiskLevel(level)}
                                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filters.riskLevels.includes(level)
-                                            ? level === '위험'
-                                                ? 'bg-red-600 text-white'
-                                                : level === '경고'
-                                                    ? 'bg-orange-500 text-white'
-                                                    : 'bg-yellow-500 text-white'
-                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                        ? level === '위험'
+                                            ? 'bg-red-600 text-white'
+                                            : level === '경고'
+                                                ? 'bg-orange-500 text-white'
+                                                : 'bg-yellow-500 text-white'
+                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                         }`}
                                 >
                                     {level}
