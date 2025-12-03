@@ -19,10 +19,10 @@ const Stack = createStackNavigator();
 
 const TabBarIcon = ({ name, focused }) => {
   const icons = {
-    '대시보드': '📊',
-    '거래내역': '💳',
-    '쿠폰함': '🎁',
-    '프로필': '👤'
+    '대시보드': '',
+    '거래내역': '',
+    '쿠폰함': '',
+    '프로필': ''
   };
   return <Text style={{ fontSize: 24, opacity: focused ? 1 : 0.5 }}>{icons[name] || '📱'}</Text>;
 };
