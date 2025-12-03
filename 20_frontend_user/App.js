@@ -19,7 +19,7 @@ const Stack = createStackNavigator();
 
 const TabBarIcon = ({ name, focused }) => {
   const icons = {
-    '대시보드': '',
+    '대시보': '',
     '거래내역': '',
     '쿠폰함': '',
     '프로필': ''
