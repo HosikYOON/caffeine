@@ -2,7 +2,7 @@ name: Deploy User Frontend (front-sjw)
 
 on:
   push:
-    branches: ["front-sjw"]        # ✅ 이 브랜치에서만 배포
+    branches: ["front-sjw"]
     paths:
       - "20_frontend_user/**"
   workflow_dispatch:
@@ -22,7 +22,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: 20_frontend_user
-        run: npm ci         # 또는 npm install
+        run: npm ci
 
       - name: Build project
         working-directory: 20_frontend_user
@@ -37,10 +37,8 @@ jobs:
 
       - name: Sync build output to S3
         run: |
-          aws s3 sync 20_frontend_user/build s3://20-frontend-user \
+          aws s3 sync 20_frontend_user/dist s3://20-frontend-user \
             --delete
-        # 🔁 빌드 폴더가 dist라면 위 줄을 이렇게:
-        # aws s3 sync 20_frontend_user/dist s3://20-frontend-user --delete
 
       - name: Invalidate CloudFront cache
         run: |
