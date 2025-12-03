@@ -21,6 +21,7 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
+          cache-dependency-path: '20_frontend_user/package-lock.json'
 
       - name: Install dependencies
         working-directory: 20_frontend_user
