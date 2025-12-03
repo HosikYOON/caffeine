@@ -159,24 +159,24 @@ export default function DashboardScreen({ navigation }) {
     };
 
     const handlePredictionBannerClick = () => {
-        alert(`AI 예측 상세\n\n다음 예상 구매:\n• 가맹점: ${predictedTransaction?.merchant}\n• 카테고리: ${predictedTransaction?.category}\n• 예상 금액: ${formatCurrency(predictedTransaction?.predictedAmount)}\n• 예측 시간: ${predictedTransaction?.predictedDate}\n• 신뢰도: ${predictedTransaction?.confidence}%\n\n쿠폰을 받고 ${formatCurrency(predictedTransaction?.couponDiscount)} 할인받으세요!`);
+        alert(`AI 예측 상세\n\n다음 예상 구매:\n• 가맹점: ${predictedTransaction?.merchant}\n• 카테고리: ${predictedTransaction?.category}\n• 예상 금액: ${formatCurrency(predictedTransaction?.predictedAmount)}\n• 예측 시간: ${predictedTransaction?.predictedDate}\n• 신뢰도: ${predictedTransaction?.confidence}%\n\n💡 쿠폰을 받고 ${formatCurrency(predictedTransaction?.couponDiscount)} 할인받으세요!`);
     };
 
     if (loading) {
         return (
             <ScrollView style={styles(colors).container}>
                 <View style={styles(colors).summarySection}>
-                    <Text style={styles(colors).sectionTitle}>이번 달 소비 요약</Text>
+                    <Text style={styles(colors).sectionTitle}> 이번 달 소비 요약</Text>
                     <SkeletonStats />
                     <SkeletonStats />
                     <SkeletonStats />
                 </View>
                 <View style={styles(colors).chartSection}>
-                    <Text style={styles(colors).sectionTitle}>월별 지출 추이</Text>
+                    <Text style={styles(colors).sectionTitle}> 월별 지출 추이</Text>
                     <SkeletonChart />
                 </View>
                 <View style={styles(colors).chartSection}>
-                    <Text style={styles(colors).sectionTitle}>카테고리별 소비</Text>
+                    <Text style={styles(colors).sectionTitle}> 카테고리별 소비</Text>
                     <SkeletonChart />
                 </View>
             </ScrollView>
@@ -221,6 +221,18 @@ export default function DashboardScreen({ navigation }) {
                             <Text style={styles(colors).brandName}>{predictedTransaction.merchant}</Text>
                             <View style={styles(colors).adBadge}>
                                 <Text style={styles(colors).adBadgeText}>AD</Text>
+                            </View>
+                        </View>
+
+                        <View style={styles(colors).bannerAdBody}>
+                            <Text style={styles(colors).bannerAdHeadline}>
+                                커피 한 잔의 여유, 특별한 할인까지
+                            </Text>
+                            <Text style={styles(colors).bannerAdSubtitle}>
+                                AI가 예측한 당신의 다음 방문
+                            </Text>
+
+                            <View style={styles(colors).bannerAdOffer}>
                                 <Text style={styles(colors).bannerAdOfferLabel}>특별 할인</Text>
                                 <Text style={styles(colors).bannerAdOfferAmount}>
                                     {formatCurrency(predictedTransaction.couponDiscount)}
@@ -242,7 +254,7 @@ export default function DashboardScreen({ navigation }) {
             )}
 
             <FadeInView style={styles(colors).summarySection} delay={ANIMATION_DELAY.NONE}>
-                <Text style={styles(colors).sectionTitle}>이번 달 소비 요약</Text>
+                <Text style={styles(colors).sectionTitle}> 이번 달 소비 요약</Text>
                 <View style={styles(colors).summaryGrid}>
                     <AnimatedButton style={[styles(colors).summaryCard, styles(colors).mainCard]}
                         onPress={handleTotalSpendingClick}>
@@ -254,7 +266,7 @@ export default function DashboardScreen({ navigation }) {
                             duration={1200}
                         />
                         <Text style={styles(colors).summaryTrend}>
-                            {summary?.monthly_trend === '증가' ? '지난달 대비 증가' : '지난달 대비 감소'}
+                            {summary?.monthly_trend === '증가' ? ' 지난달 대비 증가' : ' 지난달 대비 감소'}
                         </Text>
                         <Text style={styles(colors).clickHint}>탭하여 카테고리 보기</Text>
                     </AnimatedButton>
@@ -286,7 +298,7 @@ export default function DashboardScreen({ navigation }) {
 
                 {summary?.anomaly_count > 0 && (
                     <TouchableOpacity style={styles(colors).alertCard}>
-                        <Text style={styles(colors).alertIcon}></Text>
+                        <Text style={styles(colors).alertIcon}>⚠️</Text>
                         <View style={styles(colors).alertContent}>
                             <Text style={styles(colors).alertTitle}>의심 거래 발견</Text>
                             <Text style={styles(colors).alertText}>{summary.anomaly_count}건의 이상 거래가 감지되었습니다.</Text>
@@ -296,7 +308,7 @@ export default function DashboardScreen({ navigation }) {
             </FadeInView>
 
             <FadeInView style={styles(colors).chartSection} delay={ANIMATION_DELAY.MEDIUM}>
-                <Text style={styles(colors).sectionTitle}>월별 지출 추이</Text>
+                <Text style={styles(colors).sectionTitle}> 월별 지출 추이</Text>
                 <View>
                     <LineChart
                         data={lineChartData}
@@ -336,7 +348,7 @@ export default function DashboardScreen({ navigation }) {
             </FadeInView>
 
             <FadeInView ref={categoryRef} style={styles(colors).chartSection} delay={ANIMATION_DELAY.LONG}>
-                <Text style={styles(colors).sectionTitle}>카테고리별 소비</Text>
+                <Text style={styles(colors).sectionTitle}> 카테고리별 소비</Text>
 
                 <View style={styles(colors).progressCardContainer}>
                     {categoryData.map((item, index) => (
@@ -349,7 +361,7 @@ export default function DashboardScreen({ navigation }) {
                                 <View style={styles(colors).progressCardLeft}>
                                     <View style={[styles(colors).categoryIcon, { backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }]}>
                                         <Text style={styles(colors).categoryEmoji}>
-                                            {''}
+                                            {index === 0 ? '' : index === 1 ? '' : index === 2 ? '' : index === 3 ? '' : index === 4 ? '' : ''}
                                         </Text>
                                     </View>
                                     <View>
@@ -381,7 +393,7 @@ export default function DashboardScreen({ navigation }) {
             </FadeInView>
 
             <FadeInView ref={insightRef} style={styles(colors).insightSection} delay={ANIMATION_DELAY.VERY_LONG}>
-                <Text style={styles(colors).sectionTitle}>AI 인사이트</Text>
+                <Text style={styles(colors).sectionTitle}> AI 인사이트</Text>
 
                 <View style={styles(colors).insightCard}>
                     <Text style={styles(colors).insightIcon}></Text>
