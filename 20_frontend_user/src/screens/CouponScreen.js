@@ -336,7 +336,6 @@ export default function CouponScreen() {
         <View style={styles(colors).container}>
             {/* Header */}
             <View style={styles(colors).header}>
-                {/* TODO: 헤더 아이콘 */}
                 <Text style={styles(colors).title}>내 쿠폰</Text>
                 <Text style={styles(colors).subtitle}>
                     사용 가능: {availableCoupons.length + expiringSoonCoupons.length}개
@@ -345,7 +344,6 @@ export default function CouponScreen() {
 
             {/* Search Bar */}
             <View style={styles(colors).searchContainer}>
-                {/* TODO: 검색 아이콘 */}
                 <Text style={styles(colors).searchIcon}></Text>
                 <TextInput
                     style={styles(colors).searchInput}
@@ -388,7 +386,6 @@ export default function CouponScreen() {
                 {/* Expiring Soon */}
                 {expiringSoonCoupons.length > 0 && (
                     <View style={styles(colors).section}>
-                        {/* TODO: 섹션 아이콘 */}
                         <SectionHeader title="곧 만료" count={expiringSoonCoupons.length} />
                         {expiringSoonCoupons.map(coupon => (
                             <CouponCard key={coupon.id} item={coupon} />
@@ -399,7 +396,6 @@ export default function CouponScreen() {
                 {/* Available */}
                 {availableCoupons.length > 0 && (
                     <View style={styles(colors).section}>
-                        {/* TODO: 섹션 아이콘 */}
                         <SectionHeader title="사용 가능" count={availableCoupons.length} />
                         {availableCoupons.map(coupon => (
                             <CouponCard key={coupon.id} item={coupon} />
@@ -413,7 +409,6 @@ export default function CouponScreen() {
                         <TouchableOpacity
                             style={styles(colors).usedToggle}
                             onPress={() => setShowUsed(!showUsed)}>
-                            {/* TODO: 토글 아이콘 */}
                             <Text style={styles(colors).usedToggleText}>
                                 사용 완료 / 만료 ({allUsedCoupons.length})
                             </Text>

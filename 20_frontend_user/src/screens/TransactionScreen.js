@@ -170,7 +170,7 @@ export default function TransactionScreen({ navigation }) {
             ));
             setSelectedTransaction({ ...selectedTransaction, notes: editedNote });
             setIsEditingNote(false);
-            alert('✅ 메모가 저장되었습니다.');
+            alert('메모가 저장되었습니다.');
         }
     };
 
@@ -195,7 +195,7 @@ export default function TransactionScreen({ navigation }) {
     return (
         <View style={styles(colors).container}>
             <View style={styles(colors).header}>
-                <Text style={styles(colors).title}>💳 거래내역</Text>
+                <Text style={styles(colors).title}>거래내역</Text>
                 <Text style={styles(colors).subtitle}>
                     {searchQuery ? `검색 결과 ${filteredTransactions.length}건` : `총 ${transactions.length}건`}
                 </Text>
@@ -241,7 +241,7 @@ export default function TransactionScreen({ navigation }) {
                 onRequestClose={() => setModalVisible(false)}>
                 <View style={styles(colors).modalOverlay}>
                     <View style={styles(colors).modalContent}>
-                        <Text style={styles(colors).modalTitle}>💳 거래 상세</Text>
+                        <Text style={styles(colors).modalTitle}>거래 상세</Text>
 
                         {selectedTransaction && (
                             <>
@@ -305,7 +305,7 @@ export default function TransactionScreen({ navigation }) {
                                 </View>
 
                                 <View style={styles(colors).modalSection}>
-                                    <Text style={styles(colors).modalSectionTitle}>⚠️ 의심되는 거래인가요?</Text>
+                                    <Text style={styles(colors).modalSectionTitle}>의심되는 거래인가요?</Text>
                                     <Text style={styles(colors).modalText}>이 거래가 의심스럽다면 "이상거래로 표시"를 눌러주세요.</Text>
                                 </View>
                             </>
@@ -316,7 +316,7 @@ export default function TransactionScreen({ navigation }) {
                                 <Text style={styles(colors).modalButtonTextCancel}>닫기</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles(colors).modalButtonAnomaly} onPress={handleMarkAsAnomaly}>
-                                <Text style={styles(colors).modalButtonText}>⚠️ 이상거래 신고</Text>
+                                <Text style={styles(colors).modalButtonText}>이상거래 신고</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -387,10 +387,10 @@ export default function TransactionScreen({ navigation }) {
                             onPress={() => {
                                 setAnomalyCategoryModalVisible(false);
                                 setTimeout(() => {
-                                    alert('🚨 신고 접수 완료\n\n고객센터에서 24시간 내 연락드리겠습니다.\n필요시 카드 정지 조치가 진행됩니다.');
+                                    alert('신고 접수 완료\n\n고객센터에서 24시간 내 연락드리겠습니다.\n필요시 카드 정지 조치가 진행됩니다.');
                                 }, 300);
                             }}>
-                            <Text style={styles(colors).reportButtonText}>🚨 고객센터에 신고하기</Text>
+                            <Text style={styles(colors).reportButtonText}>고객센터에 신고하기</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity
