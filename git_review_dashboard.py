@@ -534,75 +534,107 @@ elif page == "프로젝트 구조":
         
         st.markdown("### 📂 정리 후 프로젝트 구조 (트리)")
         
-        # 트리 구조를 Markdown 코드 블록으로 표시
-        st.code("""
+        # 색상 범례
+        st.markdown("""
+        <style>
+        .tag-new { color: #28a745; font-weight: bold; }
+        .tag-modified { color: #007bff; font-weight: bold; }
+        .tag-moved { color: #fd7e14; font-weight: bold; }
+        .tag-deleted { color: #dc3545; font-weight: bold; }
+        .tag-existing { color: #6c757d; font-weight: bold; }
+        .tree-structure {
+            font-family: 'Courier New', monospace;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+        </style>
+        
+        <div style="display: flex; gap: 15px; margin-bottom: 10px; font-size: 12px;">
+            <span class="tag-new">● 신규</span>
+            <span class="tag-modified">● 수정</span>
+            <span class="tag-moved">● 이동</span>
+            <span class="tag-deleted">● 삭제</span>
+            <span class="tag-existing">● 기존</span>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # 트리 구조 HTML로 표시
+        st.markdown("""
+        <div class="tree-structure">
+        <pre>
 caffeine/
-├── 📁 00_docs_core/                    [새로 추가] 문서 체계화
+├── 📁 00_docs_core/                    <span class="tag-new">[신규]</span> 문서 체계화
 │   ├── design/
-│   │   ├── 데이터베이스_테이블_스키마.md      [이동] 루트에서 이동
-│   │   ├── 시스템구성도.txt                   [새로 추가]
-│   │   └── 쿼리문.txt                         [새로 추가]
+│   │   ├── 데이터베이스_테이블_스키마.md      <span class="tag-moved">[이동]</span> 루트에서 이동
+│   │   ├── 시스템구성도.txt                   <span class="tag-new">[신규]</span>
+│   │   └── 쿼리문.txt                         <span class="tag-new">[신규]</span>
 │   ├── manuals/
-│   │   ├── (상세)작업+백엔드연동.md          [이동] 루트에서 이동
-│   │   └── BACKEND_INTEGRATION_GUIDE.md    [이동] 루트에서 이동
-│   └── 프로젝트_전체_진행상황.md              [이동] 루트에서 이동
+│   │   ├── (상세)작업+백엔드연동.md          <span class="tag-moved">[이동]</span> 루트에서 이동
+│   │   └── BACKEND_INTEGRATION_GUIDE.md    <span class="tag-moved">[이동]</span> 루트에서 이동
+│   └── 프로젝트_전체_진행상황.md              <span class="tag-moved">[이동]</span> 루트에서 이동
 │
-├── 📁 10_backend/                     [기존] FastAPI 백엔드
+├── 📁 10_backend/                     <span class="tag-existing">[기존]</span> FastAPI 백엔드
 │   ├── app/
-│   │   ├── main.py                   [수정] CORS 확장, ML 라우터 추가 (+39줄, -9줄)
+│   │   ├── main.py                   <span class="tag-modified">[수정]</span> CORS 확장, ML 라우터 추가 (+39, -9줄)
 │   │   ├── routers/
-│   │   │   └── ml.py                [신규] ML API 엔드포인트 (407줄)
+│   │   │   └── ml.py                <span class="tag-new">[신규]</span> ML API 엔드포인트 (407줄)
 │   │   └── services/
-│   │       ├── __init__.py          [신규]
-│   │       └── preprocessing.py     [신규] 데이터 전처리 (433줄)
-│   └── requirements.txt             [수정] ML 라이브러리 추가 (+4줄, -10줄)
+│   │       ├── __init__.py          <span class="tag-new">[신규]</span>
+│   │       └── preprocessing.py     <span class="tag-new">[신규]</span> 데이터 전처리 (433줄)
+│   └── requirements.txt             <span class="tag-modified">[수정]</span> ML 라이브러리 추가 (+4, -10줄)
 │
-├── 📁 20_frontend_user/              [기존] React Native Expo
-│   ├── App.js                       [수정] TransactionContext 추가 (+5줄, -9줄)
+├── 📁 20_frontend_user/              <span class="tag-existing">[기존]</span> React Native Expo
+│   ├── App.js                       <span class="tag-modified">[수정]</span> TransactionContext 추가 (+5, -9줄)
 │   ├── src/
 │   │   ├── contexts/
-│   │   │   └── TransactionContext.js  [신규] 거래 상태 관리 (111줄)
+│   │   │   └── TransactionContext.js  <span class="tag-new">[신규]</span> 거래 상태 관리 (111줄)
 │   │   └── screens/
-│   │       ├── DashboardScreen.js      [수정] 다음 소비 예측 통합 (+94줄, -102줄)
-│   │       ├── ProfileScreen.js        [수정] 데이터 동기화 개선 (+6줄, -144줄)
-│   │       ├── TransactionScreen.js    [수정] UI 개선 (+62줄, -145줄)
-│   │       └── MLTestScreen.js         [신규] ML 테스트 화면 (175줄)
-│   ├── package.json                [수정] 의존성 추가
-│   └── package-lock.json           [수정] 자동 생성 (+248줄)
+│   │       ├── DashboardScreen.js      <span class="tag-modified">[수정]</span> 다음 소비 예측 통합 (+94, -102줄)
+│   │       ├── ProfileScreen.js        <span class="tag-modified">[수정]</span> 데이터 동기화 개선 (+6, -144줄)
+│   │       ├── TransactionScreen.js    <span class="tag-modified">[수정]</span> UI 개선 (+62, -145줄)
+│   │       └── MLTestScreen.js         <span class="tag-new">[신규]</span> ML 테스트 화면 (175줄)
+│   ├── package.json                <span class="tag-modified">[수정]</span> 의존성 추가
+│   └── package-lock.json           <span class="tag-modified">[수정]</span> 자동 생성 (+248줄)
 │
-├── 📁 99_archive/                    [새로 추가] 이전 파일 보관
-│   ├── frontend/                    [삭제 후 이동] 중복 디렉토리 (27개 파일)
-│   │   ├── App.js                  [삭제] 14,846줄
-│   │   ├── src/...                 [삭제] 전체
-│   │   └── package.json            [삭제]
-│   └── data/                       [삭제 후 이동] 훈련 데이터 (82MB)
+├── 📁 99_archive/                    <span class="tag-new">[신규]</span> 이전 파일 보관
+│   ├── frontend/                    <span class="tag-deleted">[삭제→이동]</span> 중복 디렉토리 (27개 파일)
+│   │   ├── App.js                  <span class="tag-deleted">[삭제]</span> 14,846줄
+│   │   ├── src/...                 <span class="tag-deleted">[삭제]</span> 전체
+│   │   └── package.json            <span class="tag-deleted">[삭제]</span>
+│   └── data/                       <span class="tag-deleted">[삭제→이동]</span> 훈련 데이터 (82MB)
 │
-├── 📁 production_models/            [새로 추가] 프로덕션 모델
-│   ├── lightgbm_v1.0.joblib        [신규] LightGBM 모델 (25MB)
-│   └── lightgbm_v1.0_metadata.json [신규] 모델 메타데이터 (4KB)
+├── 📁 production_models/            <span class="tag-new">[신규]</span> 프로덕션 모델
+│   ├── lightgbm_v1.0.joblib        <span class="tag-new">[신규]</span> LightGBM 모델 (25MB)
+│   └── lightgbm_v1.0_metadata.json <span class="tag-new">[신규]</span> 모델 메타데이터 (4KB)
 │
-├── 📄 git_review_dashboard.py       [신규] Streamlit 대시보드 (1,191줄)
-├── 📄 EXECUTIVE_GIT_REVIEW.md       [신규] Git 변경사항 리뷰 (584줄)
-├── 📄 DIRECTORY_STRUCTURE_ANALYSIS.md [신규] 디렉토리 분석 (1,000줄)
-├── 📄 PROJECT_VISUALIZATION.md      [신규] 프로젝트 시각화 (1,000줄)
-├── 📄 project_structure_viewer.html [신규] Mermaid 뷰어 (260줄)
+├── 📄 git_review_dashboard.py       <span class="tag-new">[신규]</span> Streamlit 대시보드 (1,303줄)
+├── 📄 EXECUTIVE_GIT_REVIEW.md       <span class="tag-new">[신규]</span> Git 변경사항 리뷰 (584줄)
+├── 📄 DIRECTORY_STRUCTURE_ANALYSIS.md <span class="tag-new">[신규]</span> 디렉토리 분석 (1,000줄)
+├── 📄 PROJECT_VISUALIZATION.md      <span class="tag-new">[신규]</span> 프로젝트 시각화 (1,000줄)
+├── 📄 project_structure_viewer.html <span class="tag-new">[신규]</span> Mermaid 뷰어 (260줄)
 │
-├── 📄 start_all.sh                  [신규] 전체 실행 스크립트
-├── 📄 start_backend.sh              [신규] 백엔드 실행 스크립트
-├── 📄 start_frontend.sh             [신규] 프론트엔드 실행 스크립트
-├── 📄 stop_all.sh                   [신규] 전체 종료 스크립트
+├── 📄 start_all.sh                  <span class="tag-new">[신규]</span> 전체 실행 스크립트
+├── 📄 start_backend.sh              <span class="tag-new">[신규]</span> 백엔드 실행 스크립트
+├── 📄 start_frontend.sh             <span class="tag-new">[신규]</span> 프론트엔드 실행 스크립트
+├── 📄 stop_all.sh                   <span class="tag-new">[신규]</span> 전체 종료 스크립트
 │
-├── 📄 README.md                     [기존] 프로젝트 설명
-├── 📄 docker-compose.yml            [기존] Docker 구성
-└── 📄 .gitignore                    [기존] Git 무시 파일
+├── 📄 README.md                     <span class="tag-existing">[기존]</span> 프로젝트 설명
+├── 📄 docker-compose.yml            <span class="tag-existing">[기존]</span> Docker 구성
+└── 📄 .gitignore                    <span class="tag-existing">[기존]</span> Git 무시 파일
 
-[삭제된 파일] (루트에서 제거됨)
-├── ❌ frontend/                     → 99_archive/frontend/ (27개 파일, 14,846줄)
-├── ❌ app.json                      → 삭제 (중복)
-├── ❌ BACKEND_INTEGRATION_GUIDE.md  → 00_docs_core/manuals/
-├── ❌ PROJECT_HANDOFF.md            → 00_docs_core/
-└── ❌ 데이터베이스_테이블_스키마.md  → 00_docs_core/design/
-        """, language="text")
+<span class="tag-deleted">────────────────────────────────────────────────────</span>
+<strong>삭제된 파일 (루트에서 제거됨):</strong>
+├── <span class="tag-deleted">❌ frontend/</span>                     → 99_archive/frontend/ (27개 파일, 14,846줄)
+├── <span class="tag-deleted">❌ app.json</span>                      → 삭제 (중복)
+├── <span class="tag-deleted">❌ BACKEND_INTEGRATION_GUIDE.md</span>  → 00_docs_core/manuals/
+├── <span class="tag-deleted">❌ PROJECT_HANDOFF.md</span>            → 00_docs_core/
+└── <span class="tag-deleted">❌ 데이터베이스_테이블_스키마.md</span>  → 00_docs_core/design/
+        </pre>
+        </div>
+        """, unsafe_allow_html=True)
         
         st.markdown("---")
         st.markdown("### 📊 변경사항 요약")
