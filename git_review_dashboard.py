@@ -550,6 +550,11 @@ elif page == "프로젝트 구조":
             line-height: 1.6;
             font-size: 14px;
         }
+        .tree-structure pre {
+            white-space: pre;
+            overflow-x: auto;
+            margin: 0;
+        }
         </style>
         
         <div style="display: flex; gap: 15px; margin-bottom: 10px; font-size: 12px;">
