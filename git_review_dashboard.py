@@ -568,9 +568,7 @@ elif page == "프로젝트 구조":
         
         # 트리 구조 HTML로 표시
         st.markdown("""
-        <div class="tree-structure">
-        <pre>
-caffeine/
+        <div class="tree-structure" style="white-space: pre-wrap; font-family: monospace;">caffeine/
 ├── 📁 00_docs_core/                    <span class="tag-new">[신규]</span> 문서 체계화
 │   ├── design/
 │   │   ├── 데이터베이스_테이블_스키마.md      <span class="tag-moved">[이동]</span> 루트에서 이동
@@ -615,7 +613,7 @@ caffeine/
 │   ├── lightgbm_v1.0.joblib        <span class="tag-new">[신규]</span> LightGBM 모델 (25MB)
 │   └── lightgbm_v1.0_metadata.json <span class="tag-new">[신규]</span> 모델 메타데이터 (4KB)
 │
-├── 📄 git_review_dashboard.py       <span class="tag-new">[신규]</span> Streamlit 대시보드 (1,303줄)
+├── 📄 git_review_dashboard.py       <span class="tag-new">[신규]</span> Streamlit 대시보드 (1,335줄)
 ├── 📄 EXECUTIVE_GIT_REVIEW.md       <span class="tag-new">[신규]</span> Git 변경사항 리뷰 (584줄)
 ├── 📄 DIRECTORY_STRUCTURE_ANALYSIS.md <span class="tag-new">[신규]</span> 디렉토리 분석 (1,000줄)
 ├── 📄 PROJECT_VISUALIZATION.md      <span class="tag-new">[신규]</span> 프로젝트 시각화 (1,000줄)
@@ -636,9 +634,7 @@ caffeine/
 ├── <span class="tag-deleted">❌ app.json</span>                      → 삭제 (중복)
 ├── <span class="tag-deleted">❌ BACKEND_INTEGRATION_GUIDE.md</span>  → 00_docs_core/manuals/
 ├── <span class="tag-deleted">❌ PROJECT_HANDOFF.md</span>            → 00_docs_core/
-└── <span class="tag-deleted">❌ 데이터베이스_테이블_스키마.md</span>  → 00_docs_core/design/
-        </pre>
-        </div>
+└── <span class="tag-deleted">❌ 데이터베이스_테이블_스키마.md</span>  → 00_docs_core/design/</div>
         """, unsafe_allow_html=True)
         
         st.markdown("---")
