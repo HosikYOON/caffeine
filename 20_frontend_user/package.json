@@ -1,33 +1,4 @@
 {
-<<<<<<< HEAD
-  "name": "04_app_front",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "axios": "^1.13.2",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.39.1",
-    "@types/react": "^19.2.5",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^5.1.1",
-    "babel-plugin-react-compiler": "^1.0.0",
-    "eslint": "^9.39.1",
-    "eslint-plugin-react-hooks": "^7.0.1",
-    "eslint-plugin-react-refresh": "^0.4.24",
-    "globals": "^16.5.0",
-    "vite": "^7.2.4"
-  }
-=======
   "name": "caffeine-app",
   "version": "1.0.0",
   "main": "index.js",
@@ -42,9 +13,7 @@
     "@react-navigation/bottom-tabs": "^7.8.8",
     "@react-navigation/native": "^7.1.22",
     "@react-navigation/stack": "^7.6.8",
-    "axios": "^1.13.2",
     "expo": "~54.0.25",
-    "expo-document-picker": "~14.0.7",
     "expo-status-bar": "~3.0.8",
     "react": "19.1.0",
     "react-dom": "^19.1.0",
@@ -60,5 +29,4 @@
     "victory-native": "^41.20.2"
   },
   "private": true
->>>>>>> origin/develop-psh
 }
