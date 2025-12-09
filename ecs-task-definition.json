@@ -4,7 +4,7 @@
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "1024",
   "memory": "2048",
-  "executionRoleArn": "arn:aws:iam::864785582947:role/caffeine-ecs-task",
+  "executionRoleArn": "arn:aws:iam::864785582947:role/caffeine-ecs-task-role",
   "taskRoleArn": "arn:aws:iam::864785582947:role/caffeine-ecs-task-role",
   "containerDefinitions": [
     {
