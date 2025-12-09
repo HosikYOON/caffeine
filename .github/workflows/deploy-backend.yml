@@ -39,14 +39,11 @@ jobs:
         run: |
           IMAGE_TAG=${{ github.sha }}
 
-          # 백엔드 Dockerfile이 있는 폴더에서 빌드
           docker build -t $ECR_REPOSITORY:$IMAGE_TAG 10_backend
 
-          # 태그 및 Push
           docker tag $ECR_REPOSITORY:$IMAGE_TAG ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
+
           docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
 
       - name: Update ECS task definition
         id: task-def
@@ -62,4 +59,3 @@ jobs:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
-
