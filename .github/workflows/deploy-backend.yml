@@ -8,6 +8,7 @@ on:
 env:
   AWS_REGION: ap-northeast-2
   ECR_REPOSITORY: caffein/backend
+  ECR_REGISTRY: 864785582947.dkr.ecr.ap-northeast-2.amazonaws.com
   ECS_CLUSTER: caffeine-cluster
   ECS_SERVICE: caffeine_ecs_task-service-8vpukgnf
   ECS_TASK_FAMILY: caffeine_ecs_task_family
@@ -38,12 +39,8 @@ jobs:
         id: build-image
         run: |
           IMAGE_TAG=${{ github.sha }}
-
-          docker build -t $ECR_REPOSITORY:$IMAGE_TAG 10_backend
-
-          docker tag $ECR_REPOSITORY:$IMAGE_TAG ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
-
-          docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG 10_backend
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Update ECS task definition
         id: task-def
@@ -51,7 +48,7 @@ jobs:
         with:
           task-definition: ecs-task-definition.json
           container-name: backend
-          image: ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:${{ github.sha }}
+          image: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
 
       - name: Deploy to ECS service
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
