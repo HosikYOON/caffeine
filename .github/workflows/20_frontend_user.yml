@@ -1,0 +1,49 @@
+name: Deploy User Frontend (Expo Web)
+
+on:
+  push:
+    branches: ["front-sjw"]              # 지금은 front-sjw에서만 배포
+    paths:
+      - "20_frontend_user/**"
+      - ".github/workflows/20_frontend_user.yml"
+  workflow_dispatch:                      # Actions 탭에서 수동 실행도 가능
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: '20_frontend_user/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: 20_frontend_user
+        run: npm ci
+
+      - name: Expo web export (build)
+        working-directory: 20_frontend_user
+        run: npx expo export -p web --output-dir dist
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Sync exported web to S3 (user)
+        run: |
+          aws s3 sync 20_frontend_user/dist s3://20-frontend-user --delete
+
+      - name: Invalidate CloudFront cache (user)
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CF_USER_DISTRIBUTION_ID }} \
+            --paths "/*"

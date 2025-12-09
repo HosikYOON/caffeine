@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 version: "3.9"
 
 services:
@@ -12,18 +13,46 @@ services:
   app_front:
     build: ./20_frontend_user
     container_name: caf_front_user
+=======
+services:
+  backend:
+    build: ./01_backend
+    ports:
+      - "8000:8000"
+
+  ml_next:
+    build: ./02_ml_next
+    ports:
+      - "9001:9001"
+
+  ml_fraud:
+    build: ./03_ml_fraud
+    ports:
+      - "9002:9002"
+
+  app_front:
+    build: ./04_app_front
+>>>>>>> origin/develop-psh
     ports:
       - "5173:5173"
 
   admin_front:
+<<<<<<< HEAD
     build: ./21_frontend_admin
     container_name: caf_front_admin
+=======
+    build: ./05_admin_front
+>>>>>>> origin/develop-psh
     ports:
       - "5174:5174"
 
   nginx:
+<<<<<<< HEAD
     build: ./30_nginx
     container_name: caf_nginx
+=======
+    build: ./06_nginx
+>>>>>>> origin/develop-psh
     ports:
       - "80:80"
     depends_on:
@@ -33,6 +62,7 @@ services:
       - llm_category
       - llm_analysis
 
+<<<<<<< HEAD
   ml_next:
     build: ./40_ml_next
     container_name: caf_ml_next
@@ -54,10 +84,15 @@ services:
     container_name: caf_llm_category
     # env_file:
     #   - ./50_llm_category/.env
+=======
+  llm_category:
+    build: ./07_llm_category
+>>>>>>> origin/develop-psh
     ports:
       - "9100:9100"
 
   llm_analysis:
+<<<<<<< HEAD
     build: ./51_llm_analysis
     container_name: caf_llm_analysis
     # env_file:
@@ -73,3 +108,8 @@ services:
   #   #   - ./52_llm_cleo/.env
   #   ports:
   #     - "9103:9103"
+=======
+    build: ./08_llm_analysis
+    ports:
+      - "9101:9101"
+>>>>>>> origin/develop-psh
