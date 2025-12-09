@@ -1,11 +1,10 @@
-<<<<<<< HEAD
 fastapi
 uvicorn
 pydantic
 sqlalchemy
 psycopg2-binary
 httpx 
-=======
+
 # FastAPI 핵심
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
@@ -34,4 +33,4 @@ scikit-learn
 joblib
 pandas
 numpy
->>>>>>> origin/develop-psh
+
