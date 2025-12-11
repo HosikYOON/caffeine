@@ -568,3 +568,219 @@
 2025-12-08 12:49:08,964 - audit - INFO - Response: 200 | Duration: 0.034s
 2025-12-08 12:49:09,366 - audit - INFO - Request: POST /ml/predict | Client: 127.0.0.1
 2025-12-08 12:49:09,388 - audit - INFO - Response: 200 | Duration: 0.022s
+2025-12-09 15:13:16,887 - numexpr.utils - INFO - Note: NumExpr detected 20 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 16.
+2025-12-09 15:13:16,887 - numexpr.utils - INFO - NumExpr defaulting to 16 threads.
+2025-12-09 15:13:16,952 - app.main - INFO - ============================================================
+2025-12-09 15:13:16,952 - app.main - INFO - 🚀 Caffeine API 시작됨
+2025-12-09 15:13:16,952 - app.main - INFO - 환경: development
+2025-12-09 15:13:16,952 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:8081', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-09 15:13:18,054 - app.routers.ml - INFO - Model loaded: lightgbm_cuda_production_20251205_162340.joblib
+2025-12-09 15:13:18,054 - app.main - INFO - ============================================================
+2025-12-09 15:13:33,944 - audit - INFO - Request: GET / | Client: 127.0.0.1
+2025-12-09 15:13:33,945 - audit - INFO - Response: 200 | Duration: 0.000s
+2025-12-09 15:13:34,066 - audit - INFO - Request: GET /favicon.ico | Client: 127.0.0.1
+2025-12-09 15:13:34,067 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-09 15:22:47,730 - audit - INFO - Request: POST /ml/predict-next | Client: 127.0.0.1
+2025-12-09 15:22:47,777 - audit - INFO - Response: 200 | Duration: 0.047s
+2025-12-09 15:23:11,597 - audit - INFO - Request: POST /ml/upload | Client: 127.0.0.1
+2025-12-09 15:23:11,732 - audit - INFO - Response: 200 | Duration: 0.134s
+2025-12-09 15:23:15,223 - audit - INFO - Request: POST /ml/predict-next | Client: 127.0.0.1
+2025-12-09 15:23:15,267 - audit - INFO - Response: 200 | Duration: 0.044s
+2025-12-09 15:23:16,419 - audit - INFO - Request: POST /ml/predict-next | Client: 127.0.0.1
+2025-12-09 15:23:16,460 - audit - INFO - Response: 200 | Duration: 0.041s
+2025-12-09 15:23:19,846 - audit - INFO - Request: OPTIONS /ml/predict | Client: 127.0.0.1
+2025-12-09 15:23:19,846 - audit - INFO - Response: 200 | Duration: 0.000s
+2025-12-09 15:23:19,847 - audit - INFO - Request: POST /ml/predict | Client: 127.0.0.1
+2025-12-09 15:23:19,883 - audit - INFO - Response: 200 | Duration: 0.035s
+2025-12-09 16:27:06,419 - audit - INFO - Request: POST /ml/predict-next | Client: 127.0.0.1
+2025-12-09 16:27:06,450 - audit - INFO - Response: 200 | Duration: 0.031s
+2025-12-09 16:27:35,778 - audit - INFO - Request: POST /ml/upload | Client: 127.0.0.1
+2025-12-09 16:27:35,779 - app.routers.ml - ERROR - File upload failed: '날짜'
+2025-12-09 16:27:35,779 - audit - INFO - Response: 400 | Duration: 0.001s
+2025-12-09 16:28:02,535 - audit - INFO - Request: POST /ml/upload | Client: 127.0.0.1
+2025-12-09 16:28:02,664 - audit - INFO - Response: 200 | Duration: 0.129s
+2025-12-09 16:28:24,328 - audit - INFO - Request: POST /ml/predict-next | Client: 127.0.0.1
+2025-12-09 16:28:24,373 - audit - INFO - Response: 200 | Duration: 0.046s
+2025-12-09 16:28:42,160 - audit - INFO - Request: POST /ml/predict-next | Client: 127.0.0.1
+2025-12-09 16:28:42,236 - audit - INFO - Response: 200 | Duration: 0.076s
+2025-12-09 16:29:06,135 - audit - INFO - Request: OPTIONS /ml/predict | Client: 127.0.0.1
+2025-12-09 16:29:06,135 - audit - INFO - Response: 200 | Duration: 0.000s
+2025-12-09 16:29:06,137 - audit - INFO - Request: POST /ml/predict | Client: 127.0.0.1
+2025-12-09 16:29:06,159 - audit - INFO - Response: 200 | Duration: 0.022s
+2025-12-10 16:17:12,422 - numexpr.utils - INFO - Note: NumExpr detected 20 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 16.
+2025-12-10 16:17:12,422 - numexpr.utils - INFO - NumExpr defaulting to 16 threads.
+2025-12-10 16:17:12,595 - app.main - INFO - ============================================================
+2025-12-10 16:17:12,595 - app.main - INFO - 🚀 Caffeine API 시작됨
+2025-12-10 16:17:12,595 - app.main - INFO - 환경: development
+2025-12-10 16:17:12,595 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:8081', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-10 16:17:13,354 - app.routers.ml - INFO - ✅ XGBoost 모델 로드 완료: model_xgboost_acc_73.47.joblib
+2025-12-10 16:17:13,355 - app.main - INFO - ============================================================
+2025-12-10 16:17:28,489 - app.main - INFO - ============================================================
+2025-12-10 16:17:28,489 - app.main - INFO - 🛑 Caffeine API 종료됨
+2025-12-10 16:17:28,489 - app.main - INFO - ============================================================
+2025-12-10 16:18:01,517 - numexpr.utils - INFO - Note: NumExpr detected 20 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 16.
+2025-12-10 16:18:01,517 - numexpr.utils - INFO - NumExpr defaulting to 16 threads.
+2025-12-10 16:18:01,691 - app.main - INFO - ============================================================
+2025-12-10 16:18:01,691 - app.main - INFO - 🚀 Caffeine API 시작됨
+2025-12-10 16:18:01,691 - app.main - INFO - 환경: development
+2025-12-10 16:18:01,691 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:8081', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-10 16:18:02,464 - app.routers.ml - INFO - ✅ XGBoost 모델 로드 완료: model_xgboost_acc_73.47.joblib
+2025-12-10 16:18:02,464 - app.main - INFO - ============================================================
+2025-12-10 16:18:04,200 - audit - INFO - Request: GET /health | Client: 127.0.0.1
+2025-12-10 16:18:04,201 - audit - INFO - Response: 200 | Duration: 0.001s
+2025-12-10 16:18:16,366 - audit - INFO - Request: GET /health | Client: 127.0.0.1
+2025-12-10 16:18:16,367 - audit - INFO - Response: 200 | Duration: 0.001s
+2025-12-10 16:18:23,206 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-10 16:18:23,463 - audit - INFO - Response: 200 | Duration: 0.258s
+2025-12-10 16:18:37,809 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-10 16:18:37,867 - audit - INFO - Response: 200 | Duration: 0.058s
+2025-12-10 16:18:47,102 - audit - INFO - Request: GET /ml/status | Client: 127.0.0.1
+2025-12-10 16:18:47,102 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 16:18:54,461 - audit - INFO - Request: GET /docs | Client: 127.0.0.1
+2025-12-10 16:18:54,462 - audit - INFO - Response: 200 | Duration: 0.000s
+2025-12-10 16:25:03,251 - audit - INFO - Request: POST /ml/predict-next | Client: 127.0.0.1
+2025-12-10 16:25:03,878 - audit - INFO - Response: 200 | Duration: 0.627s
+2025-12-10 16:35:01,822 - audit - INFO - Request: OPTIONS /ml/predict | Client: 127.0.0.1
+2025-12-10 16:35:01,822 - audit - INFO - Response: 200 | Duration: 0.000s
+2025-12-10 16:35:01,823 - audit - INFO - Request: POST /ml/predict | Client: 127.0.0.1
+2025-12-10 16:35:02,043 - audit - INFO - Response: 200 | Duration: 0.220s
+2025-12-10 16:38:17,068 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 16:38:17,068 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 16:38:17,070 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 16:38:17,070 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 16:38:17,071 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 16:38:17,071 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 16:38:19,172 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 16:38:19,173 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 16:38:19,174 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 16:38:19,174 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 16:38:19,175 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 16:38:19,175 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 16:38:20,462 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 16:38:20,463 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 16:38:20,463 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 16:38:20,464 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 16:38:20,464 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 16:38:20,465 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 16:39:16,234 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 16:39:16,234 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 16:39:16,235 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 16:39:16,235 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 16:39:16,236 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 16:39:16,236 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 17:02:33,562 - audit - INFO - Request: GET /api/analysis/monthly-trend | Client: 127.0.0.1
+2025-12-10 17:02:33,575 - audit - INFO - Response: 200 | Duration: 0.013s
+2025-12-10 17:04:23,638 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-10 17:04:23,665 - audit - INFO - Response: 200 | Duration: 0.027s
+2025-12-10 17:04:23,666 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-10 17:04:23,854 - audit - INFO - Response: 200 | Duration: 0.187s
+2025-12-10 17:04:23,856 - audit - INFO - Request: POST /ml/predict-next | Client: 127.0.0.1
+2025-12-10 17:04:24,446 - audit - INFO - Response: 200 | Duration: 0.590s
+2025-12-10 17:04:24,446 - audit - INFO - Request: POST /ml/predict-next | Client: 127.0.0.1
+2025-12-10 17:04:24,810 - audit - INFO - Response: 200 | Duration: 0.364s
+2025-12-10 18:14:21,382 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:14:21,383 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:14:21,384 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:14:21,384 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:14:21,385 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:14:21,385 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:14:22,299 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:14:22,299 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:14:22,300 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:14:22,300 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:14:22,301 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:14:22,301 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:14:22,817 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:14:22,817 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:14:22,818 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:14:22,818 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:14:22,819 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:14:22,819 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:14:23,036 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:14:23,037 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:14:23,037 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:14:23,038 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:14:23,038 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:14:23,038 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:14:35,600 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:14:35,600 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:14:35,602 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:14:35,602 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:14:35,602 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:14:35,603 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:14:35,622 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:14:35,622 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:14:35,623 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:14:35,624 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:14:35,624 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:14:35,625 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:14:37,572 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-10 18:14:37,601 - audit - INFO - Response: 200 | Duration: 0.030s
+2025-12-10 18:14:37,623 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-10 18:14:37,655 - audit - INFO - Response: 200 | Duration: 0.033s
+2025-12-10 18:14:37,701 - audit - INFO - Request: POST /ml/predict-next | Client: 127.0.0.1
+2025-12-10 18:14:37,729 - audit - INFO - Request: POST /ml/predict-next | Client: 127.0.0.1
+2025-12-10 18:14:38,349 - audit - INFO - Request: POST /ml/predict-next | Client: 127.0.0.1
+2025-12-10 18:14:38,349 - audit - INFO - Response: 200 | Duration: 0.620s
+2025-12-10 18:14:38,350 - audit - INFO - Request: POST /ml/predict-next | Client: 127.0.0.1
+2025-12-10 18:14:38,691 - audit - INFO - Response: 200 | Duration: 0.990s
+2025-12-10 18:14:39,342 - audit - INFO - Response: 200 | Duration: 0.993s
+2025-12-10 18:14:39,342 - audit - INFO - Response: 200 | Duration: 0.992s
+2025-12-10 18:14:44,824 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-10 18:14:44,869 - audit - INFO - Request: POST /ml/predict-next | Client: 127.0.0.1
+2025-12-10 18:14:45,515 - audit - INFO - Response: 200 | Duration: 0.646s
+2025-12-10 18:14:45,523 - audit - INFO - Response: 200 | Duration: 0.698s
+2025-12-10 18:14:45,718 - audit - INFO - Request: POST /ml/predict-next | Client: 127.0.0.1
+2025-12-10 18:14:46,019 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:14:46,019 - audit - INFO - Response: 200 | Duration: 0.301s
+2025-12-10 18:14:46,019 - audit - INFO - Response: 404 | Duration: 0.001s
+2025-12-10 18:14:46,020 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:14:46,020 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:14:46,021 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:14:46,021 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:15:32,817 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-10 18:15:32,885 - audit - INFO - Response: 200 | Duration: 0.068s
+2025-12-10 18:16:05,343 - audit - INFO - Request: GET /api/analysis/summary | Client: 127.0.0.1
+2025-12-10 18:16:05,360 - audit - INFO - Response: 200 | Duration: 0.017s
+2025-12-10 18:17:31,877 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:17:31,877 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:17:31,879 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:17:31,879 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:17:31,879 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:17:31,880 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:18:07,973 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:18:07,974 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:18:07,974 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:18:07,975 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:18:07,976 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:18:07,976 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:18:24,906 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:18:24,907 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:18:24,908 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:18:24,908 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:18:24,909 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-10 18:18:24,909 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-10 18:20:20,296 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-10 18:20:20,333 - audit - INFO - Response: 200 | Duration: 0.037s
+2025-12-10 18:20:20,334 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-10 18:20:20,366 - audit - INFO - Response: 200 | Duration: 0.032s
+2025-12-10 18:20:20,367 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-10 18:20:20,402 - audit - INFO - Response: 200 | Duration: 0.035s
+2025-12-10 18:20:20,596 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-10 18:20:20,628 - audit - INFO - Response: 200 | Duration: 0.031s
+2025-12-10 18:20:20,629 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-10 18:20:20,667 - audit - INFO - Response: 200 | Duration: 0.038s
+2025-12-10 18:20:20,669 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-10 18:20:20,704 - audit - INFO - Response: 200 | Duration: 0.036s
+2025-12-10 18:25:14,578 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-10 18:25:14,607 - audit - INFO - Response: 200 | Duration: 0.029s
+2025-12-10 18:25:14,608 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-10 18:25:14,638 - audit - INFO - Response: 200 | Duration: 0.030s
+2025-12-10 18:25:14,639 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-10 18:25:14,673 - audit - INFO - Response: 200 | Duration: 0.034s
+2025-12-10 18:25:14,848 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-10 18:25:14,879 - audit - INFO - Response: 200 | Duration: 0.031s
+2025-12-10 18:25:14,880 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-10 18:25:14,916 - audit - INFO - Response: 200 | Duration: 0.036s
+2025-12-10 18:25:14,917 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-10 18:25:14,955 - audit - INFO - Response: 200 | Duration: 0.038s

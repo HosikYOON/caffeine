@@ -34,7 +34,7 @@ const MLTestScreen = () => {
             // 백엔드 API 호출
             // 주의: 안드로이드 에뮬레이터에서는 localhost 대신 10.0.2.2 사용
             // 웹에서는 localhost 사용 가능
-            const apiUrl = 'http://localhost:8000/ml/predict';
+            const apiUrl = 'http://localhost:8001/ml/predict';
 
             console.log("Sending data:", form);
 

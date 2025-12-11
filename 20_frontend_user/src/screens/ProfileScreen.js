@@ -70,7 +70,7 @@ export default function ProfileScreen() {
 
             // 3. 백엔드로 전송
             const response = await axios.post(
-                'http://localhost:8000/ml/upload',
+                'http://localhost:8001/ml/upload',
                 formData,
                 {
                     headers: { 'Content-Type': 'multipart/form-data' },
@@ -100,7 +100,7 @@ export default function ProfileScreen() {
                     alert('🔮 다음 소비를 예측하는 중...');
 
                     const predictResponse = await axios.post(
-                        'http://localhost:8000/ml/predict-next',
+                        'http://localhost:8001/ml/predict-next',
                         formData,
                         {
                             headers: { 'Content-Type': 'multipart/form-data' },

@@ -21,26 +21,25 @@ router = APIRouter(
 model = None
 
 def load_model():
+    """
+    XGBoost 모델 로드 (model_xgboost_acc_73.47.joblib)
+    
+    모델 위치: 10_backend/app/model_xgboost_acc_73.47.joblib
+    정확도: 73.47%
+    """
     global model
     try:
-        # production_models 디렉토리에서 .joblib 파일 찾기
-        # /app/routers/ml.py -> /app/routers -> /app -> /10_backend -> /root/caffeine
-        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-        prod_dir = os.path.join(base_dir, "production_models")
+        # 모델 파일 경로: /10_backend/app/model_xgboost_acc_73.47.joblib
+        # 현재 파일: /10_backend/app/routers/ml.py
+        app_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # /10_backend/app
+        model_path = os.path.join(app_dir, "model_xgboost_acc_73.47.joblib")
         
-        if not os.path.exists(prod_dir):
-            logger.error(f"Directory not found: {prod_dir}")
+        if not os.path.exists(model_path):
+            logger.error(f"Model not found: {model_path}")
             return
 
-        model_files = [f for f in os.listdir(prod_dir) if f.endswith('.joblib')]
-        
-        if not model_files:
-            logger.error(f"No model file found in {prod_dir}")
-            return
-
-        model_path = os.path.join(prod_dir, model_files[0])
         model = joblib.load(model_path)
-        logger.info(f"Model loaded: {os.path.basename(model_path)}")
+        logger.info(f"✅ XGBoost 모델 로드 완료: {os.path.basename(model_path)}")
         
     except Exception as e:
         logger.error(f"Failed to load model: {e}")
