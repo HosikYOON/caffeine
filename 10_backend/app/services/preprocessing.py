@@ -24,31 +24,39 @@ class DataPreprocessor:
             metadata_path: 모델 메타데이터 JSON 파일 경로
         """
         if metadata_path is None:
-            # 기본 경로: production_models 폴더 내의 json
-            # /app/services/preprocessing.py -> /app/services -> /app -> /10_backend -> /root/caffeine
-            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-            prod_dir = os.path.join(base_dir, "production_models")
+            # 기본 경로: 10_backend/app 폴더 내의 model_metadata.json
+            # /app/services/preprocessing.py -> /app/services -> /app
+            app_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            metadata_path = os.path.join(app_dir, "model_metadata.json")
             
-            if not os.path.exists(prod_dir):
-                raise FileNotFoundError(f"프로덕션 모델 폴더를 찾을 수 없습니다: {prod_dir}")
-            
-            # json 파일 찾기
-            json_files = [f for f in os.listdir(prod_dir) if f.endswith('.json')]
-            if json_files:
-                metadata_path = os.path.join(prod_dir, json_files[0])
-            else:
-                raise FileNotFoundError("메타데이터 파일을 찾을 수 없습니다.")
+            if not os.path.exists(metadata_path):
+                raise FileNotFoundError(f"모델 메타데이터 파일을 찾을 수 없습니다: {metadata_path}")
         
         self.metadata_path = metadata_path
         self._load_metadata()
         
     def _load_metadata(self):
-        """메타데이터 로드"""
+        """
+        메타데이터 로드 (XGBoost 형식 지원)
+        
+        XGBoost 메타데이터 형식:
+        - features: 피처 이름 리스트
+        - n_features: 피처 개수
+        - best_model: 모델 이름
+        """
         with open(self.metadata_path, 'r', encoding='utf-8') as f:
             self.metadata = json.load(f)
-            
-        self.feature_stats = self.metadata['input_spec']['feature_statistics']
-        self.feature_names = self.metadata['input_spec']['feature_names']
+        
+        # XGBoost 메타데이터 형식 (features 리스트 직접 사용)
+        if 'features' in self.metadata:
+            self.feature_names = self.metadata['features']
+            self.feature_stats = None  # XGBoost는 스케일링 불필요
+        # 이전 LightGBM 형식 호환
+        elif 'input_spec' in self.metadata:
+            self.feature_stats = self.metadata['input_spec']['feature_statistics']
+            self.feature_names = self.metadata['input_spec']['feature_names']
+        else:
+            raise ValueError("지원하지 않는 메타데이터 형식입니다.")
         
     def preprocess(self, df: pd.DataFrame) -> pd.DataFrame:
         """
@@ -58,7 +66,7 @@ class DataPreprocessor:
             df: 원본 DataFrame (CSV 로드 결과)
             
         Returns:
-            모델 입력용 DataFrame (27개 feature, scaled)
+            모델 입력용 DataFrame (24개 feature for XGBoost)
         """
         # 1. 기본 데이터 정제
         df_clean = self._clean_data(df)
@@ -66,11 +74,16 @@ class DataPreprocessor:
         # 2. Feature Engineering (파생변수 생성)
         df_engineered = self._feature_engineering(df_clean)
         
-        # 3. Scaling (정규화)
-        df_scaled = self._apply_scaling(df_engineered)
+        # 3. Scaling (정규화) - XGBoost는 스케일링 불필요
+        if self.feature_stats is not None:
+            df_scaled = self._apply_scaling(df_engineered)
+        else:
+            df_scaled = df_engineered
         
         # 4. 컬럼 순서 보장 (모델 입력 순서대로)
-        df_final = df_scaled[self.feature_names]
+        # 메타데이터에 있는 피처만 선택
+        available_features = [f for f in self.feature_names if f in df_scaled.columns]
+        df_final = df_scaled[available_features]
         
         return df_final
 
@@ -79,14 +92,14 @@ class DataPreprocessor:
         다음 거래 예측을 위한 피처 생성
 
         전체 거래 이력에서 사용자 통계를 계산하고, 가장 최근 거래를 컨텍스트로 사용하여
-        가상의 "다음 거래"에 대한 27개 피처를 생성합니다.
+        가상의 "다음 거래"에 대한 24개 피처를 생성합니다 (XGBoost).
 
         Args:
             df: 전체 거래 이력 DataFrame
             prediction_time: 예측 시점 (기본값: 현재 시간)
 
         Returns:
-            27개 스케일링된 피처를 가진 단일 행 DataFrame
+            24개 피처를 가진 단일 행 DataFrame (XGBoost용)
         """
         if prediction_time is None:
             prediction_time = datetime.now()
@@ -108,10 +121,15 @@ class DataPreprocessor:
             full_history=df_clean
         )
 
-        # 5. Scaling 적용
-        next_scaled = self._apply_scaling(next_features)
+        # 5. Scaling 적용 (XGBoost는 스케일링 불필요)
+        if self.feature_stats is not None:
+            next_scaled = self._apply_scaling(next_features)
+        else:
+            next_scaled = next_features
 
-        return next_scaled[self.feature_names]
+        # 메타데이터에 있는 피처만 선택
+        available_features = [f for f in self.feature_names if f in next_scaled.columns]
+        return next_scaled[available_features]
 
     def _calculate_user_stats(self, df: pd.DataFrame) -> dict:
         """
@@ -255,6 +273,13 @@ class DataPreprocessor:
         features['User_외식_Ratio'] = user_stats['category_ratios']['외식']
         features['User_주유_Ratio'] = user_stats['category_ratios']['주유']
 
+        # ---------------------------------------------------------
+        # 8. XGBoost 피처명 호환을 위한 별칭
+        # ---------------------------------------------------------
+        features['Amount_clean'] = features['Amount']  # XGBoost expects Amount_clean
+        features['AmountBin'] = features['AmountBin_encoded']  # XGBoost expects AmountBin
+        features['Previous_Category'] = features['Previous_Category_encoded']  # XGBoost expects Previous_Category
+
         return pd.DataFrame([features])
 
     def _clean_data(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -389,6 +414,13 @@ class DataPreprocessor:
         df['User_식료품_Ratio'] = cat_counts.get(3, 0) / total_count
         df['User_외식_Ratio'] = cat_counts.get(4, 0) / total_count
         df['User_주유_Ratio'] = cat_counts.get(5, 0) / total_count
+        
+        # ---------------------------------------------------------
+        # 8. XGBoost 피처명 호환을 위한 별칭 컬럼
+        # ---------------------------------------------------------
+        df['Amount_clean'] = df['Amount']  # XGBoost expects Amount_clean
+        df['AmountBin'] = df['AmountBin_encoded']  # XGBoost expects AmountBin
+        df['Previous_Category'] = df['Previous_Category_encoded']  # XGBoost expects Previous_Category
         
         return df
         

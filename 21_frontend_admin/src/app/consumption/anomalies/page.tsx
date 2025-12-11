@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useEffect } from 'react';
+
 import { AlertTriangle, CheckCircle, XCircle, Clock, ChevronRight } from 'lucide-react';
 import { AnomalyData } from '@/types';
 import { AnomalySummaryCard } from '@/components/ui/AnomalySummaryCard';
@@ -26,41 +28,21 @@ export default function AnomaliesPage() {
         fetchAnomalies();
     }, []);
     */
-    const anomalies: AnomalyData[] = [
-        {
-            id: 1,
-            category: '해외결제',
-            amount: 1250000,
-            date: '2024-11-29 03:45',
-            reason: '평소 거래 패턴과 다름 (심야 시간 + 고액)',
-            riskLevel: '위험',
-            status: 'pending',
-            userId: 'user_001',
-            userName: '김철수'
-        },
-        {
-            id: 2,
-            category: '게임',
-            amount: 55000,
-            date: '2024-11-29 14:20',
-            reason: '단시간 다회 결제 시도 (5분 내 3회)',
-            riskLevel: '경고',
-            status: 'pending',
-            userId: 'user_042',
-            userName: '이영희'
-        },
-        {
-            id: 3,
-            category: '편의점',
-            amount: 250000,
-            date: '2024-11-28 23:10',
-            reason: '카테고리 평균 대비 고액 결제',
-            riskLevel: '주의',
-            status: 'approved',
-            userId: 'user_103',
-            userName: '박민수'
-        },
-    ];
+    const [anomalies, setAnomalies] = useState<AnomalyData[]>([]);
+
+    useEffect(() => {
+        // 백엔드에서 데이터 가져오기
+        const fetchAnomalies = async () => {
+            try {
+                const response = await fetch('/api/v1/anomalies');
+                const data = await response.json();
+                setAnomalies(data);
+            } catch (error) {
+                console.error('데이터를 가져오는데 실패했습니다:', error);
+            }
+        };
+        fetchAnomalies();
+    }, []);
 
     const pendingCount = anomalies.filter(a => a.status === 'pending').length;
     const approvedCount = anomalies.filter(a => a.status === 'approved').length;

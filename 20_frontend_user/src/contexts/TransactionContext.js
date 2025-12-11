@@ -1,5 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getTransactions, updateTransactionNote as apiUpdateNote } from '../api';
+import { predictNextTransaction } from '../api/ml';
 
 const TransactionContext = createContext();
 
@@ -11,6 +13,8 @@ export const TransactionProvider = ({ children }) => {
     // 앱 시작 시 캐시 로드
     useEffect(() => {
         loadCachedTransactions();
+        // 자동으로 서버에서 최신 데이터 가져오기
+        loadTransactionsFromServer();
     }, []);
 
     const loadCachedTransactions = async () => {
@@ -28,15 +32,63 @@ export const TransactionProvider = ({ children }) => {
         }
     };
 
-    const saveTransactions = async (newTransactions) => {
+    /**
+     * 서버에서 거래 데이터 가져오기 (실시간 API 호출)
+     */
+    const loadTransactionsFromServer = async (userId = null) => {
+        setLoading(true);
         try {
-            setTransactions(newTransactions);
+            const response = await getTransactions({ user_id: userId, page_size: 100 });
 
-            // AsyncStorage에 저장
+            if (response && response.transactions) {
+                // API 응답을 앱 형식으로 변환
+                const formattedTransactions = response.transactions.map(t => ({
+                    id: String(t.id),
+                    merchant: t.merchant,
+                    businessName: t.merchant,
+                    amount: t.amount,
+                    category: t.category,
+                    originalCategory: t.category,
+                    date: t.transaction_date,
+                    cardType: t.currency === 'KRW' ? '신용' : '체크',
+                    cardName: t.payment_method || '카드',
+                    notes: t.description || '',
+                    status: t.status,
+                }));
+
+                await saveTransactionsToCache(formattedTransactions);
+                setTransactions(formattedTransactions);
+
+                const now = new Date().toISOString();
+                await AsyncStorage.setItem('last_sync_time', now);
+                setLastSyncTime(now);
+
+                console.log(`✅ 서버에서 ${formattedTransactions.length}건 거래 로드 완료 (data_source: ${response.data_source})`);
+                return { success: true, count: formattedTransactions.length };
+            }
+        } catch (error) {
+            console.error('❌ 서버 거래 로드 실패:', error);
+            return { success: false, error: error.message };
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const saveTransactionsToCache = async (newTransactions) => {
+        try {
             await AsyncStorage.setItem(
                 'transactions_cache',
                 JSON.stringify(newTransactions)
             );
+        } catch (error) {
+            console.error('캐시 저장 실패:', error);
+        }
+    };
+
+    const saveTransactions = async (newTransactions) => {
+        try {
+            setTransactions(newTransactions);
+            await saveTransactionsToCache(newTransactions);
 
             const now = new Date().toISOString();
             await AsyncStorage.setItem('last_sync_time', now);
@@ -50,8 +102,12 @@ export const TransactionProvider = ({ children }) => {
         }
     };
 
-    const updateTransactionNote = async (transactionId, note) => {
+    const updateNote = async (transactionId, note) => {
         try {
+            // API 호출
+            await apiUpdateNote(transactionId, note);
+
+            // 로컬 상태 업데이트
             const updated = transactions.map(t =>
                 t.id === String(transactionId)
                     ? { ...t, notes: note }
@@ -59,12 +115,7 @@ export const TransactionProvider = ({ children }) => {
             );
 
             setTransactions(updated);
-
-            // AsyncStorage 업데이트
-            await AsyncStorage.setItem(
-                'transactions_cache',
-                JSON.stringify(updated)
-            );
+            await saveTransactionsToCache(updated);
 
             return { success: true };
         } catch (error) {
@@ -121,17 +172,8 @@ export const TransactionProvider = ({ children }) => {
             const blob = new Blob([csvContent], { type: 'text/csv' });
             formData.append('file', blob, 'transactions.csv');
 
-            // API 호출
-            const response = await fetch('http://localhost:8000/ml/predict-next', {
-                method: 'POST',
-                body: formData,
-            });
-
-            if (!response.ok) {
-                throw new Error(`API 오류: ${response.status}`);
-            }
-
-            const result = await response.json();
+            // API 호출 (api/ml.js 사용)
+            const result = await predictNextTransaction(blob);
             console.log('✅ 다음 소비 예측 성공:', result);
 
             return { success: true, data: result };
@@ -143,6 +185,10 @@ export const TransactionProvider = ({ children }) => {
         }
     };
 
+    // 새로고침 함수
+    const refresh = async (userId = null) => {
+        return await loadTransactionsFromServer(userId);
+    };
 
     return (
         <TransactionContext.Provider value={{
@@ -150,9 +196,11 @@ export const TransactionProvider = ({ children }) => {
             loading,
             lastSyncTime,
             saveTransactions,
-            updateTransactionNote,
+            updateTransactionNote: updateNote,
             clearTransactions,
             predictNextPurchase,
+            loadTransactionsFromServer,
+            refresh,
             setLoading
         }}>
             {children}

@@ -82,7 +82,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 # 프론트엔드 도메인에서 API에 접근할 수 있도록 허용합니다.
 # .env 파일의 ALLOWED_ORIGINS에서 쉼표로 구분된 도메인 목록을 읽습니다.
 # 예: ALLOWED_ORIGINS=http://localhost:3000,http://localhost:19006,http://localhost:8081
-allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8081,http://localhost:8080,http://localhost:19000,http://localhost:19006").split(",")
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:8081,http://localhost:8082,http://localhost:8080,http://localhost:19000,http://localhost:19006").split(",")
 
 app.add_middleware(
     CORSMiddleware,
@@ -195,8 +195,16 @@ async def health(request: Request):
 # ============================================================
 # 라우터 등록
 # ============================================================
-from app.routers import ml
+from app.routers import ml, analysis, transactions
+
+# ML 예측 API (/ml/*)
 app.include_router(ml.router)
+
+# 소비 분석 API (/api/analysis/*)
+app.include_router(analysis.router)
+
+# 거래 내역 API (/api/transactions/*)
+app.include_router(transactions.router)
 
 # ============================================================
 # 시작 / 종료 이벤트

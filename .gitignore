@@ -39,4 +39,14 @@ yarn-error.*
 
 # generated native folders
 /ios
-/android
+/androidpostgres_data/
+
+__pycache__/
+*.pyc
+*.pyo
+*.DS_Store
+postgres_data/
+production_models/*.joblib
+production_models/*.json
+.vscode/
+.env
