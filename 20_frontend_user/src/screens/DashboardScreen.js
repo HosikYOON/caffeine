@@ -3,47 +3,34 @@ import { View, Text, ScrollView, StyleSheet, Dimensions, RefreshControl, Touchab
 import { LinearGradient } from 'expo-linear-gradient';
 import { LineChart } from 'react-native-chart-kit';
 import { useTheme } from '../contexts/ThemeContext';
+import { useTransactions } from '../contexts/TransactionContext';
 import CountUpNumber from '../components/CountUpNumber';
 import FadeInView from '../components/FadeInView';
 import AnimatedButton from '../components/AnimatedButton';
+import EmptyState from '../components/EmptyState';
 import { SkeletonStats, SkeletonChart } from '../components/SkeletonCard';
 import { formatCurrency } from '../utils/currency';
 import { CHART_COLORS, ANIMATION_DELAY } from '../constants';
 
 // ============================================================
-// TODO: 백엔드 연결 시 삭제 필요
+// 카테고리별 이모지 매핑
 // ============================================================
-const MOCK_DATA = {
-    summary: { total_spending: 1250000, total_transactions: 81, average_transaction: 15432, most_used_category: '쇼핑', monthly_trend: '증가', anomaly_count: 3 },
-    monthlyData: [
-        { month: '2024-06', total_amount: 577000 },
-        { month: '2024-07', total_amount: 638000 },
-        { month: '2024-08', total_amount: 705200 },
-        { month: '2024-09', total_amount: 633800 },
-        { month: '2024-10', total_amount: 761200 },
-        { month: '2024-11', total_amount: 185000 },
-    ],
-    categoryData: [
-        { category: '쇼핑', total_amount: 1140000, percentage: 37, emoji: '🛍️' },
-        { category: '식비', total_amount: 890000, percentage: 29, emoji: '🍔' },
-        { category: '공과금', total_amount: 590000, percentage: 19, emoji: '💡' },
-        { category: '여가', total_amount: 280000, percentage: 9, emoji: '🎮' },
-        { category: '교통', total_amount: 125000, percentage: 4, emoji: '🚗' },
-        { category: '기타', total_amount: 75000, percentage: 2, emoji: '📦' },
-    ],
-    predictedTransaction: {
-        category: '식비',
-        merchant: '이디야',
-        predictedAmount: 15000,
-        couponDiscount: 2000,
-        confidence: 85,
-        predictedDate: '내일 오전'
-    }
+const CATEGORY_EMOJI = {
+    '쇼핑': '🛍️',
+    '식비': '🍔',
+    '공과금': '💡',
+    '여가': '🎮',
+    '교통': '🚗',
+    '기타': '📦',
+    '카페': '☕',
+    '편의점': '🏪',
+    '마트': '🛒',
+    '의료': '🏥',
 };
 
 export default function DashboardScreen({ navigation }) {
     const { colors } = useTheme();
-    const [loading, setLoading] = useState(true);
+    const { transactions, loading: transactionLoading, refresh } = useTransactions();
     const [refreshing, setRefreshing] = useState(false);
     const [summary, setSummary] = useState(null);
     const [monthlyData, setMonthlyData] = useState([]);
@@ -54,23 +41,92 @@ export default function DashboardScreen({ navigation }) {
 
     const scrollViewRef = useRef(null);
 
-    const loadData = async () => {
-        try {
-            setSummary(MOCK_DATA.summary);
-            setMonthlyData(MOCK_DATA.monthlyData);
-            setCategoryData(MOCK_DATA.categoryData);
-            setPredictedTransaction(MOCK_DATA.predictedTransaction);
-        } finally {
-            setLoading(false);
-            setRefreshing(false);
-        }
+    // 거래 데이터로부터 대시보드 요약 계산
+    const calculateSummary = (txns) => {
+        if (!txns || txns.length === 0) return null;
+
+        const totalSpending = txns.reduce((sum, t) => sum + Math.abs(t.amount), 0);
+        const avgTransaction = totalSpending / txns.length;
+        
+        // 카테고리별 집계
+        const categoryMap = {};
+        txns.forEach(t => {
+            const cat = t.category || '기타';
+            if (!categoryMap[cat]) categoryMap[cat] = 0;
+            categoryMap[cat] += Math.abs(t.amount);
+        });
+
+        const sortedCategories = Object.entries(categoryMap)
+            .sort((a, b) => b[1] - a[1]);
+        const mostUsedCategory = sortedCategories[0]?.[0] || '기타';
+
+        return {
+            total_spending: totalSpending,
+            total_transactions: txns.length,
+            average_transaction: Math.round(avgTransaction),
+            most_used_category: mostUsedCategory,
+            monthly_trend: '증가',
+            anomaly_count: 0
+        };
     };
 
-    useEffect(() => { loadData(); }, []);
+    // 카테고리 데이터 계산
+    const calculateCategoryData = (txns) => {
+        if (!txns || txns.length === 0) return [];
 
-    const onRefresh = () => {
+        const categoryMap = {};
+        let total = 0;
+        
+        txns.forEach(t => {
+            const cat = t.category || '기타';
+            if (!categoryMap[cat]) categoryMap[cat] = 0;
+            categoryMap[cat] += Math.abs(t.amount);
+            total += Math.abs(t.amount);
+        });
+
+        return Object.entries(categoryMap)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 6)
+            .map(([category, amount]) => ({
+                category,
+                total_amount: amount,
+                percentage: Math.round((amount / total) * 100),
+                emoji: CATEGORY_EMOJI[category] || '📦'
+            }));
+    };
+
+    // 월별 데이터 계산
+    const calculateMonthlyData = (txns) => {
+        if (!txns || txns.length === 0) return [];
+
+        const monthlyMap = {};
+        txns.forEach(t => {
+            const date = t.date?.split(' ')[0] || t.date;
+            const month = date?.substring(0, 7); // YYYY-MM
+            if (month) {
+                if (!monthlyMap[month]) monthlyMap[month] = 0;
+                monthlyMap[month] += Math.abs(t.amount);
+            }
+        });
+
+        return Object.entries(monthlyMap)
+            .sort((a, b) => a[0].localeCompare(b[0]))
+            .slice(-6)
+            .map(([month, amount]) => ({ month, total_amount: amount }));
+    };
+
+    useEffect(() => {
+        if (transactions && transactions.length > 0) {
+            setSummary(calculateSummary(transactions));
+            setCategoryData(calculateCategoryData(transactions));
+            setMonthlyData(calculateMonthlyData(transactions));
+        }
+    }, [transactions]);
+
+    const onRefresh = async () => {
         setRefreshing(true);
-        loadData();
+        await refresh();
+        setRefreshing(false);
     };
 
     const handleGetCoupon = () => {
@@ -82,29 +138,46 @@ export default function DashboardScreen({ navigation }) {
         alert(`쿠폰 발급 완료!\n\n${predictedTransaction?.merchant}에서 사용 가능한\n${formatCurrency(predictedTransaction?.couponDiscount)} 할인 쿠폰이 발급되었습니다!`);
     };
 
-    if (loading) {
+    // 로딩 중
+    if (transactionLoading) {
         return (
-            <ScrollView style={styles.container}>
-                <View style={styles.summarySection}>
-                    <SkeletonStats />
-                    <SkeletonStats />
-                    <SkeletonStats />
-                </View>
-            </ScrollView>
+            <LinearGradient colors={['#DBEAFE', '#EFF6FF', '#F8FAFC']} style={styles.gradientContainer}>
+                <ScrollView style={styles.container}>
+                    <View style={styles.summarySection}>
+                        <SkeletonStats />
+                        <SkeletonStats />
+                        <SkeletonStats />
+                    </View>
+                </ScrollView>
+            </LinearGradient>
+        );
+    }
+
+    // 거래 데이터가 없을 때 Empty State
+    if (!transactions || transactions.length === 0) {
+        return (
+            <EmptyState
+                icon="📊"
+                title="연동된 거래내역이 없습니다"
+                description="프로필에서 데이터를 동기화하여\n소비 분석을 시작하세요"
+                actionText="동기화 하러 가기"
+                onAction={() => navigation?.navigate('프로필')}
+            />
         );
     }
 
     const screenWidth = Dimensions.get('window').width;
     const chartWidth = screenWidth - 48;
 
-    const lineChartData = {
+    // 월별 데이터가 있을 때만 차트 데이터 생성
+    const lineChartData = monthlyData.length > 0 ? {
         labels: monthlyData.map(item => item.month.split('-')[1] + '월'),
         datasets: [{
             data: monthlyData.map(item => item.total_amount / 10000),
             color: (opacity = 1) => `rgba(37, 99, 235, ${opacity})`,
             strokeWidth: 3
         }]
-    };
+    } : null;
 
     return (
         <LinearGradient
