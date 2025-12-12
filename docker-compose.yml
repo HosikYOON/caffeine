@@ -123,4 +123,6 @@ services:
     build: ./51_llm_analysis
     container_name: caf_llm_analysis
     ports:
-      - "9101:9101"
+      - "9102:9102"
+    environment:
+      GEMINI_API_KEY: AIzaSyDQ4GpW4Vs6eyYvqFi_GNevT5v9Bx50zhM
