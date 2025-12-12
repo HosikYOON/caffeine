@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const LOCAL_BASE_URL = "http://localhost:8001";  // 로컬 개발
-const PROD_BASE_URL = "http://alb-caffeine-1030868637.ap-northeast-2.elb.amazonaws.com";
+const PROD_BASE_URL = "https://d26uyg5darllja.cloudfront.net/api";
 
 // Expo는 process.env 지원 제한 → 런타임 판별 방식 사용
 const isLocal =
