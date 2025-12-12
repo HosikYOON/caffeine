@@ -1,20 +1,31 @@
 // API Client for Admin Dashboard
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081";
 
 interface FetchOptions extends RequestInit {
     timeout?: number;
 }
 
 async function fetchWithTimeout(url: string, options: FetchOptions = {}) {
-    const { timeout = 10000, ...fetchOptions } = options;
+    const { timeout = 10000, headers = {}, ...fetchOptions } = options;
 
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
 
+    // Auto-inject token
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    const authHeaders: Record<string, string> = {};
+    if (token) {
+        authHeaders['Authorization'] = `Bearer ${token}`;
+    }
+
     try {
         const response = await fetch(url, {
             ...fetchOptions,
+            headers: {
+                ...headers,
+                ...authHeaders,
+            },
             signal: controller.signal,
         });
         clearTimeout(id);
@@ -50,17 +61,29 @@ export const apiClient = {
 };
 
 // Analysis API
-export async function getFullAnalysis() {
-    return apiClient.get('/api/analysis/full');
+export async function getFullAnalysis(year?: number, month?: number) {
+    const params = new URLSearchParams();
+    if (year) params.append('year', year.toString());
+    if (month) params.append('month', month.toString());
+    const queryString = params.toString();
+    return apiClient.get(`/api/analysis/full${queryString ? '?' + queryString : ''}`);
 }
 
 export async function getDashboardStats() {
     return apiClient.get('/api/analysis/summary');
 }
 
-export async function getCategoryBreakdown(months = 1) {
-    return apiClient.get(`/api/analysis/categories?months=${months}`);
+
+export async function getCategoryBreakdown(userId?: number, months = 1, year?: number, month?: number) {
+    const params = new URLSearchParams();
+    if (userId) params.append('user_id', userId.toString());
+    params.append('months', months.toString());
+    if (year) params.append('year', year.toString());
+    if (month) params.append('month', month.toString());
+    const queryString = params.toString();
+    return apiClient.get(`/api/analysis/categories${queryString ? '?' + queryString : ''}`);
 }
+
 
 export async function getMonthlyTrend(months = 6) {
     return apiClient.get(`/api/analysis/monthly-trend?months=${months}`);

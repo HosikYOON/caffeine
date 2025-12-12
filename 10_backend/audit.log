@@ -784,3 +784,481 @@
 2025-12-10 18:25:14,916 - audit - INFO - Response: 200 | Duration: 0.036s
 2025-12-10 18:25:14,917 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
 2025-12-10 18:25:14,955 - audit - INFO - Response: 200 | Duration: 0.038s
+2025-12-11 18:55:57,028 - app.main - INFO - ============================================================
+2025-12-11 18:55:57,076 - app.main - INFO - 환경: development
+2025-12-11 18:55:57,077 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-11 18:56:00,706 - app.main - INFO - ============================================================
+2025-12-11 19:00:42,682 - audit - INFO - Request: POST /users/login | Client: 127.0.0.1
+2025-12-11 19:02:02,996 - app.main - INFO - ============================================================
+2025-12-11 19:02:03,001 - app.main - INFO - ============================================================
+2025-12-11 19:02:04,668 - app.main - INFO - ============================================================
+2025-12-11 19:02:04,681 - app.main - INFO - 환경: development
+2025-12-11 19:02:04,681 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-11 19:02:05,651 - app.main - INFO - ============================================================
+2025-12-11 19:02:33,205 - audit - INFO - Request: POST /users/login | Client: 127.0.0.1
+2025-12-11 19:03:12,325 - app.main - INFO - ============================================================
+2025-12-11 19:03:12,332 - app.main - INFO - ============================================================
+2025-12-11 19:03:26,670 - app.main - INFO - ============================================================
+2025-12-11 19:03:26,683 - app.main - INFO - 환경: development
+2025-12-11 19:03:26,683 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-11 19:03:27,569 - app.main - INFO - ============================================================
+2025-12-11 19:03:40,470 - audit - INFO - Request: POST /users/login | Client: 127.0.0.1
+2025-12-11 19:04:47,607 - app.main - INFO - ============================================================
+2025-12-11 19:04:47,612 - app.main - INFO - ============================================================
+2025-12-11 19:04:49,246 - app.main - INFO - ============================================================
+2025-12-11 19:04:49,257 - app.main - INFO - 환경: development
+2025-12-11 19:04:49,257 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-11 19:04:50,217 - app.main - INFO - ============================================================
+2025-12-11 19:04:50,218 - app.main - INFO - ============================================================
+2025-12-11 19:04:50,230 - app.main - INFO - ============================================================
+2025-12-11 19:05:32,291 - app.main - INFO - ============================================================
+2025-12-11 19:05:32,303 - app.main - INFO - 환경: development
+2025-12-11 19:05:32,303 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-11 19:05:33,206 - app.main - INFO - ============================================================
+2025-12-11 19:06:03,338 - audit - INFO - Request: POST /users/login | Client: 127.0.0.1
+2025-12-11 19:07:36,404 - app.main - INFO - ============================================================
+2025-12-11 19:07:36,411 - app.main - INFO - ============================================================
+2025-12-11 19:08:19,182 - app.main - INFO - ============================================================
+2025-12-11 19:08:19,195 - app.main - INFO - 환경: development
+2025-12-11 19:08:19,195 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-11 19:08:20,152 - app.main - INFO - ============================================================
+2025-12-11 19:08:21,342 - app.main - INFO - ============================================================
+2025-12-11 19:08:21,348 - app.main - INFO - ============================================================
+2025-12-11 19:08:32,044 - app.main - INFO - ============================================================
+2025-12-11 19:08:32,057 - app.main - INFO - 환경: development
+2025-12-11 19:08:32,058 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-11 19:08:32,952 - app.main - INFO - ============================================================
+2025-12-12 09:29:28,216 - app.main - INFO - ============================================================
+2025-12-12 09:29:28,229 - app.main - INFO - 환경: development
+2025-12-12 09:29:28,229 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 09:29:29,202 - app.main - INFO - ============================================================
+2025-12-12 09:29:54,200 - audit - INFO - Request: POST /users/login | Client: 127.0.0.1
+2025-12-12 09:31:00,942 - app.main - INFO - ============================================================
+2025-12-12 09:31:00,947 - app.main - INFO - ============================================================
+2025-12-12 09:31:08,615 - app.main - INFO - ============================================================
+2025-12-12 09:31:08,690 - app.main - INFO - 환경: development
+2025-12-12 09:31:08,690 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 09:31:12,834 - app.main - INFO - ============================================================
+2025-12-12 09:31:21,667 - app.main - INFO - ============================================================
+2025-12-12 09:31:21,679 - app.main - INFO - 환경: development
+2025-12-12 09:31:21,679 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 09:31:22,600 - app.main - INFO - ============================================================
+2025-12-12 09:31:36,998 - audit - INFO - Request: POST /users/login | Client: 127.0.0.1
+2025-12-12 09:32:12,579 - app.main - INFO - ============================================================
+2025-12-12 09:32:12,579 - app.main - INFO - ============================================================
+2025-12-12 09:32:12,590 - app.main - INFO - ============================================================
+2025-12-12 09:32:12,590 - app.main - INFO - ============================================================
+2025-12-12 09:32:14,393 - app.main - INFO - ============================================================
+2025-12-12 09:32:14,406 - app.main - INFO - 환경: development
+2025-12-12 09:32:14,406 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 09:32:15,337 - app.main - INFO - ============================================================
+2025-12-12 09:32:24,099 - app.main - INFO - ============================================================
+2025-12-12 09:32:24,115 - app.main - INFO - 환경: development
+2025-12-12 09:32:24,115 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 09:32:25,075 - app.main - INFO - ============================================================
+2025-12-12 09:32:38,646 - audit - INFO - Request: POST /users/login | Client: 127.0.0.1
+2025-12-12 09:32:39,174 - audit - INFO - Response: 200 | Duration: 0.528s
+2025-12-12 09:44:26,910 - app.main - INFO - ============================================================
+2025-12-12 09:44:26,913 - app.main - INFO - ============================================================
+2025-12-12 09:44:26,923 - app.main - INFO - ============================================================
+2025-12-12 09:44:26,926 - app.main - INFO - ============================================================
+2025-12-12 09:44:28,610 - app.main - INFO - ============================================================
+2025-12-12 09:44:28,622 - app.main - INFO - 환경: development
+2025-12-12 09:44:28,622 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 09:44:29,577 - app.main - INFO - ============================================================
+2025-12-12 09:44:57,875 - app.main - INFO - ============================================================
+2025-12-12 09:44:57,889 - app.main - INFO - ============================================================
+2025-12-12 09:46:03,658 - app.main - INFO - ============================================================
+2025-12-12 09:46:03,671 - app.main - INFO - 환경: development
+2025-12-12 09:46:03,671 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 09:46:03,679 - app.main - INFO - ============================================================
+2025-12-12 09:46:03,690 - app.main - INFO - 환경: development
+2025-12-12 09:46:03,691 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 09:46:04,807 - app.main - INFO - ============================================================
+2025-12-12 09:46:04,810 - app.main - INFO - ============================================================
+2025-12-12 09:46:05,842 - app.main - INFO - ============================================================
+2025-12-12 09:46:05,857 - app.main - INFO - 환경: development
+2025-12-12 09:46:05,857 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 09:46:06,776 - app.main - INFO - ============================================================
+2025-12-12 09:46:20,757 - audit - INFO - Request: POST /users/login | Client: 127.0.0.1
+2025-12-12 09:47:14,846 - app.main - INFO - ============================================================
+2025-12-12 09:47:14,853 - app.main - INFO - ============================================================
+2025-12-12 09:47:14,862 - app.main - INFO - ============================================================
+2025-12-12 09:47:14,867 - app.main - INFO - ============================================================
+2025-12-12 09:47:15,012 - app.main - INFO - ============================================================
+2025-12-12 09:47:15,017 - app.main - INFO - ============================================================
+2025-12-12 09:47:16,752 - app.main - INFO - ============================================================
+2025-12-12 09:47:16,766 - app.main - INFO - 환경: development
+2025-12-12 09:47:16,766 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 09:47:16,792 - app.main - INFO - ============================================================
+2025-12-12 09:47:16,805 - app.main - INFO - 환경: development
+2025-12-12 09:47:16,805 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 09:47:16,864 - app.main - INFO - ============================================================
+2025-12-12 09:47:16,876 - app.main - INFO - 환경: development
+2025-12-12 09:47:16,876 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 09:47:17,885 - app.main - INFO - ============================================================
+2025-12-12 09:47:17,911 - app.main - INFO - ============================================================
+2025-12-12 09:47:18,025 - app.main - INFO - ============================================================
+2025-12-12 09:47:19,360 - app.main - INFO - ============================================================
+2025-12-12 09:47:19,371 - app.main - INFO - 환경: development
+2025-12-12 09:47:19,371 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 09:47:20,297 - app.main - INFO - ============================================================
+2025-12-12 09:47:51,103 - audit - INFO - Request: POST /users/login | Client: 127.0.0.1
+2025-12-12 09:47:51,636 - audit - INFO - Response: 200 | Duration: 0.533s
+2025-12-12 10:11:37,350 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:11:37,423 - audit - INFO - Response: 200 | Duration: 0.072s
+2025-12-12 10:12:14,626 - audit - INFO - Request: POST /users/login | Client: 127.0.0.1
+2025-12-12 10:12:14,892 - audit - INFO - Response: 200 | Duration: 0.265s
+2025-12-12 10:12:14,908 - audit - INFO - Request: OPTIONS /users/me | Client: 127.0.0.1
+2025-12-12 10:12:14,909 - audit - INFO - Response: 200 | Duration: 0.001s
+2025-12-12 10:12:14,911 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-12 10:12:15,009 - audit - INFO - Response: 200 | Duration: 0.098s
+2025-12-12 10:12:15,080 - audit - INFO - Request: OPTIONS /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:12:15,081 - audit - INFO - Response: 200 | Duration: 0.001s
+2025-12-12 10:12:15,083 - audit - INFO - Request: OPTIONS /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:12:15,083 - audit - INFO - Response: 200 | Duration: 0.001s
+2025-12-12 10:12:15,087 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:12:15,123 - audit - INFO - Response: 200 | Duration: 0.036s
+2025-12-12 10:12:15,125 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:12:15,167 - audit - INFO - Response: 200 | Duration: 0.041s
+2025-12-12 10:12:32,846 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:12:32,882 - audit - INFO - Response: 200 | Duration: 0.035s
+2025-12-12 10:12:32,882 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:12:32,915 - audit - INFO - Response: 200 | Duration: 0.033s
+2025-12-12 10:15:52,959 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:15:52,992 - audit - INFO - Response: 200 | Duration: 0.033s
+2025-12-12 10:16:09,988 - audit - INFO - Request: POST /users/login | Client: 127.0.0.1
+2025-12-12 10:16:10,006 - audit - INFO - Response: 401 | Duration: 0.018s
+2025-12-12 10:16:31,268 - audit - INFO - Request: POST /users/login | Client: 127.0.0.1
+2025-12-12 10:16:31,521 - audit - INFO - Response: 200 | Duration: 0.254s
+2025-12-12 10:16:31,524 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-12 10:16:31,552 - audit - INFO - Response: 200 | Duration: 0.028s
+2025-12-12 10:16:31,591 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:16:31,631 - audit - INFO - Response: 200 | Duration: 0.041s
+2025-12-12 10:16:31,633 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:16:31,675 - audit - INFO - Response: 200 | Duration: 0.042s
+2025-12-12 10:16:46,276 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:16:46,307 - audit - INFO - Response: 200 | Duration: 0.032s
+2025-12-12 10:16:46,427 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:16:46,459 - audit - INFO - Response: 200 | Duration: 0.032s
+2025-12-12 10:17:02,209 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:17:02,242 - audit - INFO - Response: 200 | Duration: 0.033s
+2025-12-12 10:17:02,243 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:17:02,276 - audit - INFO - Response: 200 | Duration: 0.033s
+2025-12-12 10:17:40,014 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:17:40,050 - audit - INFO - Response: 200 | Duration: 0.036s
+2025-12-12 10:17:40,051 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:17:40,083 - audit - INFO - Response: 200 | Duration: 0.032s
+2025-12-12 10:17:41,137 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:17:41,172 - audit - INFO - Response: 200 | Duration: 0.035s
+2025-12-12 10:17:41,174 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:17:41,209 - audit - INFO - Response: 200 | Duration: 0.035s
+2025-12-12 10:18:54,472 - app.main - INFO - ============================================================
+2025-12-12 10:18:54,477 - app.main - INFO - ============================================================
+2025-12-12 10:18:54,531 - app.main - INFO - ============================================================
+2025-12-12 10:18:54,537 - app.main - INFO - ============================================================
+2025-12-12 10:18:54,547 - app.main - INFO - ============================================================
+2025-12-12 10:18:54,554 - app.main - INFO - ============================================================
+2025-12-12 10:18:54,554 - app.main - INFO - ============================================================
+2025-12-12 10:18:56,606 - app.main - INFO - ============================================================
+2025-12-12 10:18:56,608 - app.main - INFO - ============================================================
+2025-12-12 10:18:56,610 - app.main - INFO - ============================================================
+2025-12-12 10:18:56,610 - app.main - INFO - ============================================================
+2025-12-12 10:18:56,620 - app.main - INFO - 환경: development
+2025-12-12 10:18:56,620 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:18:56,621 - app.main - INFO - 환경: development
+2025-12-12 10:18:56,621 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:18:56,623 - app.main - INFO - 환경: development
+2025-12-12 10:18:56,623 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:18:56,623 - app.main - INFO - 환경: development
+2025-12-12 10:18:56,623 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:18:57,939 - app.main - INFO - ============================================================
+2025-12-12 10:18:57,945 - app.main - INFO - ============================================================
+2025-12-12 10:18:57,945 - app.main - INFO - ============================================================
+2025-12-12 10:18:57,950 - app.main - INFO - ============================================================
+2025-12-12 10:19:07,977 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:19:07,977 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-12 10:19:08,351 - audit - INFO - Response: 200 | Duration: 0.374s
+2025-12-12 10:19:08,376 - audit - INFO - Response: 200 | Duration: 0.400s
+2025-12-12 10:19:09,774 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:19:09,780 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-12 10:19:09,866 - audit - INFO - Response: 200 | Duration: 0.092s
+2025-12-12 10:19:09,885 - audit - INFO - Response: 200 | Duration: 0.105s
+2025-12-12 10:19:22,384 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:19:22,422 - audit - INFO - Response: 200 | Duration: 0.039s
+2025-12-12 10:19:22,424 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:19:22,493 - audit - INFO - Response: 200 | Duration: 0.069s
+2025-12-12 10:21:49,981 - app.main - INFO - ============================================================
+2025-12-12 10:21:49,987 - app.main - INFO - ============================================================
+2025-12-12 10:21:50,057 - app.main - INFO - ============================================================
+2025-12-12 10:21:50,064 - app.main - INFO - ============================================================
+2025-12-12 10:21:50,133 - app.main - INFO - ============================================================
+2025-12-12 10:21:50,133 - app.main - INFO - ============================================================
+2025-12-12 10:21:50,140 - app.main - INFO - ============================================================
+2025-12-12 10:21:50,140 - app.main - INFO - ============================================================
+2025-12-12 10:21:52,038 - app.main - INFO - ============================================================
+2025-12-12 10:21:52,051 - app.main - INFO - 환경: development
+2025-12-12 10:21:52,051 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:21:52,112 - app.main - INFO - ============================================================
+2025-12-12 10:21:52,124 - app.main - INFO - 환경: development
+2025-12-12 10:21:52,124 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:21:52,128 - app.main - INFO - ============================================================
+2025-12-12 10:21:52,139 - app.main - INFO - 환경: development
+2025-12-12 10:21:52,139 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:21:52,152 - app.main - INFO - ============================================================
+2025-12-12 10:21:52,165 - app.main - INFO - 환경: development
+2025-12-12 10:21:52,165 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:21:53,197 - app.main - INFO - ============================================================
+2025-12-12 10:21:53,410 - app.main - INFO - ============================================================
+2025-12-12 10:21:53,447 - app.main - INFO - ============================================================
+2025-12-12 10:21:53,458 - app.main - INFO - ============================================================
+2025-12-12 10:21:56,180 - app.main - INFO - ============================================================
+2025-12-12 10:21:56,186 - app.main - INFO - ============================================================
+2025-12-12 10:21:56,317 - app.main - INFO - ============================================================
+2025-12-12 10:21:56,324 - app.main - INFO - ============================================================
+2025-12-12 10:21:56,333 - app.main - INFO - ============================================================
+2025-12-12 10:21:56,340 - app.main - INFO - ============================================================
+2025-12-12 10:21:56,394 - app.main - INFO - ============================================================
+2025-12-12 10:21:56,401 - app.main - INFO - ============================================================
+2025-12-12 10:21:58,262 - app.main - INFO - ============================================================
+2025-12-12 10:21:58,274 - app.main - INFO - 환경: development
+2025-12-12 10:21:58,275 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:21:58,450 - app.main - INFO - ============================================================
+2025-12-12 10:21:58,461 - app.main - INFO - 환경: development
+2025-12-12 10:21:58,461 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:21:58,463 - app.main - INFO - ============================================================
+2025-12-12 10:21:58,476 - app.main - INFO - 환경: development
+2025-12-12 10:21:58,476 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:21:58,541 - app.main - INFO - ============================================================
+2025-12-12 10:21:58,553 - app.main - INFO - 환경: development
+2025-12-12 10:21:58,553 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:21:59,345 - app.main - INFO - ============================================================
+2025-12-12 10:21:59,629 - app.main - INFO - ============================================================
+2025-12-12 10:21:59,650 - app.main - INFO - ============================================================
+2025-12-12 10:21:59,716 - app.main - INFO - ============================================================
+2025-12-12 10:22:00,905 - app.main - INFO - ============================================================
+2025-12-12 10:22:00,910 - app.main - INFO - ============================================================
+2025-12-12 10:22:00,935 - app.main - INFO - ============================================================
+2025-12-12 10:22:00,940 - app.main - INFO - ============================================================
+2025-12-12 10:22:00,951 - app.main - INFO - ============================================================
+2025-12-12 10:22:00,958 - app.main - INFO - ============================================================
+2025-12-12 10:22:00,995 - app.main - INFO - ============================================================
+2025-12-12 10:22:01,002 - app.main - INFO - ============================================================
+2025-12-12 10:22:02,997 - app.main - INFO - ============================================================
+2025-12-12 10:22:03,012 - app.main - INFO - 환경: development
+2025-12-12 10:22:03,012 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:22:03,036 - app.main - INFO - ============================================================
+2025-12-12 10:22:03,050 - app.main - INFO - ============================================================
+2025-12-12 10:22:03,051 - app.main - INFO - 환경: development
+2025-12-12 10:22:03,051 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:22:03,064 - app.main - INFO - 환경: development
+2025-12-12 10:22:03,064 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:22:03,096 - app.main - INFO - ============================================================
+2025-12-12 10:22:03,108 - app.main - INFO - 환경: development
+2025-12-12 10:22:03,108 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:22:04,298 - app.main - INFO - ============================================================
+2025-12-12 10:22:04,305 - app.main - INFO - ============================================================
+2025-12-12 10:22:04,337 - app.main - INFO - ============================================================
+2025-12-12 10:22:04,343 - app.main - INFO - ============================================================
+2025-12-12 10:22:04,344 - app.main - INFO - ============================================================
+2025-12-12 10:22:04,344 - app.main - INFO - ============================================================
+2025-12-12 10:22:04,346 - app.main - INFO - ============================================================
+2025-12-12 10:22:04,360 - app.main - INFO - ============================================================
+2025-12-12 10:22:04,362 - app.main - INFO - ============================================================
+2025-12-12 10:22:04,383 - app.main - INFO - ============================================================
+2025-12-12 10:22:04,385 - app.main - INFO - ============================================================
+2025-12-12 10:22:04,396 - app.main - INFO - ============================================================
+2025-12-12 10:22:06,422 - app.main - INFO - ============================================================
+2025-12-12 10:22:06,435 - app.main - INFO - 환경: development
+2025-12-12 10:22:06,436 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:22:06,471 - app.main - INFO - ============================================================
+2025-12-12 10:22:06,481 - app.main - INFO - ============================================================
+2025-12-12 10:22:06,484 - app.main - INFO - 환경: development
+2025-12-12 10:22:06,484 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:22:06,492 - app.main - INFO - 환경: development
+2025-12-12 10:22:06,492 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:22:06,497 - app.main - INFO - ============================================================
+2025-12-12 10:22:06,508 - app.main - INFO - 환경: development
+2025-12-12 10:22:06,508 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:22:07,574 - app.main - INFO - ============================================================
+2025-12-12 10:22:07,731 - app.main - INFO - ============================================================
+2025-12-12 10:22:07,735 - app.main - INFO - ============================================================
+2025-12-12 10:22:07,737 - app.main - INFO - ============================================================
+2025-12-12 10:22:22,694 - audit - INFO - Request: OPTIONS /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:22:22,695 - audit - INFO - Response: 200 | Duration: 0.001s
+2025-12-12 10:22:22,697 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:22:22,993 - audit - INFO - Response: 200 | Duration: 0.295s
+2025-12-12 10:22:37,845 - audit - INFO - Request: OPTIONS /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:22:37,846 - audit - INFO - Response: 200 | Duration: 0.001s
+2025-12-12 10:22:37,847 - audit - INFO - Request: OPTIONS /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:22:37,848 - audit - INFO - Response: 200 | Duration: 0.001s
+2025-12-12 10:22:37,849 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:22:37,887 - audit - INFO - Response: 200 | Duration: 0.038s
+2025-12-12 10:22:37,889 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:22:37,926 - audit - INFO - Response: 200 | Duration: 0.037s
+2025-12-12 10:23:12,333 - audit - INFO - Request: OPTIONS /users/me | Client: 127.0.0.1
+2025-12-12 10:23:12,334 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:23:12,337 - audit - INFO - Response: 200 | Duration: 0.004s
+2025-12-12 10:23:12,339 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-12 10:23:12,382 - audit - INFO - Response: 200 | Duration: 0.048s
+2025-12-12 10:23:12,527 - audit - INFO - Response: 200 | Duration: 0.188s
+2025-12-12 10:23:16,819 - audit - INFO - Request: OPTIONS /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:23:16,820 - audit - INFO - Response: 200 | Duration: 0.001s
+2025-12-12 10:23:16,822 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:23:16,866 - audit - INFO - Response: 200 | Duration: 0.044s
+2025-12-12 10:23:20,698 - audit - INFO - Request: OPTIONS /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:23:20,698 - audit - INFO - Response: 200 | Duration: 0.001s
+2025-12-12 10:23:20,701 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:23:20,773 - audit - INFO - Response: 200 | Duration: 0.072s
+2025-12-12 10:23:25,482 - audit - INFO - Request: OPTIONS /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:23:25,482 - audit - INFO - Response: 200 | Duration: 0.000s
+2025-12-12 10:23:25,496 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:23:25,534 - audit - INFO - Response: 200 | Duration: 0.039s
+2025-12-12 10:23:27,738 - audit - INFO - Request: OPTIONS /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:23:27,738 - audit - INFO - Response: 200 | Duration: 0.000s
+2025-12-12 10:23:27,741 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:23:27,784 - audit - INFO - Response: 200 | Duration: 0.044s
+2025-12-12 10:23:29,305 - audit - INFO - Request: OPTIONS /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:23:29,306 - audit - INFO - Response: 200 | Duration: 0.001s
+2025-12-12 10:23:29,308 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:23:29,350 - audit - INFO - Response: 200 | Duration: 0.042s
+2025-12-12 10:23:31,409 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:23:31,451 - audit - INFO - Response: 200 | Duration: 0.042s
+2025-12-12 10:24:24,108 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:24:24,144 - audit - INFO - Response: 200 | Duration: 0.036s
+2025-12-12 10:24:24,147 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:24:24,186 - audit - INFO - Response: 200 | Duration: 0.039s
+2025-12-12 10:24:25,670 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:24:25,711 - audit - INFO - Response: 200 | Duration: 0.040s
+2025-12-12 10:24:26,619 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:24:26,657 - audit - INFO - Response: 200 | Duration: 0.038s
+2025-12-12 10:27:24,565 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:27:24,566 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-12 10:27:24,596 - audit - INFO - Response: 200 | Duration: 0.030s
+2025-12-12 10:27:24,606 - audit - INFO - Response: 200 | Duration: 0.041s
+2025-12-12 10:28:51,612 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:28:51,612 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-12 10:28:51,646 - audit - INFO - Response: 200 | Duration: 0.034s
+2025-12-12 10:28:51,654 - audit - INFO - Response: 200 | Duration: 0.042s
+2025-12-12 10:28:52,349 - audit - INFO - Request: OPTIONS /api/analysis/categories | Client: 127.0.0.1
+2025-12-12 10:28:52,351 - audit - INFO - Request: OPTIONS /api/analysis/categories | Client: 127.0.0.1
+2025-12-12 10:28:52,352 - audit - INFO - Response: 200 | Duration: 0.003s
+2025-12-12 10:28:52,355 - audit - INFO - Response: 200 | Duration: 0.004s
+2025-12-12 10:28:52,359 - audit - INFO - Request: GET /api/analysis/categories | Client: 127.0.0.1
+2025-12-12 10:28:52,379 - audit - INFO - Response: 200 | Duration: 0.021s
+2025-12-12 10:28:52,384 - audit - INFO - Request: GET /api/analysis/categories | Client: 127.0.0.1
+2025-12-12 10:28:52,406 - audit - INFO - Response: 200 | Duration: 0.022s
+2025-12-12 10:28:59,023 - audit - INFO - Request: GET /api/analysis/categories | Client: 127.0.0.1
+2025-12-12 10:28:59,038 - audit - INFO - Response: 200 | Duration: 0.015s
+2025-12-12 10:28:59,040 - audit - INFO - Request: GET /api/analysis/categories | Client: 127.0.0.1
+2025-12-12 10:28:59,058 - audit - INFO - Response: 200 | Duration: 0.017s
+2025-12-12 10:28:59,624 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:28:59,662 - audit - INFO - Response: 200 | Duration: 0.038s
+2025-12-12 10:28:59,663 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:28:59,701 - audit - INFO - Response: 200 | Duration: 0.038s
+2025-12-12 10:29:03,327 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:29:03,369 - audit - INFO - Response: 200 | Duration: 0.042s
+2025-12-12 10:29:03,371 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:29:03,417 - audit - INFO - Response: 200 | Duration: 0.047s
+2025-12-12 10:29:19,460 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:29:19,496 - audit - INFO - Response: 200 | Duration: 0.036s
+2025-12-12 10:29:20,555 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:29:20,595 - audit - INFO - Response: 200 | Duration: 0.040s
+2025-12-12 10:29:21,818 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:29:21,853 - audit - INFO - Response: 200 | Duration: 0.035s
+2025-12-12 10:29:23,082 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:29:23,125 - audit - INFO - Response: 200 | Duration: 0.044s
+2025-12-12 10:29:24,268 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:29:24,317 - audit - INFO - Response: 200 | Duration: 0.049s
+2025-12-12 10:29:25,922 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:29:25,960 - audit - INFO - Response: 200 | Duration: 0.038s
+2025-12-12 10:29:28,114 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:29:28,152 - audit - INFO - Response: 200 | Duration: 0.038s
+2025-12-12 10:29:35,346 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:29:35,385 - audit - INFO - Response: 200 | Duration: 0.039s
+2025-12-12 10:29:36,562 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:29:36,599 - audit - INFO - Response: 200 | Duration: 0.037s
+2025-12-12 10:29:37,235 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:29:37,279 - audit - INFO - Response: 200 | Duration: 0.044s
+2025-12-12 10:29:39,273 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:29:39,309 - audit - INFO - Response: 200 | Duration: 0.036s
+2025-12-12 10:29:40,034 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:29:40,076 - audit - INFO - Response: 200 | Duration: 0.042s
+2025-12-12 10:30:03,288 - audit - INFO - Request: GET /api/analysis/categories | Client: 127.0.0.1
+2025-12-12 10:30:03,353 - audit - INFO - Response: 200 | Duration: 0.065s
+2025-12-12 10:30:03,355 - audit - INFO - Request: GET /api/analysis/categories | Client: 127.0.0.1
+2025-12-12 10:30:03,404 - audit - INFO - Response: 200 | Duration: 0.049s
+2025-12-12 10:30:09,850 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:30:09,886 - audit - INFO - Response: 200 | Duration: 0.036s
+2025-12-12 10:30:09,888 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:30:09,927 - audit - INFO - Response: 200 | Duration: 0.040s
+2025-12-12 10:30:33,267 - audit - INFO - Request: GET /api/analysis/categories | Client: 127.0.0.1
+2025-12-12 10:30:33,281 - audit - INFO - Response: 200 | Duration: 0.014s
+2025-12-12 10:30:33,284 - audit - INFO - Request: GET /api/analysis/categories | Client: 127.0.0.1
+2025-12-12 10:30:33,301 - audit - INFO - Response: 200 | Duration: 0.017s
+2025-12-12 10:30:36,552 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:30:36,591 - audit - INFO - Response: 200 | Duration: 0.039s
+2025-12-12 10:30:36,593 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:30:36,633 - audit - INFO - Response: 200 | Duration: 0.041s
+2025-12-12 10:30:47,596 - audit - INFO - Request: GET /api/analysis/categories | Client: 127.0.0.1
+2025-12-12 10:30:47,611 - audit - INFO - Response: 200 | Duration: 0.016s
+2025-12-12 10:30:47,613 - audit - INFO - Request: GET /api/analysis/categories | Client: 127.0.0.1
+2025-12-12 10:30:47,629 - audit - INFO - Response: 200 | Duration: 0.017s
+2025-12-12 10:30:52,799 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:30:52,835 - audit - INFO - Response: 200 | Duration: 0.036s
+2025-12-12 10:30:52,838 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:30:52,877 - audit - INFO - Response: 200 | Duration: 0.039s
+2025-12-12 10:31:01,378 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-12 10:31:01,417 - audit - INFO - Response: 200 | Duration: 0.039s
+2025-12-12 10:32:15,389 - app.main - INFO - ============================================================
+2025-12-12 10:32:15,395 - app.main - INFO - ============================================================
+2025-12-12 10:32:15,404 - app.main - INFO - ============================================================
+2025-12-12 10:32:15,409 - app.main - INFO - ============================================================
+2025-12-12 10:32:15,410 - app.main - INFO - ============================================================
+2025-12-12 10:32:15,420 - app.main - INFO - ============================================================
+2025-12-12 10:32:15,427 - app.main - INFO - ============================================================
+2025-12-12 10:32:17,591 - app.main - INFO - ============================================================
+2025-12-12 10:32:17,593 - app.main - INFO - ============================================================
+2025-12-12 10:32:17,594 - app.main - INFO - ============================================================
+2025-12-12 10:32:17,596 - app.main - INFO - ============================================================
+2025-12-12 10:32:17,604 - app.main - INFO - 환경: development
+2025-12-12 10:32:17,604 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:32:17,605 - app.main - INFO - 환경: development
+2025-12-12 10:32:17,605 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:32:17,607 - app.main - INFO - 환경: development
+2025-12-12 10:32:17,607 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:32:17,609 - app.main - INFO - 환경: development
+2025-12-12 10:32:17,609 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:32:19,026 - app.main - INFO - ============================================================
+2025-12-12 10:32:19,029 - app.main - INFO - ============================================================
+2025-12-12 10:32:19,036 - app.main - INFO - ============================================================
+2025-12-12 10:32:19,037 - app.main - INFO - ============================================================
+2025-12-12 10:32:19,665 - app.main - INFO - ============================================================
+2025-12-12 10:32:19,671 - app.main - INFO - ============================================================
+2025-12-12 10:32:19,671 - app.main - INFO - ============================================================
+2025-12-12 10:32:19,679 - app.main - INFO - ============================================================
+2025-12-12 10:32:19,686 - app.main - INFO - ============================================================
+2025-12-12 10:32:21,850 - app.main - INFO - ============================================================
+2025-12-12 10:32:21,852 - app.main - INFO - ============================================================
+2025-12-12 10:32:21,855 - app.main - INFO - ============================================================
+2025-12-12 10:32:21,858 - app.main - INFO - ============================================================
+2025-12-12 10:32:21,862 - app.main - INFO - 환경: development
+2025-12-12 10:32:21,862 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:32:21,864 - app.main - INFO - 환경: development
+2025-12-12 10:32:21,864 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:32:21,868 - app.main - INFO - 환경: development
+2025-12-12 10:32:21,869 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:32:21,870 - app.main - INFO - 환경: development
+2025-12-12 10:32:21,871 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-12 10:32:23,191 - app.main - INFO - ============================================================
+2025-12-12 10:32:23,192 - app.main - INFO - ============================================================
+2025-12-12 10:32:23,194 - app.main - INFO - ============================================================
+2025-12-12 10:32:23,230 - app.main - INFO - ============================================================
+2025-12-12 10:32:28,088 - app.main - INFO - ============================================================
+2025-12-12 10:32:28,092 - app.main - INFO - ============================================================
+2025-12-12 10:32:28,193 - app.main - INFO - ============================================================
+2025-12-12 10:32:28,199 - app.main - INFO - ============================================================
+2025-12-12 10:32:28,208 - app.main - INFO - ============================================================
+2025-12-12 10:32:28,214 - app.main - INFO - ============================================================
+2025-12-12 10:32:28,238 - app.main - INFO - ============================================================
+2025-12-12 10:32:28,245 - app.main - INFO - ============================================================

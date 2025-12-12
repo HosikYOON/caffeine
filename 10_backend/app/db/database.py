@@ -35,7 +35,7 @@ async def create_engine_with_fallback():
     rds_engine = create_async_engine(
         settings.database_url, 
         echo=False,
-        pool_pre_ping=True,
+        pool_pre_ping=False,
         connect_args={"timeout": 5}
     )
     
@@ -52,7 +52,7 @@ async def create_engine_with_fallback():
     local_engine = create_async_engine(
         settings.local_database_url,
         echo=False,
-        pool_pre_ping=True,
+        pool_pre_ping=False,
         connect_args={"timeout": 5}
     )
     
@@ -96,7 +96,7 @@ async def get_db():
         await init_db()
     
     async_session = sessionmaker(
-        autocommit=False, autoflush=False, bind=_async_engine, class_=AsyncSession
+        autocommit=False, autoflush=False, bind=_async_engine, class_=AsyncSession, expire_on_commit=False
     )
     async with async_session() as session:
         try:
