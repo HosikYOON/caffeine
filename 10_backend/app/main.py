@@ -92,15 +92,7 @@ LOCAL_ORIGINS = [
     "http://localhost:19006"
 ]
 
-# 환경 변수 + CloudFront + 로컬 모두 합침
-allowed_origins = os.getenv("ALLOWED_ORIGINS", "").split(",")
-
-# 빈 문자열이면 로컬 기본값 사용
-allowed_origins = [o for o in allowed_origins if o] or LOCAL_ORIGINS
-
-# CloudFront 도메인을 강제로 추가
-if CLOUDFRONT_URL not in allowed_origins:
-    allowed_origins.append(CLOUDFRONT_URL)
+allowed_origins = LOCAL_ORIGINS + [CLOUDFRONT_URL]
 
 app.add_middleware(
     CORSMiddleware,
