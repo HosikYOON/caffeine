@@ -1,0 +1,53 @@
+Fraud model recap (for Notion/presentation)
+===========================================
+
+1) Problem & data
+- Source: IBM Credit Card Transactions 2010-2020, ~24M rows. Raw fraud rate ~0.12%.
+- Work modes: (a) Filtered set (recent 10y, MCC→6 cats, loyal customers ≥10 tx/mo), (b) Raw distribution for final eval.
+- Split: Time-based. Train ≤ 2018-04-02, Test 2018-04-03~2020-02-28.
+
+2) Leakage fix (critical)
+- Before: Concatenate all data, then compute rolling/velocity features → future info leaked into train ⇒ F1 ~0.99 (invalid).
+- Now: Time-split first, then compute rolling/velocity features separately per split (and per user). No future info in train.
+
+3) Feature set (expanded)
+- Amount: raw, log, bins.
+- Time: hour, dayofweek, dayofmonth, weekend, night, business_hour, lunch.
+- User profile: mean/std/tx_count, category ratios.
+- Velocity/recency: time diff mean/std (5,10), amount mean/std/z-score (5,10), category/zip change rate (10), is_new_zip, zip frequency.
+
+4) Imbalance handling tried
+- Class_weight + scale_pos_weight, SMOTE on train only, train-time balancing (1:1) vs test on real distribution, threshold tuning on PR curve.
+- Balanced 50:50 scores kept for reference only (not comparable to production).
+
+5) Best current model (real distribution test, fraud 0.12%)
+- Model: LightGBM `lgbm_tuned_leaves127_lr005_1.2M_final`.
+- Test size: 97,968 rows, fraud positives: 121.
+- Threshold scan (examples):
+  * thr 0.03 → F1 0.675, Precision 0.709, Recall 0.645, Acc 0.9992 (chosen).
+  * thr 0.02 → F1 0.669, P 0.661, R 0.678.
+  * thr 0.04 → F1 0.661, P 0.718, R 0.612.
+- Note: Balanced-test F1>0.9 runs are excluded from reporting (too easy distribution).
+
+6) What to present as “best”
+- Use the real-distribution result above (thr=0.03) as the headline KPI.
+- Mention that balanced-set scores are intentionally hidden on the dashboard.
+
+7) Files & reproducibility
+- Code: src/train.py (features, data loading, split, training).
+- Dashboard: streamlit_app.py (tabs + PR curve tab).
+- Metrics log: models/metrics.json (includes PR curve for best run).
+- Best model: models/best_model.joblib (copy: models/best_real_lgbm.joblib).
+- Data path expected: archive/credit_card_transactions-ibm_v2.csv (or ../archive/...).
+
+8) Visuals to include (simple to drop into Notion)
+- Key metric banner: “F1=0.675 (thr=0.03), P=0.709, R=0.645, Acc=0.9992 — Test: real distribution, 0.12% fraud”.
+- PR curve (Precision/Recall vs threshold). Mark point at thr=0.03.
+- Process swimlane: Raw data → Time split → Per-split feature calc → Train (imbalance handling) → Threshold tuning → Test (real ratio).
+- Bar chips: Imbalance methods tried (SMOTE, class_weight/spw, 1:1 train) vs outcome (kept/hidden).
+- Table: Threshold scan (0.01, 0.02, 0.03, 0.04, 0.05 with F1/P/R).
+
+9) Speaking notes (short)
+- “We fixed leakage first; scores above 0.9 on balanced data are non-operational.”
+- “Realistic test (0.12% fraud) with LGBM + velocity features + thr=0.03 gives F1≈0.675.”
+- “Next: larger train sample, extra temporal motifs, cost-sensitive thresholding.”

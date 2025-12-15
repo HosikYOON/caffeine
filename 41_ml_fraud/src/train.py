@@ -1,0 +1,659 @@
+"""
+Quick fraud model training script.
+
+Pipeline:
+- Load raw IBM credit card data (streamed in chunks, optional sampling).
+- Filter by date (2010-2020), map MCC to 6 categories, filter loyal users (>=10 tx/month avg).
+- Time-based split: train <= 2018-04-02, test 2018-04-03~2020-02-28.
+- Train three models (logistic, random forest, XGBoost) with class imbalance handling.
+- Save metrics (F1, accuracy) and best model artifact.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Dict, Iterable, List, Tuple
+
+import numpy as np
+import pandas as pd
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, precision_recall_curve
+from sklearn.preprocessing import OneHotEncoder
+from xgboost import XGBClassifier
+import joblib
+from imblearn.over_sampling import SMOTE
+from imblearn.pipeline import Pipeline
+try:
+    from lightgbm import LGBMClassifier
+except Exception:
+    LGBMClassifier = None
+try:
+    from catboost import CatBoostClassifier
+except Exception:
+    CatBoostClassifier = None
+
+
+TRAIN_END = pd.Timestamp("2018-04-02")
+TEST_START = pd.Timestamp("2018-04-03")
+TEST_END = pd.Timestamp("2020-02-28")
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Train fraud detection models.")
+    parser.add_argument(
+        "--data",
+        type=Path,
+        default=Path("archive/credit_card_transactions-ibm_v2.csv"),
+        help="Path to raw CSV.",
+    )
+    parser.add_argument(
+        "--sample-size",
+        type=int,
+        default=500_000,
+        help="Approximate number of rows to sample after filtering (for speed).",
+    )
+    parser.add_argument(
+        "--chunksize",
+        type=int,
+        default=200_000,
+        help="Rows per chunk while streaming CSV.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("models"),
+        help="Directory to save artifacts and metrics.",
+    )
+    parser.add_argument(
+        "--use-smote",
+        action="store_true",
+        help="Apply SMOTE to train set (after preprocessing). Caution: can be heavy on large samples.",
+    )
+    parser.add_argument(
+        "--scale-pos-mult",
+        type=float,
+        default=1.0,
+        help="Multiplier for computed scale_pos_weight (xgboost). e.g., 2.0 to double the weight.",
+    )
+    parser.add_argument("--xgb-n-estimators", type=int, default=300)
+    parser.add_argument("--xgb-max-depth", type=int, default=6)
+    parser.add_argument("--xgb-lr", type=float, default=0.1)
+    parser.add_argument("--xgb-subsample", type=float, default=0.8)
+    parser.add_argument("--xgb-colsample", type=float, default=0.8)
+    parser.add_argument(
+        "--strategy-name",
+        type=str,
+        default="baseline_class_weight+scale_pos_weight",
+        help="Description of imbalance handling / feature strategy for logging.",
+    )
+    parser.add_argument(
+        "--train-balance",
+        type=str,
+        choices=["none", "balanced_real_test"],
+        default="none",
+        help="Balance strategy: none (as-is) or balanced_real_test (train 1:1 using all fraud, test stays original).",
+    )
+    return parser.parse_args()
+
+
+@dataclass
+class DatasetSplit:
+    X_train: pd.DataFrame
+    y_train: pd.Series
+    X_test: pd.DataFrame
+    y_test: pd.Series
+
+
+def mcc_to_category(mcc: float) -> str | None:
+    """Map MCC code to one of six categories. Returns None if unmapped."""
+    if pd.isna(mcc):
+        return None
+    mcc = int(mcc)
+    if 4000 <= mcc <= 4099 or 4100 <= mcc <= 4199:
+        return "transport"
+    if 4800 <= mcc <= 4899 or 6000 <= mcc <= 6099:
+        return "living"
+    if 5200 <= mcc <= 5299 or 5300 <= mcc <= 5399 or 5600 <= mcc <= 5699:
+        return "shopping"
+    if 5411 <= mcc <= 5499:
+        return "grocery"
+    if 5811 <= mcc <= 5899:
+        return "dining"
+    if 5500 <= mcc <= 5599:
+        return "fuel"
+    return None
+
+
+def load_filtered(path: Path, chunksize: int, sample_size: int) -> pd.DataFrame:
+    """Stream CSV, apply filters, and return concatenated sample."""
+    usecols = [
+        "User",
+        "Card",
+        "Year",
+        "Month",
+        "Day",
+        "Time",
+        "Amount",
+        "Use Chip",
+        "Zip",
+        "Merchant State",
+        "Merchant City",
+        "MCC",
+        "Is Fraud?",
+    ]
+    collected: List[pd.DataFrame] = []
+    total = 0
+    for chunk in pd.read_csv(path, usecols=usecols, chunksize=chunksize):
+        chunk = preprocess_chunk(chunk)
+        if chunk.empty:
+            continue
+        collected.append(chunk)
+        total += len(chunk)
+        if total >= sample_size:
+            break
+    if not collected:
+        raise ValueError("No data collected after filtering.")
+    df = pd.concat(collected, ignore_index=True)
+    df = df.head(sample_size)
+    return df
+
+
+def load_balanced_train_real_test(path: Path, chunksize: int) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Stream CSV, apply filters, build balanced train (all fraud + equal normal), and full test (original distribution).
+    """
+    fraud_train_parts = []
+    normal_train_parts = []
+    test_parts = []
+    for chunk in pd.read_csv(path, chunksize=chunksize):
+        chunk = preprocess_chunk(chunk)
+        if chunk.empty:
+            continue
+        train_mask = chunk["Date"] <= TRAIN_END
+        test_mask = (chunk["Date"] >= TEST_START) & (chunk["Date"] <= TEST_END)
+        tr_chunk = chunk[train_mask]
+        te_chunk = chunk[test_mask]
+        if not tr_chunk.empty:
+            fraud_train_parts.append(tr_chunk[tr_chunk["Label"] == 1])
+            normal_train_parts.append(tr_chunk[tr_chunk["Label"] == 0])
+        if not te_chunk.empty:
+            test_parts.append(te_chunk)
+
+    train_fraud_df = pd.concat(fraud_train_parts, ignore_index=True)
+    normal_train_df = pd.concat(normal_train_parts, ignore_index=True)
+    test_df = pd.concat(test_parts, ignore_index=True)
+
+    normal_needed = min(len(normal_train_df), len(train_fraud_df))
+    normal_sample = normal_train_df.sample(normal_needed, random_state=42) if normal_needed > 0 else normal_train_df
+    train_bal = pd.concat([train_fraud_df, normal_sample], ignore_index=True).sample(frac=1, random_state=42).reset_index(drop=True)
+    test_df = test_df.reset_index(drop=True)
+    return train_bal, test_df
+
+
+def add_velocity_features(df: pd.DataFrame, zip_freq_map: Dict | None = None) -> pd.DataFrame:
+    """Add user-level rolling features and time deltas. Assumes df already split (no future leakage)."""
+    df = df.sort_values(["User", "DateTime"]).reset_index(drop=True)
+    df["TxCountCumulative"] = df.groupby("User").cumcount()
+    df["PrevTimeDiffHours"] = (
+        df.groupby("User")["DateTime"].diff().dt.total_seconds().div(3600)
+    )
+    df["PrevTimeDiffHours"] = df["PrevTimeDiffHours"].fillna(9999.0)
+
+    df["TimeDiffMean5"] = (
+        df.groupby("User")["PrevTimeDiffHours"]
+        .transform(lambda s: s.rolling(5, min_periods=1).mean())
+    )
+    df["TimeDiffStd5"] = (
+        df.groupby("User")["PrevTimeDiffHours"]
+        .transform(lambda s: s.rolling(5, min_periods=1).std())
+    )
+    df["TimeDiffStd5"] = df["TimeDiffStd5"].fillna(0.0)
+    df["TimeDiffMean10"] = (
+        df.groupby("User")["PrevTimeDiffHours"]
+        .transform(lambda s: s.rolling(10, min_periods=1).mean())
+    )
+    df["TimeDiffStd10"] = (
+        df.groupby("User")["PrevTimeDiffHours"]
+        .transform(lambda s: s.rolling(10, min_periods=1).std())
+    )
+    df["TimeDiffStd10"] = df["TimeDiffStd10"].fillna(0.0)
+
+    df["AmtMean5"] = (
+        df.groupby("User")["Amount"]
+        .transform(lambda s: s.rolling(5, min_periods=1).mean())
+    )
+    df["AmtStd5"] = (
+        df.groupby("User")["Amount"]
+        .transform(lambda s: s.rolling(5, min_periods=1).std())
+    )
+    df["AmtStd5"] = df["AmtStd5"].fillna(0.0)
+    df["AmtZ"] = (df["Amount"] - df["AmtMean5"]) / (df["AmtStd5"] + 1e-6)
+    df["AmtMean10"] = (
+        df.groupby("User")["Amount"]
+        .transform(lambda s: s.rolling(10, min_periods=1).mean())
+    )
+    df["AmtStd10"] = (
+        df.groupby("User")["Amount"]
+        .transform(lambda s: s.rolling(10, min_periods=1).std())
+    )
+    df["AmtStd10"] = df["AmtStd10"].fillna(0.0)
+    df["AmtZ10"] = (df["Amount"] - df["AmtMean10"]) / (df["AmtStd10"] + 1e-6)
+
+    # Category/Zip change flags
+    df["PrevCategory"] = df.groupby("User")["Category"].shift(1)
+    df["CategoryChanged"] = (df["Category"] != df["PrevCategory"]).astype(int)
+    df["PrevZip"] = df.groupby("User")["ZipClean"].shift(1)
+    df["ZipChanged"] = (df["ZipClean"] != df["PrevZip"]).astype(int)
+    df["CategoryChanged"] = df["CategoryChanged"].fillna(0)
+    df["ZipChanged"] = df["ZipChanged"].fillna(0)
+    df["CatChangeRate10"] = (
+        df.groupby("User")["CategoryChanged"]
+        .transform(lambda s: s.rolling(10, min_periods=1).mean())
+    )
+    df["ZipChangeRate10"] = (
+        df.groupby("User")["ZipChanged"]
+        .transform(lambda s: s.rolling(10, min_periods=1).mean())
+    )
+
+    first_zip = df.groupby("User")["ZipClean"].transform("first")
+    df["IsNewZip"] = (df["ZipClean"] != first_zip).astype(int)
+
+    # Zip frequency
+    if zip_freq_map is None:
+        zip_freq_map = df["ZipClean"].value_counts(normalize=True)
+    df["ZipFreq"] = df["ZipClean"].map(zip_freq_map).fillna(0.0)
+    return df
+
+
+def preprocess_chunk(chunk: pd.DataFrame) -> pd.DataFrame:
+    """Apply date filter, MCC mapping, loyal customer filter, and minimal feature extraction."""
+    chunk = chunk.copy()
+
+    # Date filtering
+    chunk["Date"] = pd.to_datetime(
+        dict(year=chunk["Year"], month=chunk["Month"], day=chunk["Day"]),
+        errors="coerce",
+    )
+    chunk = chunk[(chunk["Date"] >= "2010-01-01") & (chunk["Date"] <= "2020-12-31")]
+    if chunk.empty:
+        return chunk
+
+    # Time parsing
+    chunk["Hour"] = (
+        chunk["Time"].astype(str).str.split(":").str[0].astype(int, errors="ignore")
+    )
+    # Full datetime (approx seconds if provided; otherwise minute-level)
+    time_parsed = pd.to_timedelta(chunk["Time"].astype(str), errors="coerce")
+    chunk["DateTime"] = chunk["Date"] + time_parsed.fillna(pd.Timedelta(seconds=0))
+    chunk["DayOfWeek"] = chunk["Date"].dt.weekday
+    chunk["IsWeekend"] = chunk["DayOfWeek"] >= 5
+    chunk["IsNight"] = (chunk["Hour"] >= 22) | (chunk["Hour"] < 6)
+
+    # MCC mapping
+    chunk["Category"] = chunk["MCC"].apply(mcc_to_category)
+    chunk = chunk.dropna(subset=["Category"])
+
+    # Loyal customer filter: avg monthly tx >=10
+    monthly = (
+        chunk.groupby(["User", "Year", "Month"])
+        .size()
+        .reset_index(name="MonthlyTx")
+    )
+    user_monthly_mean = monthly.groupby("User")["MonthlyTx"].mean()
+    loyal_users = user_monthly_mean[user_monthly_mean >= 10].index
+    chunk = chunk[chunk["User"].isin(loyal_users)]
+
+    # Target encoding
+    chunk["Label"] = (chunk["Is Fraud?"].str.lower() == "yes").astype(int)
+
+    # Use Chip flag
+    chunk["UseChipFlag"] = chunk["Use Chip"].str.contains("chip", case=False, na=False).astype(int)
+
+    # Amount
+    # Clean amount strings like "$26.32"
+    chunk["Amount"] = (
+        chunk["Amount"]
+        .astype(str)
+        .str.replace("[$,]", "", regex=True)
+        .astype(float)
+    )
+    chunk["AmountLog"] = np.log1p(chunk["Amount"])
+    chunk["ZipClean"] = chunk["Zip"].astype(str).str.split(".").str[0]
+    chunk["MerchantState"] = chunk["Merchant State"].fillna("UNK").astype(str)
+
+    return chunk[
+        [
+            "User",
+            "DateTime",
+            "Date",
+            "Hour",
+            "DayOfWeek",
+            "IsWeekend",
+            "IsNight",
+            "UseChipFlag",
+            "ZipClean",
+            "MerchantState",
+            "Category",
+            "Amount",
+            "AmountLog",
+            "Label",
+        ]
+    ]
+
+
+def time_split(df: pd.DataFrame) -> DatasetSplit:
+    train = df[df["Date"] <= TRAIN_END].copy()
+    test = df[(df["Date"] >= TEST_START) & (df["Date"] <= TEST_END)].copy()
+
+    # Compute zip frequency on train only, reuse for test
+    zip_freq_map = train["ZipClean"].value_counts(normalize=True)
+    train = add_velocity_features(train, zip_freq_map=zip_freq_map)
+    test = add_velocity_features(test, zip_freq_map=zip_freq_map)
+
+    feature_cols = [
+        "Hour",
+        "DayOfWeek",
+        "IsWeekend",
+        "IsNight",
+        "UseChipFlag",
+        "Amount",
+        "AmountLog",
+        "TxCountCumulative",
+        "PrevTimeDiffHours",
+        "TimeDiffMean5",
+        "TimeDiffStd5",
+        "TimeDiffMean10",
+        "TimeDiffStd10",
+        "AmtMean5",
+        "AmtStd5",
+        "AmtZ",
+        "AmtMean10",
+        "AmtStd10",
+        "AmtZ10",
+        "ZipFreq",
+        "CategoryChanged",
+        "ZipChanged",
+        "CatChangeRate10",
+        "ZipChangeRate10",
+        "IsNewZip",
+        "Category",
+        "MerchantState",
+    ]
+    X_train = train[feature_cols]
+    y_train = train["Label"]
+    X_test = test[feature_cols]
+    y_test = test["Label"]
+    return DatasetSplit(X_train, y_train, X_test, y_test)
+
+
+def split_with_precomputed(train_df: pd.DataFrame, test_df: pd.DataFrame) -> DatasetSplit:
+    """Build DatasetSplit from provided train/test dataframes (features already computed here)."""
+    feature_cols = [
+        "Hour",
+        "DayOfWeek",
+        "IsWeekend",
+        "IsNight",
+        "UseChipFlag",
+        "Amount",
+        "AmountLog",
+        "TxCountCumulative",
+        "PrevTimeDiffHours",
+        "TimeDiffMean5",
+        "TimeDiffStd5",
+        "AmtMean5",
+        "AmtStd5",
+        "AmtZ",
+        "ZipFreq",
+        "CategoryChanged",
+        "ZipChanged",
+        "Category",
+        "MerchantState",
+    ]
+    X_train = train_df[feature_cols]
+    y_train = train_df["Label"]
+    X_test = test_df[feature_cols]
+    y_test = test_df["Label"]
+    return DatasetSplit(X_train, y_train, X_test, y_test)
+
+
+def build_preprocessor(cat_cols: List[str], num_cols: List[str]) -> ColumnTransformer:
+    categorical = Pipeline(
+        steps=[
+            ("imputer", SimpleImputer(strategy="most_frequent")),
+            # dense output for SMOTE compatibility
+            ("onehot", OneHotEncoder(handle_unknown="ignore", sparse_output=False)),
+        ]
+    )
+    numeric = Pipeline(
+        steps=[
+            ("imputer", SimpleImputer(strategy="median")),
+        ]
+    )
+    return ColumnTransformer(
+        transformers=[
+            ("cat", categorical, cat_cols),
+            ("num", numeric, num_cols),
+        ]
+    )
+
+
+def find_best_f1_threshold(y_true: pd.Series, proba: np.ndarray) -> Tuple[float, float, float, float]:
+    """Scan thresholds to maximize F1. Returns (threshold, f1, precision, recall)."""
+    best_f1 = -1.0
+    best_thr = 0.5
+    best_p = 0.0
+    best_r = 0.0
+    # Scan 0.01..0.99
+    for thr in np.linspace(0.01, 0.99, 99):
+        preds = (proba >= thr).astype(int)
+        f1 = f1_score(y_true, preds, zero_division=0)
+        if f1 > best_f1:
+            best_f1 = f1
+            best_thr = thr
+            best_p = precision_score(y_true, preds, zero_division=0)
+            best_r = recall_score(y_true, preds, zero_division=0)
+    return best_thr, best_f1, best_p, best_r
+
+
+def train_models(
+    split: DatasetSplit,
+    use_smote: bool,
+    scale_pos_mult: float,
+    xgb_params: Dict,
+) -> List[Dict]:
+    cat_cols = ["Category", "MerchantState"]
+    num_cols = [
+        "Hour",
+        "DayOfWeek",
+        "IsWeekend",
+        "IsNight",
+        "UseChipFlag",
+        "Amount",
+        "AmountLog",
+        "TxCountCumulative",
+        "PrevTimeDiffHours",
+        "TimeDiffMean5",
+        "TimeDiffStd5",
+        "AmtMean5",
+        "AmtStd5",
+        "AmtZ",
+        "AmtMean10",
+        "AmtStd10",
+        "AmtZ10",
+        "ZipFreq",
+        "CategoryChanged",
+        "ZipChanged",
+        "CatChangeRate10",
+        "ZipChangeRate10",
+        "IsNewZip",
+    ]
+    preprocessor = build_preprocessor(cat_cols, num_cols)
+
+    # Handle imbalance for tree models via scale_pos_weight
+    pos = split.y_train.sum()
+    neg = len(split.y_train) - pos
+    scale_pos_weight = float(neg / max(pos, 1)) * scale_pos_mult
+
+    models = {
+        "log_reg_balanced": LogisticRegression(
+            max_iter=1000, class_weight="balanced"
+        ),
+        "rf_balanced": RandomForestClassifier(
+            n_estimators=150,
+            max_depth=10,
+            n_jobs=-1,
+            class_weight="balanced",
+            random_state=42,
+        ),
+        "xgb": XGBClassifier(
+            n_estimators=xgb_params["n_estimators"],
+            max_depth=xgb_params["max_depth"],
+            learning_rate=xgb_params["lr"],
+            subsample=xgb_params["subsample"],
+            colsample_bytree=xgb_params["colsample"],
+            eval_metric="logloss",
+            random_state=42,
+            n_jobs=4,
+            scale_pos_weight=scale_pos_weight,
+        ),
+    }
+    if LGBMClassifier is not None:
+        models["lgbm"] = LGBMClassifier(
+            n_estimators=800,
+            max_depth=-1,
+            num_leaves=127,
+            learning_rate=0.05,
+            subsample=0.8,
+            colsample_bytree=0.8,
+            min_child_samples=15,
+            class_weight="balanced",
+            random_state=42,
+            n_jobs=-1,
+        )
+    if CatBoostClassifier is not None:
+        models["catboost"] = CatBoostClassifier(
+            iterations=400,
+            depth=8,
+            learning_rate=0.08,
+            loss_function="Logloss",
+            class_weights=[1.0, scale_pos_weight],
+            verbose=0,
+            random_seed=42,
+        )
+
+    results = []
+    for name, model in models.items():
+        steps = [("prep", preprocessor)]
+        if use_smote:
+            steps.append(
+                ("smote", SMOTE(random_state=42))
+            )
+        steps.append(("model", model))
+
+        clf = Pipeline(steps=steps)
+        clf.fit(split.X_train, split.y_train)
+        preds = clf.predict(split.X_test)
+        proba = clf.predict_proba(split.X_test)[:, 1] if hasattr(clf, "predict_proba") else None
+        f1 = f1_score(split.y_test, preds, zero_division=0)
+        acc = accuracy_score(split.y_test, preds)
+        best_thr, best_f1, best_prec, best_rec = (None, None, None, None)
+        if proba is not None:
+            best_thr, best_f1, best_prec, best_rec = find_best_f1_threshold(split.y_test, proba)
+        pr_curve = None
+        if proba is not None:
+            precision_vals, recall_vals, thresholds = precision_recall_curve(split.y_test, proba)
+            pr_curve = {
+                "precision": precision_vals.tolist(),
+                "recall": recall_vals.tolist(),
+                "thresholds": thresholds.tolist(),
+            }
+        results.append(
+            {
+                "model": name,
+                "f1": f1,
+                "accuracy": acc,
+                "f1_best_thr": best_f1,
+                "best_threshold": best_thr,
+                "precision_best": best_prec,
+                "recall_best": best_rec,
+                "classifier": clf,
+                "pr_curve": pr_curve,
+            }
+        )
+    return results
+
+
+def save_artifacts(
+    results: List[Dict],
+    output_dir: Path,
+    updated_at: str,
+    strategy: str,
+) -> None:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    new_metrics = []
+    best = max(results, key=lambda r: r["f1"])
+    for r in results:
+        new_metrics.append(
+            {
+                "model": r["model"],
+                "f1": round(r["f1"], 4),
+                "accuracy": round(r["accuracy"], 4),
+                "updated_at": updated_at,
+                "strategy": strategy,
+                "f1_best_thr": round(r["f1_best_thr"], 4) if r.get("f1_best_thr") is not None else None,
+                "best_threshold": r.get("best_threshold"),
+                "precision_best": round(r["precision_best"], 4) if r.get("precision_best") is not None else None,
+                "recall_best": round(r["recall_best"], 4) if r.get("recall_best") is not None else None,
+                "pr_curve": r.get("pr_curve"),
+            }
+        )
+    metrics_path = output_dir / "metrics.json"
+    if metrics_path.exists():
+        try:
+            existing = json.loads(metrics_path.read_text(encoding="utf-8"))
+            if isinstance(existing, list):
+                new_metrics = existing + new_metrics
+        except Exception:
+            pass
+    metrics_path.write_text(json.dumps(new_metrics, ensure_ascii=False, indent=2), encoding="utf-8")
+    pd.DataFrame(new_metrics).to_csv(output_dir / "metrics.csv", index=False)
+    joblib.dump(best["classifier"], output_dir / "best_model.joblib")
+
+
+def main() -> None:
+    args = parse_args()
+    if args.train_balance == "balanced_real_test":
+        train_df, test_df = load_balanced_train_real_test(args.data, args.chunksize)
+        zip_freq_map = train_df["ZipClean"].value_counts(normalize=True)
+        train_df = add_velocity_features(train_df, zip_freq_map=zip_freq_map)
+        test_df = add_velocity_features(test_df, zip_freq_map=zip_freq_map)
+        split = split_with_precomputed(train_df, test_df)
+    else:
+        df = load_filtered(args.data, args.chunksize, args.sample_size)
+        split = time_split(df)
+    xgb_params = {
+        "n_estimators": args.xgb_n_estimators,
+        "max_depth": args.xgb_max_depth,
+        "lr": args.xgb_lr,
+        "subsample": args.xgb_subsample,
+        "colsample": args.xgb_colsample,
+    }
+    results = train_models(split, use_smote=args.use_smote, scale_pos_mult=args.scale_pos_mult, xgb_params=xgb_params)
+    # Fixed display timestamp as requested
+    updated_at = "2025-12-11 16:47"
+    save_artifacts(results, args.output_dir, updated_at, args.strategy_name)
+    print("Training complete. Metrics:")
+    for r in results:
+        print(f"{r['model']}: F1={r['f1']:.4f}, ACC={r['accuracy']:.4f}")
+    best = max(results, key=lambda r: r["f1"])
+    print(f"Best model: {best['model']} saved to {args.output_dir}/best_model.joblib")
+
+
+if __name__ == "__main__":
+    main()
