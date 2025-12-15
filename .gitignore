@@ -50,3 +50,6 @@ production_models/*.joblib
 production_models/*.json
 .vscode/
 .env
+
+.zip
+.log
