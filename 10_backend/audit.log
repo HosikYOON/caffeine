@@ -1388,3 +1388,50 @@
 2025-12-12 11:42:18,263 - audit - INFO - Response: 200 | Duration: 0.016s
 2025-12-12 11:42:18,266 - audit - INFO - Request: GET /api/analysis/categories | Client: 127.0.0.1
 2025-12-12 11:42:18,282 - audit - INFO - Response: 200 | Duration: 0.016s
+2025-12-16 12:35:35,033 - app.main - INFO - ============================================================
+2025-12-16 12:35:35,033 - app.main - INFO - Caffeine API started
+2025-12-16 12:35:35,033 - app.main - INFO - Environment: development
+2025-12-16 12:35:35,033 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006']
+2025-12-16 12:35:38,775 - app.routers.ml - INFO - XGBoost model loaded: model_xgboost_acc_73.47.joblib
+2025-12-16 12:35:38,883 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-16 12:35:38,883 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-16 12:35:38,886 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-16 12:35:38,886 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-16 12:35:38,887 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-16 12:35:38,887 - app.services.scheduler - INFO - ============================================================
+2025-12-16 12:35:38,887 - app.services.scheduler - INFO - Scheduler started
+2025-12-16 12:35:38,887 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-16 12:35:38,887 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-16 12:35:38,888 - app.services.scheduler - INFO - ============================================================
+2025-12-16 12:35:57,227 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-16 12:35:57,228 - app.db.database - INFO - Connecting to AWS RDS: caffeine-database.c58og6ke6t36.ap-northeast-2.rds.amazonaws.com
+2025-12-16 12:35:57,434 - app.db.database - INFO - Connected to AWS RDS: caffeine-database.c58og6ke6t36.ap-northeast-2.rds.amazonaws.com
+2025-12-16 12:35:57,589 - audit - INFO - Response: 200 | Duration: 0.362s
+2025-12-16 12:36:09,056 - audit - INFO - Request: POST /users/login | Client: 127.0.0.1
+2025-12-16 12:36:09,085 - audit - INFO - Response: 401 | Duration: 0.029s
+2025-12-16 12:36:18,235 - audit - INFO - Request: POST /users/login | Client: 127.0.0.1
+2025-12-16 12:36:18,576 - audit - INFO - Response: 200 | Duration: 0.341s
+2025-12-16 12:36:18,579 - audit - INFO - Request: OPTIONS /users/me | Client: 127.0.0.1
+2025-12-16 12:36:18,580 - audit - INFO - Response: 200 | Duration: 0.001s
+2025-12-16 12:36:18,582 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-16 12:36:18,624 - audit - INFO - Response: 200 | Duration: 0.041s
+2025-12-16 12:36:18,669 - audit - INFO - Request: OPTIONS /api/analysis/full | Client: 127.0.0.1
+2025-12-16 12:36:18,670 - audit - INFO - Request: OPTIONS /api/analysis/full | Client: 127.0.0.1
+2025-12-16 12:36:18,670 - audit - INFO - Response: 200 | Duration: 0.001s
+2025-12-16 12:36:18,671 - audit - INFO - Response: 200 | Duration: 0.001s
+2025-12-16 12:36:18,674 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-16 12:36:18,726 - audit - INFO - Response: 200 | Duration: 0.051s
+2025-12-16 12:36:18,727 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-16 12:36:18,775 - audit - INFO - Response: 200 | Duration: 0.048s
+2025-12-16 12:36:22,004 - audit - INFO - Request: OPTIONS /api/admin/settings | Client: 127.0.0.1
+2025-12-16 12:36:22,006 - audit - INFO - Request: OPTIONS /api/admin/settings | Client: 127.0.0.1
+2025-12-16 12:36:22,007 - audit - INFO - Response: 200 | Duration: 0.003s
+2025-12-16 12:36:22,007 - audit - INFO - Response: 200 | Duration: 0.001s
+2025-12-16 12:36:22,011 - audit - INFO - Request: GET /api/admin/settings | Client: 127.0.0.1
+2025-12-16 12:36:22,063 - audit - INFO - Response: 200 | Duration: 0.053s
+2025-12-16 12:36:22,064 - audit - INFO - Request: GET /api/admin/settings | Client: 127.0.0.1
+2025-12-16 12:36:22,112 - audit - INFO - Response: 200 | Duration: 0.048s
+2025-12-16 12:36:27,283 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-16 12:36:27,283 - app.main - INFO - Caffeine API stopped
+2025-12-16 12:36:27,284 - app.main - INFO - ============================================================
+2025-12-16 12:36:27,284 - apscheduler.scheduler - INFO - Scheduler has been shut down
