@@ -35,11 +35,11 @@ const TabBarIcon = ({ name, focused, colors }) => {
     '프로필': { icon: 'user' },
     '더보기': { icon: 'more-horizontal' }
   };
-  
+
   const iconData = icons[name] || { icon: 'help-circle' };
   const activeColor = colors?.tabBarActive || '#2563EB';
   const inactiveColor = colors?.tabBarInactive || '#64748B';
-  
+
   return (
     <View style={{
       width: 44,
@@ -50,9 +50,9 @@ const TabBarIcon = ({ name, focused, colors }) => {
       alignItems: 'center',
       marginTop: 4,
     }}>
-      <Feather 
-        name={iconData.icon} 
-        size={22} 
+      <Feather
+        name={iconData.icon}
+        size={22}
         color={focused ? activeColor : inactiveColor}
         strokeWidth={focused ? 2.5 : 2}
       />
@@ -99,8 +99,8 @@ function MainTabs() {
           elevation: 4,
         },
         headerTintColor: colors.text,
-        headerTitleStyle: { 
-          fontWeight: '700', 
+        headerTitleStyle: {
+          fontWeight: '700',
           fontFamily: 'Inter_700Bold',
           fontSize: 18,
         },
@@ -148,9 +148,9 @@ function AppContent() {
       {user ? (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="MainTabs" component={MainTabs} />
-          <Stack.Screen 
-            name="분석" 
-            component={AnalysisScreen} 
+          <Stack.Screen
+            name="분석"
+            component={AnalysisScreen}
             options={{
               headerShown: true,
               headerTitle: '지출 분석',
@@ -161,9 +161,9 @@ function AppContent() {
             }}
           />
           {/* 프로필 화면 (더보기에서 접근) */}
-          <Stack.Screen 
-            name="프로필" 
-            component={ProfileScreen} 
+          <Stack.Screen
+            name="프로필"
+            component={ProfileScreen}
             options={{
               headerShown: true,
               headerTitle: '프로필',
@@ -174,9 +174,9 @@ function AppContent() {
             }}
           />
           {/* 설정 화면 */}
-          <Stack.Screen 
-            name="설정" 
-            component={SettingsScreen} 
+          <Stack.Screen
+            name="설정"
+            component={SettingsScreen}
             options={{
               headerShown: true,
               headerTitle: '앱 설정',

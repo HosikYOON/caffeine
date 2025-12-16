@@ -6,7 +6,7 @@ export default function EmptyState({ icon = '📊', title, description, actionTe
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const scaleAnim = useRef(new Animated.Value(0.9)).current;
     const slideAnim = useRef(new Animated.Value(30)).current;
-    
+
     // 점 애니메이션
     const dot1Anim = useRef(new Animated.Value(0)).current;
     const dot2Anim = useRef(new Animated.Value(0)).current;
@@ -31,7 +31,7 @@ export default function EmptyState({ icon = '📊', title, description, actionTe
                 useNativeDriver: false,
             }),
         ]).start();
-        
+
         // 점 통통 튀는 애니메이션
         const createBounceAnimation = (anim, delay) => {
             return Animated.loop(
@@ -51,7 +51,7 @@ export default function EmptyState({ icon = '📊', title, description, actionTe
                 ])
             );
         };
-        
+
         createBounceAnimation(dot1Anim, 0).start();
         createBounceAnimation(dot2Anim, 150).start();
         createBounceAnimation(dot3Anim, 300).start();
@@ -89,7 +89,7 @@ export default function EmptyState({ icon = '📊', title, description, actionTe
 
                 {/* Action Button */}
                 {actionText && onAction && (
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={styles.buttonContainer}
                         onPress={onAction}
                         activeOpacity={0.8}
@@ -107,23 +107,23 @@ export default function EmptyState({ icon = '📊', title, description, actionTe
 
                 {/* Decorative Elements - 애니메이션 적용 */}
                 <View style={styles.decorativeContainer}>
-                    <Animated.View 
+                    <Animated.View
                         style={[
-                            styles.decorativeDot, 
+                            styles.decorativeDot,
                             { backgroundColor: '#BFDBFE', transform: [{ translateY: dot1Anim }] }
-                        ]} 
+                        ]}
                     />
-                    <Animated.View 
+                    <Animated.View
                         style={[
-                            styles.decorativeDot, 
+                            styles.decorativeDot,
                             { backgroundColor: '#93C5FD', width: 8, height: 8, transform: [{ translateY: dot2Anim }] }
-                        ]} 
+                        ]}
                     />
-                    <Animated.View 
+                    <Animated.View
                         style={[
-                            styles.decorativeDot, 
+                            styles.decorativeDot,
                             { backgroundColor: '#60A5FA', transform: [{ translateY: dot3Anim }] }
-                        ]} 
+                        ]}
                     />
                 </View>
             </Animated.View>
