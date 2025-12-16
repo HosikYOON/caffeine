@@ -47,6 +47,30 @@ export const apiClient = {
         }
         return response.json();
     },
+
+    async patch(endpoint: string, data: any) {
+        const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
+        }
+        return response.json();
+    },
+
+    async delete(endpoint: string) {
+        const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, {
+            method: 'DELETE',
+        });
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
+        }
+        return response.json();
+    },
 };
 
 // Analysis API
@@ -67,10 +91,60 @@ export async function getMonthlyTrend(months = 6) {
 }
 
 // Transactions API
-export async function getTransactions() {
-    return apiClient.get('/api/transactions');
+export async function getTransactions(filters?: any, page = 1, pageSize = 20) {
+    const params = new URLSearchParams({
+        page: page.toString(),
+        page_size: pageSize.toString(),
+        ...(filters?.user_id && { user_id: filters.user_id.toString() }),
+        ...(filters?.category && { category: filters.category }),
+        ...(filters?.start_date && { start_date: filters.start_date }),
+        ...(filters?.end_date && { end_date: filters.end_date }),
+        ...(filters?.min_amount && { min_amount: filters.min_amount.toString() }),
+        ...(filters?.max_amount && { max_amount: filters.max_amount.toString() }),
+        ...(filters?.search && { search: filters.search }),
+    });
+    return apiClient.get(`/api/transactions?${params.toString()}`);
 }
 
 export async function getTransactionStats() {
     return apiClient.get('/api/transactions/stats/summary');
 }
+
+export async function getTransactionById(id: number) {
+    return apiClient.get(`/api/transactions/${id}`);
+}
+
+export async function updateTransactionNote(id: number, description: string) {
+    return apiClient.patch(`/api/transactions/${id}/note`, { description });
+}
+
+// Users API
+export async function getUsers(filters?: any) {
+    const params = new URLSearchParams({
+        ...(filters?.search && { search: filters.search }),
+        ...(filters?.role && { role: filters.role }),
+        ...(filters?.status && { status: filters.status }),
+    });
+    const queryString = params.toString();
+    return apiClient.get(`/users${queryString ? '?' + queryString : ''}`);
+}
+
+export async function getUserStats() {
+    // Note: This endpoint may need to be created on backend
+    // For now, we'll calculate from user list
+    const users = await getUsers();
+    const now = new Date();
+    const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    return {
+        total_users: users.length,
+        active_users: users.filter((u: any) => u.status === 'ACTIVE').length,
+        new_users_this_month: users.filter((u: any) => new Date(u.created_at) >= thisMonth).length,
+        admin_users: users.filter((u: any) => u.role === 'ADMIN').length,
+    };
+}
+
+export async function deleteUser(id: number) {
+    return apiClient.delete(`/users/${id}`);
+}
+

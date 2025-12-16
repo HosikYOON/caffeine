@@ -784,3 +784,7 @@
 2025-12-10 18:25:14,916 - audit - INFO - Response: 200 | Duration: 0.036s
 2025-12-10 18:25:14,917 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
 2025-12-10 18:25:14,955 - audit - INFO - Response: 200 | Duration: 0.038s
+2025-12-16 16:27:28,021 - app.main - INFO - ============================================================
+2025-12-16 16:27:28,105 - app.main - INFO - 환경: development
+2025-12-16 16:27:28,108 - app.main - INFO - CORS 허용 도메인: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-16 16:27:29,972 - app.main - INFO - ============================================================
