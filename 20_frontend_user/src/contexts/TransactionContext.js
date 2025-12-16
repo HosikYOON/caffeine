@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getTransactions, updateTransactionNote as apiUpdateNote } from '../api';
+import { getTransactions, updateTransactionNote as apiUpdateNote, createTransactionsBulk, deleteAllTransactions } from '../api';
 import { predictNextTransaction } from '../api/ml';
 
 const TransactionContext = createContext();
@@ -85,14 +85,29 @@ export const TransactionProvider = ({ children }) => {
         }
     };
 
-    const saveTransactions = async (newTransactions) => {
+    const saveTransactions = async (newTransactions, userId = 1) => {
         try {
+            // 1. 로컬 저장
             setTransactions(newTransactions);
             await saveTransactionsToCache(newTransactions);
 
             const now = new Date().toISOString();
             await AsyncStorage.setItem('last_sync_time', now);
             setLastSyncTime(now);
+
+            // 2. 백엔드 API 호출 (로그인된 사용자 ID 필요)
+            try {
+                const userJson = await AsyncStorage.getItem('user');
+                const user = userJson ? JSON.parse(userJson) : null;
+                const currentUserId = user?.id || userId;
+                
+                if (currentUserId) {
+                    const result = await createTransactionsBulk(currentUserId, newTransactions);
+                    console.log(`✅ 백엔드 DB에 ${result.created_count}건 저장 완료`);
+                }
+            } catch (apiError) {
+                console.warn('백엔드 저장 실패 (로컬은 성공):', apiError);
+            }
 
             console.log(`✅ ${newTransactions.length}건 거래 저장 완료`);
             return { success: true };
@@ -126,10 +141,25 @@ export const TransactionProvider = ({ children }) => {
 
     const clearTransactions = async () => {
         try {
+            // 1. 로컬 삭제
             setTransactions([]);
             await AsyncStorage.removeItem('transactions_cache');
             await AsyncStorage.removeItem('last_sync_time');
             setLastSyncTime(null);
+
+            // 2. 백엔드 API 호출
+            try {
+                const userJson = await AsyncStorage.getItem('user');
+                const user = userJson ? JSON.parse(userJson) : null;
+                
+                if (user?.id) {
+                    const result = await deleteAllTransactions(user.id);
+                    console.log(`✅ 백엔드 DB에서 ${result.deleted_count}건 삭제 완료`);
+                }
+            } catch (apiError) {
+                console.warn('백엔드 삭제 실패 (로컬은 성공):', apiError);
+            }
+
             return { success: true };
         } catch (error) {
             console.error('거래 삭제 실패:', error);

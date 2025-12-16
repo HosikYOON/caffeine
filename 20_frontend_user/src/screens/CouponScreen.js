@@ -150,7 +150,7 @@ export default function CouponScreen() {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('전체');
     const [showUsed, setShowUsed] = useState(false);
-    // ⭐ 쿠폰 1개 제한: 선택된 쿠폰 ID 관리
+    // 쿠폰 1개 제한: 선택된 쿠폰 ID 관리
     const [selectedCouponId, setSelectedCouponId] = useState(null);
 
     const categories = ['전체', '식비', '쇼핑', '편의점', '여가'];
@@ -227,7 +227,7 @@ export default function CouponScreen() {
     //     }
     // };
     // ============================================================
-    // ⭐ 쿠폰 선택 핸들러 (1개만 선택 가능)
+    // 쿠폰 선택 핸들러 (1개만 선택 가능)
     const handleSelectCoupon = (coupon) => {
         // 이미 선택된 쿠폰을 다시 누르면 선택 해제
         if (selectedCouponId === coupon.id) {
@@ -245,7 +245,7 @@ export default function CouponScreen() {
         setSelectedCouponId(coupon.id);
     };
 
-    // ⭐ 쿠폰 실제 사용 핸들러
+    // 쿠폰 실제 사용 핸들러
     const handleUseCoupon = (coupon) => {
         alert(`✅ ${coupon.merchant} 쿠폰 사용!\n\n할인 금액: ${formatCurrency(coupon.discount)}\n최소 구매금액: ${formatCurrency(coupon.minPurchase)}\n\n다음 소비에 자동 적용됩니다.`);
         
@@ -260,7 +260,7 @@ export default function CouponScreen() {
         setSelectedCouponId(null);
     };
 
-    // ⭐ 선택 해제 핸들러
+    // 선택 해제 핸들러
     const handleDeselectCoupon = () => {
         setSelectedCouponId(null);
     };
@@ -268,7 +268,7 @@ export default function CouponScreen() {
     const CouponCard = ({ item }) => {
         const isExpiringSoon = item.status === 'available' && item.daysLeft <= 7;
         const isUsed = item.status === 'used' || item.status === 'expired';
-        // ⭐ 선택 상태 체크
+        // 선택 상태 체크
         const isSelected = selectedCouponId === item.id;
 
         return (
@@ -277,14 +277,14 @@ export default function CouponScreen() {
                     styles(colors).couponCard,
                     isUsed && styles(colors).couponCardUsed,
                     isExpiringSoon && styles(colors).couponCardExpiring,
-                    // ⭐ 선택된 쿠폰 하이라이트
+                    // 선택된 쿠폰 하이라이트
                     isSelected && styles(colors).couponCardSelected
                 ]}
                 onPress={() => !isUsed && handleSelectCoupon(item)}
                 disabled={isUsed}
                 activeOpacity={0.7}>
 
-                {/* ⭐ 선택됨 배지 */}
+                {/* 선택됨 배지 */}
                 {isSelected && (
                     <View style={styles(colors).selectedBadge}>
                         <Text style={styles(colors).selectedBadgeText}>✓ 선택됨</Text>
@@ -360,7 +360,7 @@ export default function CouponScreen() {
                     </View>
                 </View>
 
-                {/* ⭐ 버튼 영역: 선택 상태에 따라 다른 버튼 표시 */}
+                {/* 버튼 영역: 선택 상태에 따라 다른 버튼 표시 */}
                 {item.status === 'available' && (
                     <View style={styles(colors).couponButtonContainer}>
                         {isSelected ? (
@@ -790,8 +790,7 @@ const styles = (colors) => StyleSheet.create({
         fontSize: 14,
         color: colors.textSecondary
     },
-
-    // ⭐ 쿠폰 1개 제한 관련 스타일
+    // 쿠폰 1개 제한 관련 스타일
     couponCardSelected: {
         borderColor: '#10B981',
         borderWidth: 3,

@@ -31,7 +31,11 @@ async def authenticate_user(db: AsyncSession, email: str, password: str) -> User
     user = await get_user_by_email(db, email)
     if not user:
         return None
-    if not verify_password(password, user.password_hash):
+    # greenlet 에러 방지: CPU 작업을 별도 스레드에서 실행
+    import asyncio
+    loop = asyncio.get_event_loop()
+    is_valid = await loop.run_in_executor(None, verify_password, password, user.password_hash)
+    if not is_valid:
         return None
     return user
 

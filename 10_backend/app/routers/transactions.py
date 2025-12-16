@@ -83,8 +83,35 @@ def get_mock_transactions() -> List[TransactionBase]:
 
 
 # ============================================================
-# API 엔드포인트
+# 거래 생성용 스키마
 # ============================================================
+
+class TransactionCreate(BaseModel):
+    """거래 생성 요청"""
+    merchant: str
+    amount: float
+    category: str
+    transaction_date: str
+    description: Optional[str] = None
+    currency: str = "KRW"
+
+
+class TransactionBulkCreate(BaseModel):
+    """거래 일괄 생성 요청"""
+    user_id: int
+    transactions: List[TransactionCreate]
+
+
+class TransactionBulkResponse(BaseModel):
+    """거래 일괄 생성 응답"""
+    status: str
+    created_count: int
+    failed_count: int
+    message: str
+
+
+# ============================================================
+# API 엔드포인트
 
 @router.get("", response_model=TransactionList)
 async def get_transactions(
@@ -186,6 +213,101 @@ async def get_transactions(
             data_source="[MOCK] DB 연결 필요"
         )
 
+
+@router.post("/bulk", response_model=TransactionBulkResponse)
+async def create_transactions_bulk(
+    data: TransactionBulkCreate,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    거래 내역 일괄 생성 (CSV 업로드용)
+    """
+    try:
+        from sqlalchemy import insert
+        
+        created_count = 0
+        failed_count = 0
+        
+        # 카테고리 매핑 조회
+        cat_query = select(Category)
+        cat_result = await db.execute(cat_query)
+        categories = {c.name: c.id for c in cat_result.scalars().all()}
+        
+        for tx in data.transactions:
+            try:
+                # 카테고리 ID 찾기 (없으면 '기타' 또는 첫 번째 카테고리)
+                category_id = categories.get(tx.category)
+                if not category_id:
+                    category_id = categories.get('기타') or list(categories.values())[0] if categories else None
+                
+                # 날짜 파싱
+                try:
+                    tx_time = datetime.strptime(tx.transaction_date, "%Y-%m-%d %H:%M:%S")
+                except:
+                    try:
+                        tx_time = datetime.strptime(tx.transaction_date, "%Y-%m-%d")
+                    except:
+                        tx_time = datetime.now()
+                
+                # INSERT
+                insert_stmt = insert(Transaction).values(
+                    user_id=data.user_id,
+                    category_id=category_id,
+                    amount=tx.amount,
+                    currency=tx.currency,
+                    merchant_name=tx.merchant,
+                    description=tx.description,
+                    status="completed",
+                    transaction_time=tx_time
+                )
+                await db.execute(insert_stmt)
+                created_count += 1
+                
+            except Exception as e:
+                logger.warning(f"거래 생성 실패: {e}")
+                failed_count += 1
+        
+        await db.commit()
+        
+        return TransactionBulkResponse(
+            status="success",
+            created_count=created_count,
+            failed_count=failed_count,
+            message=f"{created_count}건 생성 완료, {failed_count}건 실패"
+        )
+        
+    except Exception as e:
+        logger.error(f"일괄 생성 실패: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("")
+async def delete_all_transactions(
+    user_id: int = Query(..., description="사용자 ID"),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    사용자의 모든 거래 내역 삭제
+    """
+    try:
+        from sqlalchemy import delete
+        
+        # 해당 사용자의 거래만 삭제
+        delete_stmt = delete(Transaction).where(Transaction.user_id == user_id)
+        result = await db.execute(delete_stmt)
+        await db.commit()
+        
+        deleted_count = result.rowcount
+        
+        return {
+            "status": "success",
+            "message": f"{deleted_count}건의 거래가 삭제되었습니다.",
+            "deleted_count": deleted_count
+        }
+        
+    except Exception as e:
+        logger.error(f"삭제 실패: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/{transaction_id}", response_model=TransactionBase)
 async def get_transaction(
