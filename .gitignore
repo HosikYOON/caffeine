@@ -49,12 +49,12 @@ postgres_data/
 production_models/*.joblib
 production_models/*.json
 .vscode/
-<<<<<<< HEAD
 .env
 
 .zip
 .log
-        
-=======
-.env
->>>>>>> c4c46161d7c5cfecb7b2fbcc45ce96b4be578e45
+
+# Streamlit dashboards (발표 자료용)
+user_app_dashboard.py
+admin_app_dashboard.py
+*_dashboard.py

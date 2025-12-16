@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 # 환경 변수
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_DEFAULT_REGION = os.getenv("AWS_DEFAULT_REGION", "ap-northeast-2")
 S3_BUCKET = os.getenv("S3_BUCKET")
 MODEL_KEY = os.getenv("MODEL_KEY")
 LOCAL_MODEL_PATH = os.getenv("LOCAL_MODEL_PATH", "/app/model.joblib")
