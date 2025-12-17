@@ -1,6 +1,6 @@
 // API Client for Admin Dashboard
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081";
+// 포트 8001로 하드코딩 (환경 변수 문제 방지)
+const API_BASE_URL = "http://localhost:8001";
 
 interface FetchOptions extends RequestInit {
     timeout?: number;

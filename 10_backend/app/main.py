@@ -85,7 +85,7 @@ CLOUDFRONT_URL = "https://d26uyg5darllja.cloudfront.net"
 LOCAL_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:3001",
-    "http://localhost:8081",
+    "http://localhost:8001",
     "http://localhost:8082",
     "http://localhost:8080",
     "http://localhost:19000",
