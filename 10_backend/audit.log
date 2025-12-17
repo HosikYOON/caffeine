@@ -1377,3 +1377,340 @@ TypeError: unsupported operand type(s) for /: 'decimal.Decimal' and 'float'
 2025-12-17 16:09:35,278 - app.main - INFO - Caffeine API stopped
 2025-12-17 16:09:35,278 - app.main - INFO - ============================================================
 2025-12-17 16:09:35,278 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-17 16:09:38,788 - app.main - INFO - ============================================================
+2025-12-17 16:09:38,788 - app.main - INFO - Caffeine API started
+2025-12-17 16:09:38,788 - app.main - INFO - Environment: development
+2025-12-17 16:09:38,788 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-17 16:09:39,881 - app.routers.ml - INFO - XGBoost model loaded: model_xgboost_acc_73.47.joblib
+2025-12-17 16:09:39,957 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-17 16:09:39,958 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-17 16:09:39,959 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-17 16:09:39,959 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-17 16:09:39,959 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-17 16:09:39,960 - app.services.scheduler - INFO - ============================================================
+2025-12-17 16:09:39,960 - app.services.scheduler - INFO - Scheduler started
+2025-12-17 16:09:39,960 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-17 16:09:39,960 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-17 16:09:39,960 - app.services.scheduler - INFO - ============================================================
+2025-12-17 16:09:40,242 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 16:09:40,244 - app.db.database - INFO - Connecting to AWS RDS: caffeine-database.c58og6ke6t36.ap-northeast-2.rds.amazonaws.com
+2025-12-17 16:09:40,375 - app.db.database - INFO - Connected to AWS RDS: caffeine-database.c58og6ke6t36.ap-northeast-2.rds.amazonaws.com
+2025-12-17 16:09:40,486 - audit - INFO - Request: GET /api/admin/settings | Client: 127.0.0.1
+2025-12-17 16:09:40,491 - audit - INFO - Response: 200 | Duration: 0.249s
+2025-12-17 16:09:40,629 - audit - INFO - Response: 200 | Duration: 0.144s
+2025-12-17 16:10:36,966 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 16:10:37,065 - audit - INFO - Response: 200 | Duration: 0.099s
+2025-12-17 16:10:37,069 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 16:10:37,166 - audit - INFO - Response: 200 | Duration: 0.097s
+2025-12-17 16:10:37,168 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 16:10:37,220 - audit - INFO - Response: 200 | Duration: 0.053s
+2025-12-17 16:23:44,850 - audit - INFO - Request: POST /users/login | Client: 127.0.0.1
+2025-12-17 16:23:45,146 - audit - INFO - Response: 200 | Duration: 0.296s
+2025-12-17 16:23:45,151 - audit - INFO - Request: OPTIONS /users/me | Client: 127.0.0.1
+2025-12-17 16:23:45,151 - audit - INFO - Response: 200 | Duration: 0.001s
+2025-12-17 16:23:45,154 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 16:23:45,174 - audit - INFO - Response: 200 | Duration: 0.020s
+2025-12-17 16:23:45,262 - audit - INFO - Request: OPTIONS /api/analysis/full | Client: 127.0.0.1
+2025-12-17 16:23:45,264 - audit - INFO - Response: 200 | Duration: 0.002s
+2025-12-17 16:23:45,266 - audit - INFO - Request: OPTIONS /api/analysis/full | Client: 127.0.0.1
+2025-12-17 16:23:45,268 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 16:23:45,269 - audit - INFO - Response: 200 | Duration: 0.003s
+2025-12-17 16:23:45,338 - audit - INFO - Response: 200 | Duration: 0.070s
+2025-12-17 16:23:45,344 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 16:23:45,402 - audit - INFO - Response: 200 | Duration: 0.058s
+2025-12-17 16:24:02,540 - audit - INFO - Request: OPTIONS /api/transactions | Client: 127.0.0.1
+2025-12-17 16:24:02,542 - audit - INFO - Request: OPTIONS /api/transactions | Client: 127.0.0.1
+2025-12-17 16:24:02,543 - audit - INFO - Response: 200 | Duration: 0.004s
+2025-12-17 16:24:02,544 - audit - INFO - Response: 200 | Duration: 0.002s
+2025-12-17 16:24:02,548 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 16:24:02,644 - audit - INFO - Response: 200 | Duration: 0.096s
+2025-12-17 16:24:02,646 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 16:24:02,693 - audit - INFO - Response: 200 | Duration: 0.047s
+2025-12-17 16:24:05,169 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 16:24:05,249 - audit - INFO - Response: 200 | Duration: 0.079s
+2025-12-17 16:24:05,251 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 16:24:05,310 - audit - INFO - Response: 200 | Duration: 0.059s
+2025-12-17 16:24:07,054 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 16:24:07,091 - audit - INFO - Response: 200 | Duration: 0.036s
+2025-12-17 16:24:07,094 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 16:24:07,129 - audit - INFO - Response: 200 | Duration: 0.035s
+2025-12-17 16:24:09,604 - audit - INFO - Request: OPTIONS /api/transactions | Client: 127.0.0.1
+2025-12-17 16:24:09,604 - audit - INFO - Response: 200 | Duration: 0.000s
+2025-12-17 16:24:09,622 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 16:24:09,664 - audit - INFO - Response: 200 | Duration: 0.042s
+2025-12-17 16:24:10,651 - audit - INFO - Request: OPTIONS /api/transactions | Client: 127.0.0.1
+2025-12-17 16:24:10,651 - audit - INFO - Response: 200 | Duration: 0.000s
+2025-12-17 16:24:10,655 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 16:24:10,697 - audit - INFO - Response: 200 | Duration: 0.042s
+2025-12-17 16:24:15,294 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 16:24:15,310 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 16:24:15,340 - audit - INFO - Response: 200 | Duration: 0.046s
+2025-12-17 16:24:15,342 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 16:24:15,346 - audit - INFO - Response: 200 | Duration: 0.036s
+2025-12-17 16:24:15,349 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 16:24:15,379 - audit - INFO - Response: 200 | Duration: 0.030s
+2025-12-17 16:24:15,385 - audit - INFO - Response: 200 | Duration: 0.042s
+2025-12-17 16:24:15,386 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 16:24:15,423 - audit - INFO - Response: 200 | Duration: 0.037s
+2025-12-17 16:24:17,682 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 16:24:17,717 - audit - INFO - Response: 200 | Duration: 0.035s
+2025-12-17 16:24:37,785 - audit - INFO - Request: OPTIONS /api/anomalies | Client: 127.0.0.1
+2025-12-17 16:24:37,787 - audit - INFO - Request: OPTIONS /api/anomalies | Client: 127.0.0.1
+2025-12-17 16:24:37,789 - audit - INFO - Response: 200 | Duration: 0.004s
+2025-12-17 16:24:37,794 - audit - INFO - Response: 200 | Duration: 0.007s
+2025-12-17 16:24:37,799 - audit - INFO - Request: GET /api/anomalies | Client: 127.0.0.1
+2025-12-17 16:24:37,827 - app.routers.anomalies - ERROR - Failed to fetch anomalies: unsupported operand type(s) for /: 'decimal.Decimal' and 'float'
+Traceback (most recent call last):
+  File "C:\caffeine\10_backend\app\routers\anomalies.py", line 147, in get_anomalies
+    risk_level_str, reason = determine_risk_level(row.amount, avg_amount)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\caffeine\10_backend\app\routers\anomalies.py", line 66, in determine_risk_level
+    ratio = amount / avg_amount
+            ~~~~~~~^~~~~~~~~~~~
+TypeError: unsupported operand type(s) for /: 'decimal.Decimal' and 'float'
+2025-12-17 16:24:37,833 - audit - INFO - Response: 200 | Duration: 0.035s
+2025-12-17 16:24:37,835 - audit - INFO - Request: GET /api/anomalies | Client: 127.0.0.1
+2025-12-17 16:24:37,877 - app.routers.anomalies - ERROR - Failed to fetch anomalies: unsupported operand type(s) for /: 'decimal.Decimal' and 'float'
+Traceback (most recent call last):
+  File "C:\caffeine\10_backend\app\routers\anomalies.py", line 147, in get_anomalies
+    risk_level_str, reason = determine_risk_level(row.amount, avg_amount)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\caffeine\10_backend\app\routers\anomalies.py", line 66, in determine_risk_level
+    ratio = amount / avg_amount
+            ~~~~~~~^~~~~~~~~~~~
+TypeError: unsupported operand type(s) for /: 'decimal.Decimal' and 'float'
+2025-12-17 16:24:37,883 - audit - INFO - Response: 200 | Duration: 0.048s
+2025-12-17 16:24:51,806 - audit - INFO - Request: OPTIONS /users | Client: 127.0.0.1
+2025-12-17 16:24:51,806 - audit - INFO - Request: OPTIONS /users | Client: 127.0.0.1
+2025-12-17 16:24:51,807 - audit - INFO - Response: 200 | Duration: 0.001s
+2025-12-17 16:24:51,809 - audit - INFO - Response: 200 | Duration: 0.002s
+2025-12-17 16:24:51,810 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 16:24:51,811 - audit - INFO - Response: 307 | Duration: 0.001s
+2025-12-17 16:24:51,812 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 16:24:51,814 - audit - INFO - Response: 307 | Duration: 0.002s
+2025-12-17 16:24:51,815 - audit - INFO - Request: OPTIONS /users/ | Client: 127.0.0.1
+2025-12-17 16:24:51,816 - audit - INFO - Response: 200 | Duration: 0.001s
+2025-12-17 16:24:51,819 - audit - INFO - Request: OPTIONS /users/ | Client: 127.0.0.1
+2025-12-17 16:24:51,822 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 16:24:51,826 - audit - INFO - Response: 200 | Duration: 0.007s
+2025-12-17 16:24:51,868 - audit - INFO - Response: 200 | Duration: 0.046s
+2025-12-17 16:24:51,870 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 16:24:51,927 - audit - INFO - Response: 200 | Duration: 0.056s
+2025-12-17 16:25:10,950 - audit - INFO - Request: OPTIONS /api/admin/settings | Client: 127.0.0.1
+2025-12-17 16:25:10,951 - audit - INFO - Request: OPTIONS /api/admin/settings | Client: 127.0.0.1
+2025-12-17 16:25:10,952 - audit - INFO - Response: 200 | Duration: 0.002s
+2025-12-17 16:25:10,956 - audit - INFO - Response: 200 | Duration: 0.005s
+2025-12-17 16:25:10,960 - audit - INFO - Request: GET /api/admin/settings | Client: 127.0.0.1
+2025-12-17 16:25:11,010 - audit - INFO - Response: 200 | Duration: 0.050s
+2025-12-17 16:25:11,011 - audit - INFO - Request: GET /api/admin/settings | Client: 127.0.0.1
+2025-12-17 16:25:11,060 - audit - INFO - Response: 200 | Duration: 0.049s
+2025-12-17 16:25:15,354 - audit - INFO - Request: OPTIONS /api/admin/reports/send-monthly | Client: 127.0.0.1
+2025-12-17 16:25:15,354 - audit - INFO - Response: 200 | Duration: 0.000s
+2025-12-17 16:25:15,356 - audit - INFO - Request: POST /api/admin/reports/send-monthly | Client: 127.0.0.1
+2025-12-17 16:25:15,371 - app.routers.reports - INFO - Manual monthly report requested (User: admin@caffeine.com)
+2025-12-17 16:25:19,915 - app.services.email_service - INFO - Report email sent successfully: ygomania@naver.com
+2025-12-17 16:25:19,915 - app.routers.reports - INFO - Monthly report processing completed: Email sent to ygomania@naver.com.
+2025-12-17 16:25:19,920 - audit - INFO - Response: 200 | Duration: 4.565s
+2025-12-17 16:25:45,107 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 16:25:45,162 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 16:25:45,178 - audit - INFO - Response: 200 | Duration: 0.070s
+2025-12-17 16:25:45,191 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 16:25:45,196 - audit - INFO - Response: 200 | Duration: 0.034s
+2025-12-17 16:25:45,197 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 16:25:45,223 - audit - INFO - Response: 200 | Duration: 0.026s
+2025-12-17 16:25:45,256 - audit - INFO - Response: 200 | Duration: 0.065s
+2025-12-17 16:25:45,257 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 16:25:45,314 - audit - INFO - Response: 200 | Duration: 0.057s
+2025-12-17 16:25:49,445 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 16:25:49,495 - audit - INFO - Response: 200 | Duration: 0.050s
+2025-12-17 16:25:49,498 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 16:25:49,533 - audit - INFO - Response: 200 | Duration: 0.035s
+2025-12-17 16:27:34,686 - audit - INFO - Request: GET /api/anomalies | Client: 127.0.0.1
+2025-12-17 16:27:34,705 - app.routers.anomalies - ERROR - Failed to fetch anomalies: unsupported operand type(s) for /: 'decimal.Decimal' and 'float'
+Traceback (most recent call last):
+  File "C:\caffeine\10_backend\app\routers\anomalies.py", line 147, in get_anomalies
+    risk_level_str, reason = determine_risk_level(row.amount, avg_amount)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\caffeine\10_backend\app\routers\anomalies.py", line 66, in determine_risk_level
+    ratio = amount / avg_amount
+            ~~~~~~~^~~~~~~~~~~~
+TypeError: unsupported operand type(s) for /: 'decimal.Decimal' and 'float'
+2025-12-17 16:27:34,714 - audit - INFO - Response: 200 | Duration: 0.028s
+2025-12-17 16:27:34,716 - audit - INFO - Request: GET /api/anomalies | Client: 127.0.0.1
+2025-12-17 16:27:34,735 - app.routers.anomalies - ERROR - Failed to fetch anomalies: unsupported operand type(s) for /: 'decimal.Decimal' and 'float'
+Traceback (most recent call last):
+  File "C:\caffeine\10_backend\app\routers\anomalies.py", line 147, in get_anomalies
+    risk_level_str, reason = determine_risk_level(row.amount, avg_amount)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\caffeine\10_backend\app\routers\anomalies.py", line 66, in determine_risk_level
+    ratio = amount / avg_amount
+            ~~~~~~~^~~~~~~~~~~~
+TypeError: unsupported operand type(s) for /: 'decimal.Decimal' and 'float'
+2025-12-17 16:27:34,741 - audit - INFO - Response: 200 | Duration: 0.025s
+2025-12-17 16:30:26,652 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 16:30:26,654 - audit - INFO - Response: 307 | Duration: 0.003s
+2025-12-17 16:30:26,658 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 16:30:26,660 - audit - INFO - Response: 307 | Duration: 0.001s
+2025-12-17 16:30:26,667 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 16:30:26,717 - audit - INFO - Response: 200 | Duration: 0.049s
+2025-12-17 16:30:26,722 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 16:30:26,814 - audit - INFO - Response: 200 | Duration: 0.093s
+2025-12-17 16:31:02,600 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 16:31:02,641 - audit - INFO - Response: 200 | Duration: 0.040s
+2025-12-17 16:31:02,644 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 16:31:02,684 - audit - INFO - Response: 200 | Duration: 0.040s
+2025-12-17 16:44:16,859 - audit - INFO - Request: OPTIONS /api/anomalies | Client: 127.0.0.1
+2025-12-17 16:44:16,859 - audit - INFO - Request: OPTIONS /api/anomalies | Client: 127.0.0.1
+2025-12-17 16:44:16,861 - audit - INFO - Response: 200 | Duration: 0.001s
+2025-12-17 16:44:16,861 - audit - INFO - Response: 200 | Duration: 0.002s
+2025-12-17 16:44:16,874 - audit - INFO - Request: GET /api/anomalies | Client: 127.0.0.1
+2025-12-17 16:44:16,894 - app.routers.anomalies - ERROR - Failed to fetch anomalies: unsupported operand type(s) for /: 'decimal.Decimal' and 'float'
+Traceback (most recent call last):
+  File "C:\caffeine\10_backend\app\routers\anomalies.py", line 147, in get_anomalies
+    risk_level_str, reason = determine_risk_level(row.amount, avg_amount)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\caffeine\10_backend\app\routers\anomalies.py", line 66, in determine_risk_level
+    ratio = amount / avg_amount
+            ~~~~~~~^~~~~~~~~~~~
+TypeError: unsupported operand type(s) for /: 'decimal.Decimal' and 'float'
+2025-12-17 16:44:16,900 - audit - INFO - Response: 200 | Duration: 0.027s
+2025-12-17 16:44:16,902 - audit - INFO - Request: GET /api/anomalies | Client: 127.0.0.1
+2025-12-17 16:44:16,919 - app.routers.anomalies - ERROR - Failed to fetch anomalies: unsupported operand type(s) for /: 'decimal.Decimal' and 'float'
+Traceback (most recent call last):
+  File "C:\caffeine\10_backend\app\routers\anomalies.py", line 147, in get_anomalies
+    risk_level_str, reason = determine_risk_level(row.amount, avg_amount)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\caffeine\10_backend\app\routers\anomalies.py", line 66, in determine_risk_level
+    ratio = amount / avg_amount
+            ~~~~~~~^~~~~~~~~~~~
+TypeError: unsupported operand type(s) for /: 'decimal.Decimal' and 'float'
+2025-12-17 16:44:16,927 - audit - INFO - Response: 200 | Duration: 0.025s
+2025-12-17 16:44:17,535 - audit - INFO - Request: OPTIONS /users | Client: 127.0.0.1
+2025-12-17 16:44:17,536 - audit - INFO - Request: OPTIONS /users | Client: 127.0.0.1
+2025-12-17 16:44:17,536 - audit - INFO - Response: 200 | Duration: 0.001s
+2025-12-17 16:44:17,537 - audit - INFO - Response: 200 | Duration: 0.001s
+2025-12-17 16:44:17,538 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 16:44:17,538 - audit - INFO - Response: 307 | Duration: 0.000s
+2025-12-17 16:44:17,540 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 16:44:17,540 - audit - INFO - Response: 307 | Duration: 0.000s
+2025-12-17 16:44:17,541 - audit - INFO - Request: OPTIONS /users/ | Client: 127.0.0.1
+2025-12-17 16:44:17,542 - audit - INFO - Response: 200 | Duration: 0.001s
+2025-12-17 16:44:17,543 - audit - INFO - Request: OPTIONS /users/ | Client: 127.0.0.1
+2025-12-17 16:44:17,543 - audit - INFO - Response: 200 | Duration: 0.000s
+2025-12-17 16:44:17,544 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 16:44:17,581 - audit - INFO - Response: 200 | Duration: 0.037s
+2025-12-17 16:44:17,583 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 16:44:17,628 - audit - INFO - Response: 200 | Duration: 0.046s
+2025-12-17 16:44:19,209 - audit - INFO - Request: OPTIONS /api/admin/settings | Client: 127.0.0.1
+2025-12-17 16:44:19,209 - audit - INFO - Request: OPTIONS /api/admin/settings | Client: 127.0.0.1
+2025-12-17 16:44:19,211 - audit - INFO - Response: 200 | Duration: 0.002s
+2025-12-17 16:44:19,212 - audit - INFO - Response: 200 | Duration: 0.003s
+2025-12-17 16:44:19,216 - audit - INFO - Request: GET /api/admin/settings | Client: 127.0.0.1
+2025-12-17 16:44:19,262 - audit - INFO - Response: 200 | Duration: 0.046s
+2025-12-17 16:44:19,264 - audit - INFO - Request: GET /api/admin/settings | Client: 127.0.0.1
+2025-12-17 16:44:19,306 - audit - INFO - Response: 200 | Duration: 0.042s
+2025-12-17 16:44:32,757 - audit - INFO - Request: OPTIONS /api/analysis/full | Client: 127.0.0.1
+2025-12-17 16:44:32,759 - audit - INFO - Request: OPTIONS /api/analysis/full | Client: 127.0.0.1
+2025-12-17 16:44:32,760 - audit - INFO - Response: 200 | Duration: 0.003s
+2025-12-17 16:44:32,761 - audit - INFO - Response: 200 | Duration: 0.002s
+2025-12-17 16:44:32,766 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 16:44:32,836 - audit - INFO - Response: 200 | Duration: 0.070s
+2025-12-17 16:44:32,839 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 16:44:32,906 - audit - INFO - Response: 200 | Duration: 0.067s
+2025-12-17 16:48:03,276 - audit - INFO - Request: OPTIONS /api/transactions | Client: 127.0.0.1
+2025-12-17 16:48:03,278 - audit - INFO - Request: OPTIONS /api/transactions | Client: 127.0.0.1
+2025-12-17 16:48:03,279 - audit - INFO - Response: 200 | Duration: 0.003s
+2025-12-17 16:48:03,280 - audit - INFO - Response: 200 | Duration: 0.003s
+2025-12-17 16:48:03,293 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 16:48:03,335 - audit - INFO - Response: 200 | Duration: 0.042s
+2025-12-17 16:48:03,337 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 16:48:03,375 - audit - INFO - Response: 200 | Duration: 0.038s
+2025-12-17 16:48:09,950 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 16:48:09,983 - audit - INFO - Response: 200 | Duration: 0.033s
+2025-12-17 16:48:09,988 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 16:48:10,021 - audit - INFO - Response: 200 | Duration: 0.034s
+2025-12-17 17:02:03,934 - audit - INFO - Request: OPTIONS /api/analysis/full | Client: 127.0.0.1
+2025-12-17 17:02:03,934 - audit - INFO - Request: OPTIONS /api/analysis/full | Client: 127.0.0.1
+2025-12-17 17:02:03,938 - audit - INFO - Response: 200 | Duration: 0.004s
+2025-12-17 17:02:03,938 - audit - INFO - Response: 200 | Duration: 0.004s
+2025-12-17 17:02:03,951 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 17:02:04,030 - audit - INFO - Response: 200 | Duration: 0.079s
+2025-12-17 17:02:04,030 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 17:02:04,090 - audit - INFO - Response: 200 | Duration: 0.061s
+2025-12-17 17:02:39,413 - audit - INFO - Request: OPTIONS /api/transactions | Client: 127.0.0.1
+2025-12-17 17:02:39,414 - audit - INFO - Request: OPTIONS /api/transactions | Client: 127.0.0.1
+2025-12-17 17:02:39,416 - audit - INFO - Response: 200 | Duration: 0.003s
+2025-12-17 17:02:39,418 - audit - INFO - Response: 200 | Duration: 0.004s
+2025-12-17 17:02:39,427 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 17:02:39,463 - audit - INFO - Response: 200 | Duration: 0.036s
+2025-12-17 17:02:39,468 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 17:02:39,503 - audit - INFO - Response: 200 | Duration: 0.035s
+2025-12-17 17:02:42,829 - audit - INFO - Request: OPTIONS /api/transactions | Client: 127.0.0.1
+2025-12-17 17:02:42,829 - audit - INFO - Response: 200 | Duration: 0.000s
+2025-12-17 17:02:42,831 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 17:02:42,868 - audit - INFO - Response: 200 | Duration: 0.036s
+2025-12-17 17:04:05,246 - audit - INFO - Request: OPTIONS /api/transactions | Client: 127.0.0.1
+2025-12-17 17:04:05,247 - audit - INFO - Response: 200 | Duration: 0.001s
+2025-12-17 17:04:05,248 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 17:04:05,255 - audit - INFO - Response: 422 | Duration: 0.007s
+2025-12-17 17:04:05,262 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 17:04:05,264 - audit - INFO - Request: OPTIONS /users/me | Client: 127.0.0.1
+2025-12-17 17:04:05,264 - audit - INFO - Request: OPTIONS /users/me | Client: 127.0.0.1
+2025-12-17 17:04:05,265 - audit - INFO - Response: 422 | Duration: 0.003s
+2025-12-17 17:04:05,266 - audit - INFO - Response: 200 | Duration: 0.002s
+2025-12-17 17:04:05,268 - audit - INFO - Response: 200 | Duration: 0.004s
+2025-12-17 17:04:05,271 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 17:04:05,271 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 17:04:05,278 - audit - INFO - Response: 422 | Duration: 0.006s
+2025-12-17 17:04:05,279 - audit - INFO - Response: 401 | Duration: 0.008s
+2025-12-17 17:04:05,282 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 17:04:05,286 - audit - INFO - Response: 401 | Duration: 0.003s
+2025-12-17 17:04:12,675 - audit - INFO - Request: POST /users/login | Client: 127.0.0.1
+2025-12-17 17:04:12,954 - audit - INFO - Response: 200 | Duration: 0.279s
+2025-12-17 17:04:12,958 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 17:04:12,979 - audit - INFO - Response: 200 | Duration: 0.022s
+2025-12-17 17:04:13,064 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 17:04:13,132 - audit - INFO - Response: 200 | Duration: 0.068s
+2025-12-17 17:04:13,134 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 17:04:13,200 - audit - INFO - Response: 200 | Duration: 0.066s
+2025-12-17 17:04:15,684 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 17:04:15,685 - audit - INFO - Response: 422 | Duration: 0.001s
+2025-12-17 17:04:15,687 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 17:04:15,689 - audit - INFO - Response: 422 | Duration: 0.002s
+2025-12-17 17:04:16,860 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 17:04:16,862 - audit - INFO - Response: 422 | Duration: 0.002s
+2025-12-17 17:04:16,870 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 17:04:16,872 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 17:04:16,874 - audit - INFO - Response: 422 | Duration: 0.004s
+2025-12-17 17:04:16,876 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 17:04:16,880 - audit - INFO - Response: 422 | Duration: 0.003s
+2025-12-17 17:04:16,900 - audit - INFO - Response: 200 | Duration: 0.027s
+2025-12-17 17:04:16,903 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 17:04:16,928 - audit - INFO - Response: 200 | Duration: 0.025s
+2025-12-17 17:05:21,827 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-17 17:05:21,827 - app.main - INFO - Caffeine API stopped
+2025-12-17 17:05:21,827 - app.main - INFO - ============================================================
+2025-12-17 17:05:21,828 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-17 17:05:24,938 - app.main - INFO - ============================================================
+2025-12-17 17:05:24,938 - app.main - INFO - Caffeine API started
+2025-12-17 17:05:24,938 - app.main - INFO - Environment: development
+2025-12-17 17:05:24,939 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-17 17:05:26,133 - app.routers.ml - INFO - XGBoost model loaded: model_xgboost_acc_73.47.joblib
+2025-12-17 17:05:26,199 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-17 17:05:26,199 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-17 17:05:26,200 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-17 17:05:26,200 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-17 17:05:26,201 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-17 17:05:26,201 - app.services.scheduler - INFO - ============================================================
+2025-12-17 17:05:26,201 - app.services.scheduler - INFO - Scheduler started
+2025-12-17 17:05:26,201 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-17 17:05:26,201 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-17 17:05:26,201 - app.services.scheduler - INFO - ============================================================
+2025-12-17 17:06:09,806 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-17 17:06:09,806 - app.main - INFO - Caffeine API stopped
+2025-12-17 17:06:09,806 - app.main - INFO - ============================================================
+2025-12-17 17:06:09,807 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-17 17:06:11,728 - app.main - INFO - ============================================================
+2025-12-17 17:06:11,729 - app.main - INFO - Caffeine API started
+2025-12-17 17:06:11,729 - app.main - INFO - Environment: development
+2025-12-17 17:06:11,729 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']

@@ -56,7 +56,7 @@ const AdminIntegratedAnalysis = () => {
             try {
                 const params = new URLSearchParams({
                     page: '1',
-                    page_size: '100'
+                    page_size: '999999'  // Unlimited - fetch all available data
                 });
 
                 // 월이 선택된 경우에만 날짜 필터 추가
