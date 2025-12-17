@@ -359,3 +359,36 @@ async def delete_coupon(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"쿠폰 삭제 실패: {str(e)}"
         )
+
+
+@router.delete("/user/all")
+async def delete_all_user_coupons(
+    user_id: int = 1,  # TODO: JWT
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    사용자의 모든 쿠폰 삭제
+    """
+    try:
+        result = await db.execute(
+            select(Coupon).where(Coupon.user_id == user_id)
+        )
+        coupons = result.scalars().all()
+        
+        count = len(coupons)
+        for coupon in coupons:
+            await db.delete(coupon)
+        
+        await db.commit()
+        
+        logger.info(f"Deleted {count} coupons for user {user_id}")
+        
+        return {"message": f"{count}개 쿠폰이 삭제되었습니다", "count": count}
+        
+    except Exception as e:
+        logger.error(f"Failed to delete all coupons: {e}", exc_info=True)
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"쿠폰 삭제 실패: {str(e)}"
+        )
