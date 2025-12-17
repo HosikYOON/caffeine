@@ -5,7 +5,7 @@ services:
     build: ./10_backend
     container_name: caf_backend
     ports:
-      - "8000:8000"
+      - "8001:8000"
   # ============================================================
   # 프론트엔드 (사용자) - Expo 앱, 로컬에서 실행 권장
   # cd 20_frontend_user && npm start
