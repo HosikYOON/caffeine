@@ -28,11 +28,12 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 // API URL 설정 (로컬/프로덕션 환경 자동 판별)
 const LOCAL_BASE_URL = "http://localhost:8001";
 const PROD_BASE_URL = "https://d26uyg5darllja.cloudfront.net";
-const isLocal = typeof window !== "undefined" && window.location.hostname.includes("localhost");
+const isLocal = Platform.OS === "web" && typeof window !== "undefined" && window.location?.hostname?.includes("localhost");
 const API_BASE_URL = isLocal ? LOCAL_BASE_URL : PROD_BASE_URL;
 
 // ═══ Context 생성 ═══
@@ -340,6 +341,72 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
+    // kakaoLogin - 카카오 로그인 함수
+    // 
+    // @param {string} code - 카카오 인증 후 받은 authorization code
+    // @returns {Object} { success: true/false, error?: string }
+    const kakaoLogin = async (code) => {
+        try {
+            // 백엔드 API로 카카오 인증 코드 전송
+            const response = await fetch(`${API_BASE_URL}/auth/kakao`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                // 사용자 정보 저장
+                const userData = {
+                    id: data.user?.id || Date.now(),
+                    name: data.user?.nickname || '카카오 사용자',
+                    email: data.user?.email || 'kakao@user.com',
+                    avatar: data.user?.profile_image || 'https://via.placeholder.com/100?text=K',
+                    provider: 'kakao',
+                };
+                
+                await AsyncStorage.setItem('user', JSON.stringify(userData));
+                
+                // 백엔드는 access_token을 반환함
+                if (data.access_token) {
+                    await AsyncStorage.setItem('authToken', data.access_token);
+                    console.log('✅ 카카오 로그인 토큰 저장 완료');
+                }
+                if (data.refresh_token) {
+                    await AsyncStorage.setItem('refreshToken', data.refresh_token);
+                }
+                
+                setUser(userData);
+                return { success: true };
+            } else {
+                // 백엔드 없을 경우 Mock 로그인
+                const mockUser = {
+                    id: Date.now(),
+                    name: '카카오 사용자',
+                    email: 'kakao@caffeine.app',
+                    avatar: 'https://via.placeholder.com/100?text=K',
+                    provider: 'kakao',
+                };
+                await AsyncStorage.setItem('user', JSON.stringify(mockUser));
+                setUser(mockUser);
+                return { success: true };
+            }
+        } catch (error) {
+            console.error('카카오 로그인 오류:', error);
+            // 네트워크 오류 시에도 Mock 로그인 허용
+            const mockUser = {
+                id: Date.now(),
+                name: '카카오 사용자',
+                email: 'kakao@caffeine.app',
+                avatar: 'https://via.placeholder.com/100?text=K',
+                provider: 'kakao',
+            };
+            await AsyncStorage.setItem('user', JSON.stringify(mockUser));
+            setUser(mockUser);
+            return { success: true };
+        }
+    };
+
     // ═══ Context 제공 ═══
     /**
      * Provider를 통해 하위 컴포넌트에 값 전달
@@ -350,9 +417,10 @@ export const AuthProvider = ({ children }) => {
      * - login: 로그인 함수
      * - signup: 회원가입 함수
      * - logout: 로그아웃 함수
+     * - kakaoLogin: 카카오 로그인 함수
      */
     return (
-        <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, signup, logout, kakaoLogin }}>
             {children}
         </AuthContext.Provider>
     );

@@ -16,7 +16,7 @@ services:
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -46,6 +46,9 @@ services:
       LOCAL_DB_PASSWORD: caffeineapprds
       # App
       SECRET_KEY: your-super-secret-key-change-in-production
+      # Gmail SMTP (비밀번호 찾기 이메일 발송용)
+      GMAIL_ADDRESS: ${GMAIL_ADDRESS}
+      GMAIL_APP_PASSWORD: ${GMAIL_APP_PASSWORD}
     ports:
       - "8001:8000"
     volumes:

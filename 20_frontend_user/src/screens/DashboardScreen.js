@@ -217,13 +217,30 @@ export default function DashboardScreen({ navigation }) {
         setRefreshing(false);
     };
 
-    const handleGetCoupon = () => {
+    const handleGetCoupon = async () => {
         if (couponReceived) {
             alert('이미 쿠폰을 받으셨습니다!');
             return;
         }
-        setCouponReceived(true);
-        alert(`쿠폰 발급 완료!\n\n${predictedTransaction?.merchant}에서 사용 가능한\n${formatCurrency(predictedTransaction?.couponDiscount)} 할인 쿠폰이 발급되었습니다!`);
+        
+        try {
+            // API 호출하여 쿠폰 발급
+            const { issueCoupon } = await import('../api/coupons');
+            const result = await issueCoupon(
+                predictedTransaction?.merchant,
+                predictedTransaction?.couponDiscount
+            );
+            
+            if (result.success) {
+                setCouponReceived(true);
+                alert(`쿠폰 발급 완료!\n\n${predictedTransaction?.merchant}에서 사용 가능한\n${formatCurrency(predictedTransaction?.couponDiscount)} 할인 쿠폰이 발급되었습니다!`);
+            }
+        } catch (error) {
+            console.error('쿠폰 발급 오류:', error);
+            // 중복 발급 등 에러 처리
+            const message = error.response?.data?.detail || '쿠폰 발급에 실패했습니다.';
+            alert(message);
+        }
     };
 
     // 로딩 중

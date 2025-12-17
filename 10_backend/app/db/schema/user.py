@@ -17,6 +17,7 @@ class UserCreate(UserBase):
     social_id: Optional[str] = Field(None, description="소셜 로그인 ID")
     group_id: Optional[int] = Field(None, description="권한 그룹 ID")
     status: Optional[str] = Field("ACTIVE", description="계정 상태(ACTIVE/AWAY/BUSY 등)")
+    push_token: Optional[str] = Field(None, description="푸시 토큰")
 
 # 업데이트
 class UserUpdate(BaseModel):
@@ -26,6 +27,8 @@ class UserUpdate(BaseModel):
     password: Optional[str] = None  # 평문 입력, 서버에서 해싱 처리
     status: Optional[str] = None
     group_id: Optional[int] = None
+    push_token: Optional[str] = None
+    budget_limit: Optional[int] = None
 
 # 응답
 class UserResponse(UserBase):
@@ -38,6 +41,8 @@ class UserResponse(UserBase):
     created_at: datetime
     updated_at: datetime
     last_login_at: Optional[datetime]
+    push_token: Optional[str]
+    budget_limit: Optional[int]
 
     class Config:
         from_attributes = True

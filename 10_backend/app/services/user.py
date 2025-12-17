@@ -90,6 +90,8 @@ async def update_user(db: AsyncSession, user_id: int, user_data: UserUpdate):
         hashed_password=hashed_password,
         status=user_data.status,
         group_id=user_data.group_id,
+        push_token=user_data.push_token,
+        budget_limit=user_data.budget_limit,
     )
 
     if not updated_user:

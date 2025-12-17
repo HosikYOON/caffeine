@@ -206,7 +206,7 @@ async def health(request: Request):
 # ============================================================
 # 라우터 등록
 # ============================================================
-from app.routers import ml, analysis, transactions, user
+from app.routers import ml, analysis, transactions, user, auth, coupons
 
 # ML 예측 API (/ml/*)
 app.include_router(ml.router)
@@ -219,6 +219,12 @@ app.include_router(transactions.router)
 
 # 사용자 인증 API (/users/*)
 app.include_router(user.router)
+
+# 카카오 로그인 API (/auth/*)
+app.include_router(auth.router)
+
+# 쿠폰 API (/coupons/*)
+app.include_router(coupons.router)
 
 # ============================================================
 # 시작 / 종료 이벤트
@@ -233,6 +239,10 @@ async def startup_event():
     logger.info("🚀 Caffeine API 시작됨")
     logger.info(f"환경: {os.getenv('ENVIRONMENT', 'development')}")
     logger.info(f"CORS 허용 도메인: {allowed_origins}")
+    
+    # 데이터베이스 테이블 생성 (없으면 생성)
+    from app.services.db_init import ensure_database_and_tables
+    await ensure_database_and_tables()
     
     # ML 모델 로드
     ml.load_model()

@@ -11,7 +11,7 @@ from app.db.database import Base
 # 이 import가 없으면 create_all()이 실행되어도 테이블이 생성되지 않음
 from app.db.model.user import User, LoginHistory
 from app.db.model.group import UserGroup
-from app.db.model.transaction import Transaction, Coupon  # 2025-12-10 추가
+from app.db.model.transaction import Transaction, CouponTemplate, UserCoupon  # 2025-12-17 정규화
 
 
 async def ensure_database_and_tables():

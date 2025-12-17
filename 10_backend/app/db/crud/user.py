@@ -75,6 +75,8 @@ async def update_user(
     hashed_password: Optional[str] = None,
     status: Optional[str] = None,
     group_id: Optional[int] = None,
+    push_token: Optional[str] = None,
+    budget_limit: Optional[int] = None,
 ) -> Optional[User]:
     
     #유저ID로 유저 조회
@@ -95,6 +97,10 @@ async def update_user(
         user_obj.status = status
     if group_id is not None:
         user_obj.group_id = group_id
+    if push_token is not None:
+        user_obj.push_token = push_token
+    if budget_limit is not None:
+        user_obj.budget_limit = budget_limit
 
     await db.commit()
     await db.refresh(user_obj)

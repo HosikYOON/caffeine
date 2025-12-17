@@ -19,6 +19,8 @@ class User(Base):
     role = Column(String(20), default="USER", nullable=False)  # USER/ADMIN 등
     group_id = Column(BigInteger, ForeignKey("user_groups.id", ondelete="SET NULL"), nullable=True)
     status = Column(String(20), default="ACTIVE", nullable=False)  # ACTIVE/AWAY/BUSY 등 상태값
+    push_token = Column(String(255), nullable=True)  # 앱 푸시 토큰 (Expo)
+    budget_limit = Column(BigInteger, default=0, nullable=True)  # 월 예산 설정액
 
     # 소셜 로그인
     social_provider = Column(String(20), nullable=True)  # LOCAL/GOOGLE/KAKAO/NAVER
