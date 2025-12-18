@@ -51,3 +51,8 @@ production_models/*.json
 .vscode/
 .env
 presentation/
+
+# Environment variables
+.env
+*.env
+.env.*
