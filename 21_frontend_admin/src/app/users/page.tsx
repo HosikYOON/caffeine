@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Users as UsersIcon, Search, Mail, Calendar, CheckCircle2, XCircle, TrendingUp, TrendingDown, UserPlus } from 'lucide-react';
+import { Users as UsersIcon, Search, Mail, Calendar, CheckCircle2, XCircle, TrendingUp, TrendingDown, UserPlus, Eye, EyeOff } from 'lucide-react';
 import { UserData, ChurnMetrics } from '@/types';
 import { getAllUsers, getNewSignups, getChurnedUsers, getChurnMetrics } from '@/api/client';
+import { maskEmail, maskName, maskPhone } from '@/utils/masking';
 
 type TabType = 'all' | 'new' | 'churned';
 
@@ -16,6 +17,8 @@ export default function UsersPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [days, setDays] = useState(30);
+    const [unmaskedUserIds, setUnmaskedUserIds] = useState<Set<number>>(new Set());
+    const [showAllUnmasked, setShowAllUnmasked] = useState(false);
 
     useEffect(() => {
         fetchAllData();
@@ -53,11 +56,39 @@ export default function UsersPage() {
         }
     };
 
-    // 검색 필터
+    // 검색 필터 (원본 데이터로 검색)
     const filteredUsers = getCurrentUsers().filter(user =>
         user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.email?.toLowerCase().includes(searchQuery.toLowerCase())
     );
+
+    // 마스킹 토글 함수
+    const toggleUserMask = (userId: number) => {
+        setUnmaskedUserIds(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(userId)) {
+                newSet.delete(userId);
+            } else {
+                newSet.add(userId);
+            }
+            return newSet;
+        });
+    };
+
+    const toggleAllMask = () => {
+        if (showAllUnmasked) {
+            setUnmaskedUserIds(new Set());
+            setShowAllUnmasked(false);
+        } else {
+            const allIds = new Set(getCurrentUsers().map(u => u.id));
+            setUnmaskedUserIds(allIds);
+            setShowAllUnmasked(true);
+        }
+    };
+
+    const isUserUnmasked = (userId: number) => {
+        return showAllUnmasked || unmaskedUserIds.has(userId);
+    };
 
     const totalUsers = churnMetrics?.total_users || users.length;
     const activeUsers = churnMetrics?.active_users || users.filter(u => u.is_active).length;
@@ -166,23 +197,34 @@ export default function UsersPage() {
                                 : 'border-transparent text-gray-500 hover:text-gray-700'
                                 }`}
                         >
-                            이탈 사용자 ({churnedUsers.length})
+                            Deactive ({churnedUsers.length})
                         </button>
                     </div>
                 </div>
 
-                {/* 검색바 */}
-                <div className="p-4 border-b border-gray-100">
-                    <div className="relative max-w-md">
+                {/* 검색바 및 마스킹 토글 */}
+                <div className="p-4 border-b border-gray-100 flex justify-between items-center gap-4">
+                    <div className="relative flex-1 max-w-md">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                         <input
                             type="text"
-                            placeholder="이름 또는 이메일로 검색..."
+                            placeholder="검색할 이메일(전체) 또는 이름을 입력하세요"
                             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
+                            autoComplete="off"
                         />
                     </div>
+                    <button
+                        onClick={toggleAllMask}
+                        className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${showAllUnmasked
+                            ? 'bg-blue-600 text-white hover:bg-blue-700'
+                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            }`}
+                    >
+                        {showAllUnmasked ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {showAllUnmasked ? '전체 마스킹' : '전체 열람'}
+                    </button>
                 </div>
 
                 {/* 사용자 테이블 */}
@@ -216,62 +258,83 @@ export default function UsersPage() {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         권한
                                     </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        열람
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
-                                {filteredUsers.map((user) => (
-                                    <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center">
-                                                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                                                    <span className="text-blue-600 font-semibold text-sm">
-                                                        {user.name?.charAt(0).toUpperCase() || 'U'}
+                                {filteredUsers.map((user) => {
+                                    const isUnmasked = isUserUnmasked(user.id);
+                                    const displayName = isUnmasked ? user.name : maskName(user.name || '');
+                                    const displayEmail = isUnmasked ? user.email : maskEmail(user.email);
+
+                                    return (
+                                        <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="flex items-center">
+                                                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                                        <span className="text-blue-600 font-semibold text-sm">
+                                                            {user.name?.charAt(0).toUpperCase() || 'U'}
+                                                        </span>
+                                                    </div>
+                                                    <div className="ml-4">
+                                                        <div className="text-sm font-medium text-gray-900">{displayName || '이름 없음'}</div>
+                                                        <div className="text-sm text-gray-500">ID: {user.id}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="flex items-center text-sm text-gray-900">
+                                                    <Mail className="w-4 h-4 text-gray-400 mr-2" />
+                                                    {displayEmail}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="flex items-center text-sm text-gray-500">
+                                                    <Calendar className="w-4 h-4 text-gray-400 mr-2" />
+                                                    {new Date(user.created_at).toLocaleDateString('ko-KR')}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                {user.is_active ? (
+                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        <CheckCircle2 className="w-3 h-3 mr-1" />
+                                                        활성
                                                     </span>
-                                                </div>
-                                                <div className="ml-4">
-                                                    <div className="text-sm font-medium text-gray-900">{user.name || '이름 없음'}</div>
-                                                    <div className="text-sm text-gray-500">ID: {user.id}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center text-sm text-gray-900">
-                                                <Mail className="w-4 h-4 text-gray-400 mr-2" />
-                                                {user.email}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center text-sm text-gray-500">
-                                                <Calendar className="w-4 h-4 text-gray-400 mr-2" />
-                                                {new Date(user.created_at).toLocaleDateString('ko-KR')}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            {user.is_active ? (
-                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                    <CheckCircle2 className="w-3 h-3 mr-1" />
-                                                    활성
-                                                </span>
-                                            ) : (
-                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                                    <XCircle className="w-3 h-3 mr-1" />
-                                                    비활성
-                                                </span>
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            {user.is_superuser ? (
-                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                                    관리자
-                                                </span>
-                                            ) : (
-                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                    일반 사용자
-                                                </span>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
+                                                ) : (
+                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                        <XCircle className="w-3 h-3 mr-1" />
+                                                        비활성
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                {user.is_superuser ? (
+                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                                        관리자
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                        일반 사용자
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <button
+                                                    onClick={() => toggleUserMask(user.id)}
+                                                    className={`p-2 rounded-lg transition-colors ${isUnmasked
+                                                        ? 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                                        }`}
+                                                    title={isUnmasked ? '마스킹하기' : '열람하기'}
+                                                >
+                                                    {isUnmasked ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>
