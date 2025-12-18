@@ -24,6 +24,7 @@ const CATEGORY_COLORS = {
     '의료': '#EF4444',
 };
 
+// 분석 화면 컴포넌트
 export default function AnalysisScreen({ navigation }) {
     const { colors } = useTheme();
     const { transactions } = useTransactions();
@@ -31,6 +32,7 @@ export default function AnalysisScreen({ navigation }) {
     const [categoryData, setCategoryData] = useState([]);
     const [summary, setSummary] = useState(null);
 
+    // 데이터가 변경될 때마다 실행
     useEffect(() => {
         if (transactions && transactions.length > 0) {
             calculateMonthlyData(transactions);
@@ -39,6 +41,7 @@ export default function AnalysisScreen({ navigation }) {
         }
     }, [transactions]);
 
+    // 월별 데이터 계산
     const calculateMonthlyData = (txns) => {
         const monthlyMap = {};
         txns.forEach(t => {
@@ -70,6 +73,7 @@ export default function AnalysisScreen({ navigation }) {
         })));
     };
 
+    // 카테고리별 데이터 계산
     const calculateCategoryData = (txns) => {
         const categoryMap = {};
         let total = 0;
@@ -96,6 +100,7 @@ export default function AnalysisScreen({ navigation }) {
         setCategoryData(sorted);
     };
 
+    // 요약 데이터 계산
     const calculateSummary = (txns) => {
         const total = txns.reduce((sum, t) => sum + Math.abs(t.amount), 0);
         const avg = total / txns.length;
@@ -122,6 +127,7 @@ export default function AnalysisScreen({ navigation }) {
         });
     };
 
+    // 차트 구성
     const chartConfig = {
         backgroundColor: colors.cardBackground,
         backgroundGradientFrom: colors.cardBackground,
@@ -137,6 +143,7 @@ export default function AnalysisScreen({ navigation }) {
         }
     };
 
+    // 데이터가 없을 때 화면
     if (!transactions || transactions.length === 0) {
         return (
             <LinearGradient colors={colors.screenGradient} style={styles.container}>
@@ -149,6 +156,7 @@ export default function AnalysisScreen({ navigation }) {
         );
     }
 
+    // 분석 화면
     return (
         <LinearGradient colors={colors.screenGradient} style={styles.container}>
             <ScrollView showsVerticalScrollIndicator={false}>
@@ -187,7 +195,7 @@ export default function AnalysisScreen({ navigation }) {
                     </View>
                 </FadeInView>
 
-                {/* Tips - 상단에 표시 */}
+                {/* Tips */}
                 <FadeInView style={styles.section} delay={150}>
                     <Text style={[styles.sectionTitle, { color: colors.text }]}>💡 지출 팁</Text>
                     <View style={[styles.tipCard, { backgroundColor: colors.cardBackground }]}>

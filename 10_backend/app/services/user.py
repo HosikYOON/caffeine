@@ -5,7 +5,6 @@ from app.core.jwt import create_access_token, create_refresh_token
 from app.db.crud import user as user_crud
 from app.db.schema.user import UserCreate, UserUpdate, LoginHistoryCreate
 
-
 #회원가입
 async def register_user(db: AsyncSession, user_data: UserCreate):
     # 중복 이메일 체크
@@ -17,7 +16,6 @@ async def register_user(db: AsyncSession, user_data: UserCreate):
         )
 
     return await user_crud.create_user(db, user_data)
-
 
 #로그인
 async def login_user(
@@ -57,7 +55,6 @@ async def login_user(
         "refresh_token": refresh_token,
     }
 
-
 #유저 정보 조회(개인)
 async def get_user(db: AsyncSession, email: str):
     user = await user_crud.get_user_by_email(db, email)
@@ -68,12 +65,10 @@ async def get_user(db: AsyncSession, email: str):
         )
     return user
 
-
 #모든 유저 정보 조회
 async def get_all_users(db: AsyncSession):
     users = await user_crud.get_all_users(db)
     return users
-
 
 #유저 업데이트
 async def update_user(db: AsyncSession, user_id: int, user_data: UserUpdate):
@@ -92,6 +87,7 @@ async def update_user(db: AsyncSession, user_id: int, user_data: UserUpdate):
         group_id=user_data.group_id,
         push_token=user_data.push_token,
         budget_limit=user_data.budget_limit,
+        budget_alert_enabled=user_data.budget_alert_enabled,
     )
 
     if not updated_user:
@@ -101,7 +97,6 @@ async def update_user(db: AsyncSession, user_id: int, user_data: UserUpdate):
         )
 
     return updated_user
-
 
 #유저 삭제
 async def delete_user(db: AsyncSession, user_id: int):

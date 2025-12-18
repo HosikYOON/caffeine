@@ -7,54 +7,6 @@ import { formatCurrency } from '../utils/currency';
 import EmptyState from '../components/EmptyState';
 import { EMPTY_MESSAGES } from '../constants';
 
-// ============================================================
-// TODO: 백엔드 연결 시 수정 필요
-// ============================================================
-// 현재는 MOCK 쿠폰 데이터를 사용하고 있습니다.
-// 백엔드 API 연결 시 이 데이터를 실제 API 호출로 교체하세요.
-//
-// 백엔드 API 엔드포인트 예시:
-// - GET /api/coupons - 사용자의 전체 쿠폰 목록
-//   Response: { coupons: [...] }
-//
-// - POST /api/coupons/{id}/use - 쿠폰 사용
-//   Request: { merchantId, discount }
-//   Response: { success, qrCode, barcode, usedDate }
-//
-// - GET /api/coupons/available - 사용 가능한 쿠폰만
-//   Response: { coupons: [...] }
-//
-// - POST /api/coupons/issue - AI 예측 기반 자동 쿠폰 발급
-//   Request: { merchantId, triggeredBy: 'banner' | 'prediction' }
-//   Response: { coupon, message }
-//
-// useEffect에서 API 호출 예시:
-// useEffect(() => {
-//     const fetchCoupons = async () => {
-//         try {
-//             const token = await AsyncStorage.getItem('authToken');
-//             const response = await fetch(`${API_BASE_URL}/coupons`, {
-//                 headers: { 'Authorization': `Bearer ${token}` }
-//             });
-//             const data = await response.json();
-//             
-//             // ⚠️ 중요: 백엔드에서 daysLeft를 제공하지 않는 경우 계산 필요
-//             const couponsWithDaysLeft = data.coupons.map(coupon => ({
-//                 ...coupon,
-//                 daysLeft: coupon.status === 'available' 
-//                     ? calculateDaysLeft(coupon.expiryDate) 
-//                     : undefined
-//             }));
-//             
-//             setCoupons(couponsWithDaysLeft);
-//         } catch (error) {
-//             console.error('쿠폰 로드 실패:', error);
-//         }
-//     };
-//     fetchCoupons();
-// }, []);
-// ============================================================
-
 // Helper Function: 만료일까지 남은 일수 계산
 const calculateDaysLeft = (expiryDate) => {
     const today = new Date();
@@ -69,81 +21,7 @@ const calculateDaysLeft = (expiryDate) => {
     return Math.max(0, diffDays); // 음수 방지
 };
 
-
-const MOCK_COUPONS = [
-    {
-        id: 1,
-        merchant: '스타벅스',
-        icon: '', // TODO: 아이콘 추가 (이모지 또는 이미지 URL)
-        discount: 2000,
-        category: '식비',
-        expiryDate: '2024-12-15',
-        status: 'available',
-        description: 'AI 예측 기반 자동 발급',
-        minPurchase: 10000,
-        daysLeft: 14
-    },
-    {
-        id: 2,
-        merchant: 'GS25',
-        icon: '', // TODO: 아이콘 추가
-        discount: 1000,
-        category: '편의점',
-        expiryDate: '2024-12-05',
-        status: 'available',
-        description: '거래 100건 달성 보너스',
-        minPurchase: 5000,
-        daysLeft: 4
-    },
-    {
-        id: 3,
-        merchant: '올리브영',
-        icon: '', // TODO: 아이콘 추가
-        discount: 5000,
-        category: '쇼핑',
-        expiryDate: '2024-12-20',
-        status: 'available',
-        description: '이번 달 쇼핑 카테고리 1위',
-        minPurchase: 30000,
-        daysLeft: 19
-    },
-    {
-        id: 4,
-        merchant: 'CGV',
-        icon: '', // TODO: 아이콘 추가
-        discount: 3000,
-        category: '여가',
-        expiryDate: '2024-12-03',
-        status: 'available',
-        description: '주말 특가 쿠폰',
-        minPurchase: 15000,
-        daysLeft: 2
-    },
-    {
-        id: 5,
-        merchant: '맥도날드',
-        icon: '', // TODO: 아이콘 추가
-        discount: 3000,
-        category: '식비',
-        expiryDate: '2024-11-28',
-        status: 'used',
-        description: '첫 거래 축하 쿠폰',
-        minPurchase: 10000,
-        usedDate: '2024-11-28'
-    },
-    {
-        id: 6,
-        merchant: '이마트',
-        icon: '', // TODO: 아이콘 추가
-        discount: 10000,
-        category: '쇼핑',
-        expiryDate: '2024-11-25',
-        status: 'expired',
-        description: '대용량 구매 쿠폰',
-        minPurchase: 100000
-    },
-];
-
+// 쿠폰 화면
 export default function CouponScreen({ route }) {
     const { colors } = useTheme();
     const [coupons, setCoupons] = useState([]);
@@ -186,7 +64,6 @@ export default function CouponScreen({ route }) {
         }
     };
 
-    // 마운트 시 쿠폰 로드
     React.useEffect(() => {
         loadCoupons();
     }, []);
@@ -203,15 +80,15 @@ export default function CouponScreen({ route }) {
 
     // 필터링 로직
     const filteredCoupons = coupons.filter(coupon => {
-        // 검색어 필터
+        // 검색어 
         if (searchQuery && !coupon.merchant.toLowerCase().includes(searchQuery.toLowerCase())) {
             return false;
         }
-        // 카테고리 필터
+        // 카테고리
         if (selectedCategory !== '전체' && coupon.category !== selectedCategory) {
             return false;
         }
-        // 상태 필터
+        // 상태
         if (!showUsed && (coupon.status === 'used' || coupon.status === 'expired')) {
             return false;
         }
@@ -222,58 +99,10 @@ export default function CouponScreen({ route }) {
     const availableCoupons = filteredCoupons.filter(c => c.status === 'available' && c.daysLeft > 7);
     const expiringSoonCoupons = filteredCoupons.filter(c => c.status === 'available' && c.daysLeft <= 7);
 
-    // 전체 쿠폰에서 사용완료 쿠폰 계산 (토글 버튼이 항상 보이도록)
     const allUsedCoupons = coupons.filter(c => c.status === 'used' || c.status === 'expired');
-    // 필터링된 사용완료 쿠폰 (검색 & 카테고리 고려)
     const usedCoupons = filteredCoupons.filter(c => c.status === 'used' || c.status === 'expired');
 
-    // ============================================================
-    // TODO: 백엔드 연결 - 쿠폰 사용
-    // ============================================================
-    // 백엔드 API 연결 시 이 함수를 수정하여 실제 쿠폰 사용 처리를 하세요.
-    //
-    // 백엔드 API 엔드포인트:
-    // - POST /api/coupons/{couponId}/use
-    //
-    // 요청 예시:
-    // const handleUseCoupon = async (coupon) => {
-    //     try {
-    //         const token = await AsyncStorage.getItem('authToken');
-    //         const response = await fetch(`${API_BASE_URL}/coupons/${coupon.id}/use`, {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 'Authorization': `Bearer ${token}`
-    //             },
-    //             body: JSON.stringify({
-    //                 merchantId: coupon.merchantId,
-    //                 discount: coupon.discount
-    //             })
-    //         });
-    //
-    //         if (!response.ok) throw new Error('쿠폰 사용 실패');
-    //
-    //         const result = await response.json();
-    //         // 쿠폰 상태 업데이트
-    //         setCoupons(prev => prev.map(c => 
-    //             c.id === coupon.id 
-    //                 ? { ...c, status: 'used', usedDate: new Date().toISOString() }
-    //                 : c
-    //         ));
-    //
-    //         // QR 코드 또는 바코드 표시
-    //         if (result.qrCode) {
-    //             // QR 코드 모달 표시
-    //         }
-    //
-    //         alert(`✅ 쿠폰이 사용되었습니다!`);
-    //     } catch (error) {
-    //         console.error('쿠폰 사용 실패:', error);
-    //         alert('쿠폰 사용 중 오류가 발생했습니다.');
-    //     }
-    // };
-    // ============================================================
-    // 쿠폰 선택 핸들러 (1개만 선택 가능)
+    // 쿠폰 선택 버튼(1개만 선택 가능)
     const handleSelectCoupon = (coupon) => {
         // 이미 선택된 쿠폰을 다시 누르면 선택 해제
         if (selectedCouponId === coupon.id) {
@@ -281,17 +110,15 @@ export default function CouponScreen({ route }) {
             return;
         }
         
-        // 다른 쿠폰이 이미 선택되어 있으면 경고
         if (selectedCouponId !== null) {
             alert('⚠️ 쿠폰은 한 번에 1개만 선택 가능합니다!\n\n현재 선택된 쿠폰을 먼저 해제하거나 사용해주세요.');
             return;
         }
         
-        // 쿠폰 선택
         setSelectedCouponId(coupon.id);
     };
 
-    // 쿠폰 실제 사용 핸들러
+    // 쿠폰 사용 버튼
     const handleUseCoupon = async (coupon) => {
         try {
             const { useCoupon } = await import('../api/coupons');
@@ -317,7 +144,7 @@ export default function CouponScreen({ route }) {
         }
     };
 
-    // 선택 해제 핸들러
+    // 선택 해제 버튼
     const handleDeselectCoupon = () => {
         setSelectedCouponId(null);
     };
@@ -325,7 +152,6 @@ export default function CouponScreen({ route }) {
     const CouponCard = ({ item }) => {
         const isExpiringSoon = item.status === 'available' && item.daysLeft <= 7;
         const isUsed = item.status === 'used' || item.status === 'expired';
-        // 선택 상태 체크
         const isSelected = selectedCouponId === item.id;
 
         return (
@@ -334,7 +160,6 @@ export default function CouponScreen({ route }) {
                     styles(colors).couponCard,
                     isUsed && styles(colors).couponCardUsed,
                     isExpiringSoon && styles(colors).couponCardExpiring,
-                    // 선택된 쿠폰 하이라이트
                     isSelected && styles(colors).couponCardSelected
                 ]}
                 onPress={() => !isUsed && handleSelectCoupon(item)}
@@ -417,7 +242,7 @@ export default function CouponScreen({ route }) {
                     </View>
                 </View>
 
-                {/* 버튼 영역: 선택 상태에 따라 다른 버튼 표시 */}
+                {/* 버튼 영역 */}
                 {item.status === 'available' && (
                     <View style={styles(colors).couponButtonContainer}>
                         {isSelected ? (
@@ -454,6 +279,7 @@ export default function CouponScreen({ route }) {
         );
     };
 
+    // 섹션 헤더
     const SectionHeader = ({ title, count }) => (
         <View style={styles(colors).sectionHeader}>
             <Text style={styles(colors).sectionTitle}>{title}</Text>
@@ -519,7 +345,6 @@ export default function CouponScreen({ route }) {
 
             {/* Coupon List */}
             <ScrollView style={styles(colors).scrollView}>
-                {/* Expiring Soon */}
                 {expiringSoonCoupons.length > 0 && (
                     <View style={styles(colors).section}>
                         <SectionHeader title="곧 만료" count={expiringSoonCoupons.length} />

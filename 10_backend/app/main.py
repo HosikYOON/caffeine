@@ -1,25 +1,3 @@
-# 10_backend/app/main.py
-"""
-Caffeine Backend API (v1.0)
-
-이 파일은 FastAPI 애플리케이션의 메인 진입점입니다.
-
-✅ 실제 구현 보안 기능 (v1.0):
-- JWT 인증 + 라이트 RBAC (user/admin 역할 구분)
-- slowapi Rate Limiting (API 요청 속도 제한)
-- 부분적 PII 암호화 (카드번호, 전화번호만)
-- 라이트 Audit 로그 (파일/콘솔 기반 간단한 로깅)
-- HTTPS + 보안 헤더 (Nginx와 함께 사용)
-
-📋 추후 확장 예정 (v2.0+):
-- JWT 블랙리스트 (로그아웃 시 토큰 무효화)
-- 풀스펙 Audit 시스템 (데이터베이스 기반 영구 로그)
-- 복잡한 보안 정책 문서
-
-작성일: 2025-12-03
-버전: 1.0.0
-"""
-
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -30,18 +8,10 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 
-# ============================================================
 # 환경 변수 로드
-# ============================================================
-# .env 파일에서 환경 변수를 읽어옵니다.
-# DATABASE_URL, SECRET_KEY, ENCRYPTION_KEY 등이 포함되어야 합니다.
 load_dotenv()
 
-# ============================================================
 # 로거 설정 (라이트 Audit 로그)
-# ============================================================
-# v1.0에서는 파일과 콘솔에 간단히 로깅만 수행합니다.
-# 모든 HTTP 요청/응답이 audit.log 파일과 콘솔에 기록됩니다.
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -53,16 +23,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 audit_logger = logging.getLogger('audit')  # Audit 전용 로거
 
-# ============================================================
 # Rate Limiter 초기화 (slowapi)
-# ============================================================
-# slowapi를 사용하여 API 엔드포인트별 요청 속도를 제한합니다.
-# 기본적으로 클라이언트 IP 주소를 기준으로 제한합니다.
 limiter = Limiter(key_func=get_remote_address)
 
-# ============================================================
 # FastAPI 앱 생성
-# ============================================================
 app = FastAPI(
     title="Caffeine API",
     description="AI 기반 스마트 금융 관리 앱 백엔드 API",
@@ -76,10 +40,7 @@ app.state.limiter = limiter
 # Rate Limit 초과 시 에러 핸들러 등록
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# ============================================================
 # CORS 설정 (Cross-Origin Resource Sharing)
-# ============================================================
-
 CLOUDFRONT_URL = "https://d26uyg5darllja.cloudfront.net"
 
 LOCAL_ORIGINS = [
@@ -89,7 +50,8 @@ LOCAL_ORIGINS = [
     "http://localhost:8082",
     "http://localhost:8080",
     "http://localhost:19000",
-    "http://localhost:19006"
+    "http://localhost:19006",
+    "http://127.0.0.1:8081"
 ]
 
 allowed_origins = LOCAL_ORIGINS + [CLOUDFRONT_URL]
@@ -103,11 +65,7 @@ app.add_middleware(
 )
 
 
-# ============================================================
 # 보안 헤더 미들웨어
-# ============================================================
-# 주로 Nginx에서 처리하지만, FastAPI 레벨에서도 백업으로 추가합니다.
-# 이 헤더들은 XSS, Clickjacking 등의 공격을 방어하는 데 도움이 됩니다.
 @app.middleware("http")
 async def security_headers_middleware(request: Request, call_next):
     """
@@ -124,11 +82,7 @@ async def security_headers_middleware(request: Request, call_next):
     response.headers["X-XSS-Protection"] = "1; mode=block"
     return response
 
-# ============================================================
 # 라이트 Audit 로그 미들웨어
-# ============================================================
-# 모든 HTTP 요청과 응답을 로깅하여 감사 추적을 가능하게 합니다.
-# v1.0에서는 파일/콘솔에만 기록하고, v2.0+에서는 DB에 저장할 예정입니다.
 @app.middleware("http")
 async def audit_log_middleware(request: Request, call_next):
     """
@@ -159,10 +113,7 @@ async def audit_log_middleware(request: Request, call_next):
     
     return response
 
-# ============================================================
 # 기본 엔드포인트
-# ============================================================
-
 @app.get("/")
 async def root():
     """
@@ -203,9 +154,7 @@ async def health(request: Request):
         "timestamp": datetime.utcnow().isoformat()
     }
 
-# ============================================================
 # 라우터 등록
-# ============================================================
 from app.routers import ml, analysis, transactions, user, auth, coupons
 
 # ML 예측 API (/ml/*)
@@ -226,10 +175,7 @@ app.include_router(auth.router)
 # 쿠폰 API (/coupons/*)
 app.include_router(coupons.router)
 
-# ============================================================
 # 시작 / 종료 이벤트
-# ============================================================
-
 @app.on_event("startup")
 async def startup_event():
     """

@@ -7,6 +7,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useTransactions } from '../contexts/TransactionContext';
 
+// 프로필 화면
 const { width: screenWidth } = Dimensions.get('window');
 
 export default function ProfileScreen({ navigation }) {
@@ -119,20 +120,20 @@ export default function ProfileScreen({ navigation }) {
             }
             
             // 진행 상태 업데이트
-            setSyncProgress(`💾 ${transactions.length}건 저장 중...`);
+            setSyncProgress(`${transactions.length}건 저장 중...`);
             await new Promise(resolve => setTimeout(resolve, 500)); // 시각적 효과
 
             // TransactionContext에 저장
             const saveResult = await saveTransactions(transactions);
             
             // 완료 상태
-            setSyncProgress('✅ 동기화 완료!');
+            setSyncProgress('동기화 완료!');
             await new Promise(resolve => setTimeout(resolve, 1000)); // 완료 표시
             
             setSyncModalVisible(false);
 
             if (saveResult.success) {
-                alert(`✅ 데이터 동기화 완료!\n\n${transactions.length}건의 거래 내역이 업데이트되었습니다.`);
+                alert(`데이터 동기화 완료!\n\n${transactions.length}건의 거래 내역이 업데이트되었습니다.`);
                 // 대시보드로 바로 이동 (스택 초기화)
                 navigation?.reset({
                     index: 0,
@@ -149,6 +150,7 @@ export default function ProfileScreen({ navigation }) {
         }
     };
 
+    // 캐시 초기화
     const handleClearCache = async () => {
         // 확인 다이얼로그
         const confirmed = confirm('정말 모든 거래 데이터를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.');
@@ -163,7 +165,7 @@ export default function ProfileScreen({ navigation }) {
             await AsyncStorage.removeItem('transactions_cache');
             await AsyncStorage.removeItem('last_sync_time');
             
-            alert('✅ 캐시가 삭제되었습니다!\n\n모든 거래 데이터가 초기화되었습니다.\n다시 동기화해주세요.');
+            alert('캐시가 삭제되었습니다!\n\n모든 거래 데이터가 초기화되었습니다.\n다시 동기화해주세요.');
             
             // 페이지 새로고침 효과
             if (typeof window !== 'undefined') {
@@ -206,6 +208,37 @@ export default function ProfileScreen({ navigation }) {
         }
     };
 
+    // 회원 탈퇴
+    const handleDeleteAccount = async () => {
+        if (!confirm('정말로 회원탈퇴 하시겠습니까?\n\n모든 데이터가 삭제되며 복구할 수 없습니다.')) {
+            return;
+        }
+        
+        try {
+            const token = await AsyncStorage.getItem('authToken');
+            const response = await fetch('http://localhost:8001/auth/delete-account', {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                await clearTransactions();
+                await logout();
+                alert('회원탈퇴가 완료되었습니다.\n\n이용해주셔서 감사합니다.');
+            } else {
+                const error = await response.json();
+                alert(error.detail || '회원탈퇴에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('회원탈퇴 오류:', error);
+            alert('회원탈퇴 중 오류가 발생했습니다.');
+        }
+    };
+
+    // 메뉴 아이템
     const MenuItem = ({ icon, title, subtitle, onPress, showArrow = true, rightComponent }) => (
         <TouchableOpacity style={styles.menuItem} onPress={onPress} activeOpacity={0.7}>
             <View style={styles.menuIconContainer}>
@@ -269,6 +302,17 @@ export default function ProfileScreen({ navigation }) {
                 <TouchableOpacity style={styles.logoutButton} onPress={handleLogout} activeOpacity={0.8}>
                     <Text style={styles.logoutText}>로그아웃</Text>
                 </TouchableOpacity>
+
+                {/* 계정 관리 섹션 (회원탈퇴) */}
+                <View style={styles.dangerSection}>
+                    <Text style={[styles.dangerSectionTitle, { color: colors.textSecondary }]}>계정 관리</Text>
+                    <TouchableOpacity style={styles.deleteAccountButton} onPress={handleDeleteAccount} activeOpacity={0.8}>
+                        <Text style={styles.deleteAccountText}>회원탈퇴</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.deleteAccountWarning}>
+                        탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.
+                    </Text>
+                </View>
 
                 {/* Info Modal */}
                 <Modal
@@ -484,6 +528,41 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: '#DC2626',
         fontFamily: 'Inter_600SemiBold',
+    },
+    deleteAccountButton: {
+        paddingVertical: 14,
+        backgroundColor: 'transparent',
+        borderRadius: 12,
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+    },
+    deleteAccountText: {
+        fontSize: 14,
+        fontWeight: '500',
+        color: '#9CA3AF',
+        fontFamily: 'Inter_500Medium',
+    },
+    dangerSection: {
+        marginTop: 40,
+        marginHorizontal: 24,
+        marginBottom: 20,
+        paddingTop: 20,
+        borderTopWidth: 1,
+        borderTopColor: '#E5E7EB',
+    },
+    dangerSectionTitle: {
+        fontSize: 12,
+        fontWeight: '500',
+        marginBottom: 12,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+    },
+    deleteAccountWarning: {
+        fontSize: 11,
+        color: '#9CA3AF',
+        textAlign: 'center',
+        marginTop: 8,
     },
 
     // Modal

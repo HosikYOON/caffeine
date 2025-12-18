@@ -77,6 +77,7 @@ async def update_user(
     group_id: Optional[int] = None,
     push_token: Optional[str] = None,
     budget_limit: Optional[int] = None,
+    budget_alert_enabled: Optional[bool] = None,
 ) -> Optional[User]:
     
     #유저ID로 유저 조회
@@ -101,6 +102,8 @@ async def update_user(
         user_obj.push_token = push_token
     if budget_limit is not None:
         user_obj.budget_limit = budget_limit
+    if budget_alert_enabled is not None:
+        user_obj.budget_alert_enabled = budget_alert_enabled
 
     await db.commit()
     await db.refresh(user_obj)

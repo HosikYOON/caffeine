@@ -5,6 +5,7 @@ import { predictNextTransaction } from '../api/ml';
 
 const TransactionContext = createContext();
 
+// TransactionProvider - 거래 데이터 제공 컴포넌트
 export const TransactionProvider = ({ children }) => {
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -27,6 +28,7 @@ export const TransactionProvider = ({ children }) => {
         initTransactions();
     }, []);
 
+    // loadCachedTransactions - 캐시 로드
     const loadCachedTransactions = async () => {
         try {
             const cached = await AsyncStorage.getItem('transactions_cache');
@@ -36,7 +38,6 @@ export const TransactionProvider = ({ children }) => {
                 const parsedCache = JSON.parse(cached);
                 setTransactions(parsedCache);
                 setLastSyncTime(syncTime);
-                console.log(`캐시에서 ${parsedCache.length}건 거래 로드됨`);
                 return parsedCache.length > 0;  // 캐시 있음
             }
             return false;  // 캐시 없음
@@ -46,9 +47,7 @@ export const TransactionProvider = ({ children }) => {
         }
     };
 
-    /**
-     * 서버에서 거래 데이터 가져오기 (실시간 API 호출)
-     */
+    // loadTransactionsFromServer - 서버에서 거래 데이터 가져오기
     const loadTransactionsFromServer = async (userId = null) => {
         setLoading(true);
         try {
@@ -77,7 +76,6 @@ export const TransactionProvider = ({ children }) => {
                 await AsyncStorage.setItem('last_sync_time', now);
                 setLastSyncTime(now);
 
-                console.log(`서버에서 ${formattedTransactions.length}건 거래 로드 완료 (data_source: ${response.data_source})`);
                 return { success: true, count: formattedTransactions.length };
             }
         } catch (error) {
@@ -88,6 +86,7 @@ export const TransactionProvider = ({ children }) => {
         }
     };
 
+    // saveTransactionsToCache - 캐시 저장
     const saveTransactionsToCache = async (newTransactions) => {
         try {
             await AsyncStorage.setItem(
@@ -99,6 +98,7 @@ export const TransactionProvider = ({ children }) => {
         }
     };
 
+    // saveTransactions - 거래 저장
     const saveTransactions = async (newTransactions, userId = 1) => {
         try {
             // 1. 로컬 저장
@@ -117,13 +117,12 @@ export const TransactionProvider = ({ children }) => {
                 
                 if (currentUserId) {
                     const result = await createTransactionsBulk(currentUserId, newTransactions);
-                    console.log(`백엔드 DB에 ${result.created_count}건 저장 완료`);
+                    // 저장 완료
                 }
             } catch (apiError) {
                 console.warn('백엔드 저장 실패 (로컬은 성공):', apiError);
             }
 
-            console.log(`${newTransactions.length}건 거래 저장 완료`);
             return { success: true };
         } catch (error) {
             console.error('거래 저장 실패:', error);
@@ -131,6 +130,7 @@ export const TransactionProvider = ({ children }) => {
         }
     };
 
+    // updateNote - 메모 업데이트
     const updateNote = async (transactionId, note) => {
         try {
             // API 호출
@@ -153,6 +153,7 @@ export const TransactionProvider = ({ children }) => {
         }
     };
 
+    // clearTransactions - 거래 삭제
     const clearTransactions = async () => {
         try {
             // 1. 로컬 삭제
@@ -168,7 +169,7 @@ export const TransactionProvider = ({ children }) => {
                 
                 if (user?.id) {
                     const result = await deleteAllTransactions(user.id);
-                    console.log(`백엔드 DB에서 ${result.deleted_count}건 삭제 완료`);
+                    // 삭제 완료
                 }
             } catch (apiError) {
                 console.warn('백엔드 삭제 실패 (로컬은 성공):', apiError);
@@ -181,6 +182,7 @@ export const TransactionProvider = ({ children }) => {
         }
     };
 
+    // predictNextPurchase - 다음 구매 예측
     const predictNextPurchase = async () => {
         if (!transactions || transactions.length === 0) {
             return { success: false, error: '거래 데이터가 없습니다' };
@@ -218,8 +220,6 @@ export const TransactionProvider = ({ children }) => {
 
             // API 호출 (api/ml.js 사용)
             const result = await predictNextTransaction(blob);
-            console.log('다음 소비 예측 성공:', result);
-
             return { success: true, data: result };
         } catch (error) {
             console.error('다음 소비 예측 실패:', error);
@@ -252,6 +252,7 @@ export const TransactionProvider = ({ children }) => {
     );
 };
 
+// useTransactions - 거래 데이터 사용
 export const useTransactions = () => {
     const context = useContext(TransactionContext);
     if (!context) {

@@ -9,6 +9,8 @@ class UserBase(BaseModel):
     name: str = Field(..., max_length=100, description="이름")
     nickname: Optional[str] = Field(None, max_length=50, description="닉네임")
     phone: Optional[str] = Field(None, max_length=20, description="전화번호")
+    birth_date: Optional[datetime] = Field(None, description="생년월일")
+    last_login_at: Optional[datetime] = None
 
 # 생성
 class UserCreate(UserBase):
@@ -29,6 +31,7 @@ class UserUpdate(BaseModel):
     group_id: Optional[int] = None
     push_token: Optional[str] = None
     budget_limit: Optional[int] = None
+    budget_alert_enabled: Optional[bool] = None
 
 # 응답
 class UserResponse(UserBase):
@@ -43,6 +46,7 @@ class UserResponse(UserBase):
     last_login_at: Optional[datetime]
     push_token: Optional[str]
     budget_limit: Optional[int]
+    budget_alert_enabled: bool
 
     class Config:
         from_attributes = True

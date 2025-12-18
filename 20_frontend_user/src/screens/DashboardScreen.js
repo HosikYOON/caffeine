@@ -14,9 +14,7 @@ import { SkeletonStats, SkeletonChart } from '../components/SkeletonCard';
 import { formatCurrency } from '../utils/currency';
 import { CHART_COLORS, ANIMATION_DELAY } from '../constants';
 
-// ============================================================
-// 카테고리별 아이콘 매핑 (Feather icons)
-// ============================================================
+// 카테고리별 아이콘 매핑
 const CATEGORY_ICON = {
     '쇼핑': { icon: 'shopping-bag', color: '#EC4899' },
     '식비': { icon: 'coffee', color: '#F59E0B' },
@@ -44,6 +42,7 @@ const CATEGORY_EMOJI = {
     '의료': '🏥',
 };
 
+// 대쉬보드 화면
 export default function DashboardScreen({ navigation }) {
     const { colors } = useTheme();
     const { user } = useAuth();
@@ -170,6 +169,7 @@ export default function DashboardScreen({ navigation }) {
             }
         });
 
+        // 월별 데이터 정렬
         const sortedData = Object.entries(monthlyMap)
             .sort((a, b) => a[0].localeCompare(b[0]))
             .slice(-6)
@@ -203,6 +203,7 @@ export default function DashboardScreen({ navigation }) {
         return sortedData;
     };
 
+    // 데이터 계산
     useEffect(() => {
         if (transactions && transactions.length > 0) {
             setSummary(calculateSummary(transactions));
@@ -217,6 +218,7 @@ export default function DashboardScreen({ navigation }) {
         setRefreshing(false);
     };
 
+    // 쿠폰 받기
     const handleGetCoupon = async () => {
         if (couponReceived) {
             alert('이미 쿠폰을 받으셨습니다!');
@@ -369,7 +371,7 @@ export default function DashboardScreen({ navigation }) {
                     </LinearGradient>
                 </FadeInView>
 
-                {/* AI Insights - 최상단으로 이동 */}
+                {/* AI Insights*/}
                 <FadeInView style={styles.section} delay={150}>
                     <View style={styles.sectionHeader}>
                         <Text style={[styles.sectionTitle, { color: colors.text }]}>AI 인사이트</Text>
@@ -472,7 +474,7 @@ export default function DashboardScreen({ navigation }) {
                     </TouchableOpacity>
                 </FadeInView>
 
-                {/* Anomaly Alert - 의심스러운 거래 발견 */}
+                {/* Anomaly Alert */}
                 <FadeInView style={styles.alertContainer} delay={350}>
                     <TouchableOpacity 
                         style={styles.alertCard}

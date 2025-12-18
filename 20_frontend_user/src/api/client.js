@@ -13,6 +13,7 @@ const isLocal =
 
 const API_BASE_URL = isLocal ? LOCAL_BASE_URL : PROD_BASE_URL;
 
+// API Client - Axios 인스턴스
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: false,
@@ -23,7 +24,6 @@ apiClient.interceptors.request.use(
   async (config) => {
     try {
       const token = await AsyncStorage.getItem("authToken");
-      console.log("[API] 토큰 확인:", token ? `${token.substring(0, 20)}...` : "없음");
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }

@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Image, Linking } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path, Defs, LinearGradient as SvgLinearGradient, Stop, Line, Text as SvgText, Ellipse } from 'react-native-svg';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { isValidEmail, isValidName, validatePassword, isEmpty } from '../utils/validation';
 
+// 회원가입 화면
 export default function SignupScreen({ navigation }) {
     const { colors } = useTheme();
-    const { signup } = useAuth();
+    const { signup, kakaoSignup } = useAuth();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -17,31 +18,32 @@ export default function SignupScreen({ navigation }) {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+    // 회원가입 버튼
     const handleSignup = async () => {
         // Validation
         if (isEmpty(name) || isEmpty(email) || isEmpty(password) || isEmpty(confirmPassword)) {
-            alert('⚠️ 모든 필드를 입력해주세요.');
+            alert('모든 필드를 입력해주세요.');
             return;
         }
 
         if (!isValidName(name)) {
-            alert('⚠️ 올바른 이름을 입력해주세요. (한글 또는 영문 2자 이상)');
+            alert('올바른 이름을 입력해주세요. (한글 또는 영문 2자 이상)');
             return;
         }
 
         if (!isValidEmail(email)) {
-            alert('⚠️ 올바른 이메일 형식을 입력해주세요.');
+            alert('올바른 이메일 형식을 입력해주세요.');
             return;
         }
 
         if (password !== confirmPassword) {
-            alert('⚠️ 비밀번호가 일치하지 않습니다.');
+            alert('비밀번호가 일치하지 않습니다.');
             return;
         }
 
         const passwordValidation = validatePassword(password);
         if (!passwordValidation.isValid) {
-            alert('⚠️ 비밀번호 요구사항:\n' + passwordValidation.errors.join('\n'));
+            alert('비밀번호 요구사항:\n' + passwordValidation.errors.join('\n'));
             return;
         }
 
@@ -51,10 +53,30 @@ export default function SignupScreen({ navigation }) {
 
         if (result.success) {
             // 회원가입 성공 → 로그인 페이지로 이동
-            alert('✅ 회원가입이 완료되었습니다!\n로그인해주세요.');
+            alert('회원가입이 완료되었습니다!\n로그인해주세요.');
             navigation.navigate('Login');
         } else {
-            alert('❌ ' + result.error);
+            alert(result.error);
+        }
+    };
+
+    // 카카오 회원가입 버튼
+    const KAKAO_REST_API_KEY = 'fa925a6646f9491a77eb9c8fd6537a21';
+    const REDIRECT_URI = 'http://localhost:8081/auth/kakao/signup/callback';
+    
+    const handleKakaoSignup = async () => {
+        try {
+            const encodedRedirectUri = encodeURIComponent(REDIRECT_URI);
+            const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_REST_API_KEY}&redirect_uri=${encodedRedirectUri}&response_type=code`;
+            
+            if (Platform.OS === 'web') {
+                window.location.href = kakaoAuthUrl;
+            } else {
+                await Linking.openURL(kakaoAuthUrl);
+            }
+        } catch (error) {
+            console.error('카카오 회원가입 오류:', error);
+            alert('카카오 연결에 실패했습니다.');
         }
     };
 
@@ -78,7 +100,7 @@ export default function SignupScreen({ navigation }) {
                             style={styles.logoImage}
                             resizeMode="contain"
                         />
-                        {/* Caffeine 단색 텍스트 */}
+                        {/* Caffeine */}
                         <Text style={styles.appName}>Caffeine</Text>
                         <Text style={styles.tagline}>새로운 계정 만들기</Text>
                     </View>
@@ -170,6 +192,29 @@ export default function SignupScreen({ navigation }) {
                                     {loading ? '가입 중...' : '회원가입'}
                                 </Text>
                             </LinearGradient>
+                        </TouchableOpacity>
+
+                        {/* Divider */}
+                        <View style={styles.dividerContainer}>
+                            <View style={styles.dividerLine} />
+                            <Text style={styles.dividerText}>또는</Text>
+                            <View style={styles.dividerLine} />
+                        </View>
+
+                        {/* Kakao Signup Button */}
+                        <TouchableOpacity
+                            style={styles.kakaoButton}
+                            onPress={handleKakaoSignup}
+                            activeOpacity={0.8}>
+                            <View style={styles.kakaoLogoContainer}>
+                                <Svg width="20" height="20" viewBox="0 0 24 24">
+                                    <Path
+                                        d="M12 3C6.48 3 2 6.33 2 10.5c0 2.67 1.76 5.02 4.38 6.36-.18.65-.65 2.36-.75 2.74-.12.48.17.47.37.35.15-.1 2.42-1.64 3.4-2.31.52.08 1.06.12 1.6.12 5.52 0 10-3.33 10-7.26C21 6.33 17.52 3 12 3z"
+                                        fill="#3C1E1E"
+                                    />
+                                </Svg>
+                            </View>
+                            <Text style={styles.kakaoButtonText}>카카오로 시작하기</Text>
                         </TouchableOpacity>
 
                         {/* Login Link */}
@@ -357,5 +402,41 @@ const styles = StyleSheet.create({
     termsLink: {
         color: '#9E9E9E',
         textDecorationLine: 'underline',
+    },
+
+    // Divider
+    dividerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 16,
+    },
+    dividerLine: {
+        flex: 1,
+        height: 1,
+        backgroundColor: '#E5E7EB',
+    },
+    dividerText: {
+        marginHorizontal: 12,
+        fontSize: 12,
+        color: '#9CA3AF',
+    },
+
+    // Kakao Button
+    kakaoButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#FEE500',
+        paddingVertical: 14,
+        borderRadius: 12,
+        marginBottom: 16,
+    },
+    kakaoLogoContainer: {
+        marginRight: 8,
+    },
+    kakaoButtonText: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: '#3C1E1E',
     },
 });

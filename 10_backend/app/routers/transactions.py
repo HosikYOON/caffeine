@@ -1,13 +1,11 @@
 from datetime import datetime
 from typing import List, Optional
 import logging
-
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy import and_, func, or_, select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-
 from app.db.database import get_db
 from app.db.model.transaction import Anomaly, Category, Transaction
 
@@ -21,11 +19,7 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-
-# ============================================================
 # Pydantic Schemas (Request/Response)
-# ============================================================
-
 class TransactionBase(BaseModel):
     """거래 기본 정보 스키마"""
     id: int
@@ -37,7 +31,6 @@ class TransactionBase(BaseModel):
     status: str = "completed"
     currency: str = "KRW"
 
-
 class TransactionList(BaseModel):
     """거래 목록 응답 스키마"""
     total: int
@@ -46,11 +39,9 @@ class TransactionList(BaseModel):
     transactions: List[TransactionBase]
     data_source: str = "DB"
 
-
 class TransactionUpdate(BaseModel):
     """거래 수정 요청 스키마"""
     description: Optional[str] = None
-
 
 class TransactionCreate(BaseModel):
     """거래 생성 요청 스키마"""
@@ -61,12 +52,10 @@ class TransactionCreate(BaseModel):
     description: Optional[str] = None
     currency: str = "KRW"
 
-
 class TransactionBulkCreate(BaseModel):
     """거래 일괄 생성 요청 스키마"""
     user_id: int
     transactions: List[TransactionCreate]
-
 
 class TransactionBulkResponse(BaseModel):
     """거래 일괄 생성 응답 스키마"""
@@ -75,36 +64,12 @@ class TransactionBulkResponse(BaseModel):
     failed_count: int
     message: str
 
-
 class AnomalyReport(BaseModel):
     """이상거래 신고 요청 스키마"""
     reason: str
     severity: str = "medium"  # low/medium/high
 
-
-# ============================================================
-# Mock Data Helper
-# ============================================================
-
-def get_mock_transactions() -> List[TransactionBase]:
-    """
-    [MOCK] 거래 내역 Mock 데이터 반환
-    DB 연결 실패 시 사용됩니다.
-    """
-    return [
-        TransactionBase(id=1, merchant="스타벅스 강남점", amount=5500, category="외식", 
-                       transaction_date="2025-12-10 09:30:00", description="아메리카노"),
-        TransactionBase(id=2, merchant="카카오택시", amount=15000, category="교통",
-                       transaction_date="2025-12-09 18:45:00", description="퇴근길"),
-        TransactionBase(id=3, merchant="쿠팡", amount=89000, category="쇼핑",
-                       transaction_date="2025-12-09 21:30:00", description="생필품 구매"),
-    ]
-
-
-# ============================================================
-# API Endpoints
-# ============================================================
-
+# 거래 내역 조회 API
 @router.get("", response_model=TransactionList)
 async def get_transactions(
     user_id: Optional[int] = None,
@@ -118,11 +83,6 @@ async def get_transactions(
     page_size: int = Query(20, ge=1, le=2000),
     db: AsyncSession = Depends(get_db)
 ):
-    """
-    거래 내역 조회 API
-    
-    필터링 조건(사용자, 카테고리, 날짜, 금액 등)에 따라 거래 내역을 페이징하여 반환합니다.
-    """
     try:
         # 기본 쿼리 및 카운트 쿼리 생성
         query = select(Transaction).options(selectinload(Transaction.category))
@@ -203,28 +163,15 @@ async def get_transactions(
         )
         
     except Exception as e:
-        logger.warning(f"DB 연결 실패, Mock 데이터 반환: {e}")
-        mock_data = get_mock_transactions()
-        return TransactionList(
-            total=len(mock_data),
-            page=1,
-            page_size=20,
-            transactions=mock_data,
-            data_source="[MOCK] DB 연결 필요"
-        )
+        logger.error(f"거래 내역 조회 실패: {e}")
+        raise HTTPException(status_code=500, detail="거래 내역을 불러올 수 없습니다.")
 
-
+# 거래 내역 일괄 생성 API
 @router.post("/bulk", response_model=TransactionBulkResponse)
 async def create_transactions_bulk(
     data: TransactionBulkCreate,
     db: AsyncSession = Depends(get_db)
 ):
-    """
-    거래 내역 일괄 생성 API (CSV 업로드 등)
-    
-    여러 건의 거래 데이터를 한 번에 생성합니다.
-    생성 후 예산 초과 여부를 확인하여 푸시 알림을 발송합니다.
-    """
     try:
         from sqlalchemy import insert
         
@@ -276,8 +223,7 @@ async def create_transactions_bulk(
         logger.error(f"일괄 생성 처리 중 치명적 오류: {e}")
         raise HTTPException(status_code=500, detail=str(e))
     
-    # 예산 체크 및 알림 발송 로직
-    # (트랜잭션 커밋 후 비동기적으로 처리)
+    # 예산 체크 및 알림 발송 로직 (트랜잭션 커밋 후 비동기적으로 처리)
     try:
         if created_count > 0:
             from app.db.model.user import User as UserModel
@@ -288,7 +234,7 @@ async def create_transactions_bulk(
             user_result = await db.execute(user_query)
             user = user_result.scalar_one_or_none()
             
-            if user and user.budget_limit and user.budget_limit > 0 and user.push_token:
+            if user and user.budget_limit and user.budget_limit > 0 and user.push_token and user.budget_alert_enabled:
                 # 2. 이번 달 총 지출 계산
                 now = datetime.now()
                 start_of_month = datetime(now.year, now.month, 1)
@@ -337,17 +283,12 @@ async def create_transactions_bulk(
         message=f"{created_count}건 생성 완료, {failed_count}건 실패"
     )
 
-
+# 거래 내역 전체 삭제 API
 @router.delete("")
 async def delete_all_transactions(
     user_id: int = Query(..., description="사용자 ID"),
     db: AsyncSession = Depends(get_db)
 ):
-    """
-    거래 내역 전체 삭제 API
-    
-    특정 사용자의 모든 거래 내역을 삭제합니다.
-    """
     try:
         delete_stmt = delete(Transaction).where(Transaction.user_id == user_id)
         result = await db.execute(delete_stmt)
@@ -365,15 +306,12 @@ async def delete_all_transactions(
         logger.error(f"삭제 실패: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
+# 거래 내역 상세 조회 API
 @router.get("/{transaction_id}", response_model=TransactionBase)
 async def get_transaction(
     transaction_id: int,
     db: AsyncSession = Depends(get_db)
 ):
-    """
-    거래 상세 조회 API
-    """
     try:
         query = select(Transaction).options(selectinload(Transaction.category)).where(Transaction.id == transaction_id)
         result = await db.execute(query)
@@ -399,16 +337,13 @@ async def get_transaction(
         logger.warning(f"상세 조회 실패: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
+# 거래 메모 수정 API
 @router.patch("/{transaction_id}/note")
 async def update_transaction_note(
     transaction_id: int,
     update_data: TransactionUpdate,
     db: AsyncSession = Depends(get_db)
 ):
-    """
-    거래 메모 수정 API
-    """
     try:
         check_query = select(Transaction).where(Transaction.id == transaction_id)
         result = await db.execute(check_query)
@@ -446,16 +381,13 @@ async def update_transaction_note(
             "new_description": update_data.description
         }
 
-
+# 이상거래 신고 API
 @router.post("/{transaction_id}/anomaly-report")
 async def report_anomaly(
     transaction_id: int,
     report: AnomalyReport,
     db: AsyncSession = Depends(get_db)
 ):
-    """
-    이상거래 신고 API
-    """
     try:
         # 거래 존재 확인
         check_query = select(Transaction).where(Transaction.id == transaction_id)
@@ -498,15 +430,12 @@ async def report_anomaly(
             "transaction_id": transaction_id
         }
 
-
+# 거래 통계 요약 조회 API
 @router.get("/stats/summary")
 async def get_transaction_stats(
     user_id: Optional[int] = None,
     db: AsyncSession = Depends(get_db)
 ):
-    """
-    거래 통계 요약 조회 API
-    """
     try:
         query = select(
             func.count(Transaction.id).label('count'),
@@ -530,13 +459,5 @@ async def get_transaction_stats(
         }
         
     except Exception as e:
-        logger.warning(f"통계 조회 실패: {e}")
-        return {
-            "status": "success",
-            "data_source": "[MOCK]",
-            "stats": {
-                "transaction_count": 50,
-                "total_amount": 1250000,
-                "average_amount": 25000
-            }
-        }
+        logger.error(f"통계 조회 실패: {e}")
+        raise HTTPException(status_code=500, detail="통계를 불러올 수 없습니다.")

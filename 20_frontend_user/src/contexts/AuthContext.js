@@ -1,143 +1,35 @@
-/**
- * ═══════════════════════════════════════════════════════════════
- * AuthContext.js - 사용자 인증 관리 시스템
- * ═══════════════════════════════════════════════════════════════
- * 
- * 📌 이 파일의 역할:
- * - 사용자 로그인/회원가입/로그아웃 기능 제공
- * - 앱 전체에서 사용자 정보 공유 (Context API 사용)
- * - 로그인 상태를 AsyncStorage에 저장 (앱 재시작해도 유지)
- * 
- * 🔴 백엔드 연결 포인트:
- * - login() 함수 - API 호출로 변경 필요
- * - signup() 함수 - API 호출로 변경 필요
- * - checkLoginStatus() - 토큰 검증 API 추가 필요
- * 
- * 🌐 사용 방법:
- * ```javascript
- * import { useAuth } from './contexts/AuthContext';
- * 
- * function MyComponent() {
- *     const { user, login, logout } = useAuth();
- *     // user: 현재 로그인한 사용자 정보
- *     // login: 로그인 함수
- *     // logout: 로그아웃 함수
- * }
- * ```
- */
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
+import { apiClient } from '../api/client';
 
-// API URL 설정 (로컬/프로덕션 환경 자동 판별)
+// API_BASE_URL - API 요청 URL
 const LOCAL_BASE_URL = "http://localhost:8001";
 const PROD_BASE_URL = "https://d26uyg5darllja.cloudfront.net";
 const isLocal = Platform.OS === "web" && typeof window !== "undefined" && window.location?.hostname?.includes("localhost");
 const API_BASE_URL = isLocal ? LOCAL_BASE_URL : PROD_BASE_URL;
-
-// ═══ Context 생성 ═══
-// Context = 데이터 공유 창고 (앱 전체에서 접근 가능)
 const AuthContext = createContext();
 
-/**
- * useAuth Hook - 어디서든 인증 기능 사용하기
- * 
- * 사용 예시:
- * const { user, login } = useAuth();
- * 
- * ⚠️ 주의: AuthProvider 안에서만 사용 가능
- */
+// useAuth - AuthContext 사용
 export const useAuth = () => {
-    // Context에서 값 가져오기
     const context = useContext(AuthContext);
-
-    // Context가 없으면 에러 (AuthProvider 밖에서 사용한 경우)
     if (!context) {
         throw new Error('useAuth는 AuthProvider 안에서만 사용 가능합니다!');
     }
-
     return context;
 };
 
-/**
- * AuthProvider - 인증 시스템 제공자
- * 
- * 이 컴포넌트로 감싸진 모든 하위 컴포넌트에서
- * useAuth()를 사용할 수 있습니다.
- * 
- * 예시:
- * <AuthProvider>
- *     <App />
- * </AuthProvider>
- */
+// AuthProvider - 사용자 인증 상태 관리
 export const AuthProvider = ({ children }) => {
-    // ═══ State 변수들 ═══
-
-    /**
-     * user - 현재 로그인한 사용자 정보
-     * null = 로그인 안 됨
-     * 객체 = 로그인 됨 { id, name, email, createdAt }
-     */
     const [user, setUser] = useState(null);
-
-    /**
-     * loading - 로그인 상태 확인 중인지 여부
-     * true = 확인 중 (로딩 화면 표시)
-     * false = 확인 완료
-     */
     const [loading, setLoading] = useState(true);
-
-    // ═══ 앱 시작 시 실행 ═══
+    // 로그인 상태 확인
     useEffect(() => {
-        // 저장된 로그인 정보 확인
         checkLoginStatus();
-    }, []); // [] = 앱 시작할 때 한 번만 실행
+    }, []);
 
-    /**
-     * checkLoginStatus - 저장된 로그인 정보 확인
-     * 
-     * 📱 동작:
-     * 1. AsyncStorage에서 저장된 사용자 정보 가져오기
-     * 2. 있으면 -> 자동 로그인
-     * 3. 없으면 -> 로그인 화면 표시
-     * 
-     * 🔴 백엔드 연결 시 변경사항:
-     * - AsyncStorage에서 토큰 가져오기
-     * - API로 토큰 유효성 검증
-     * - 유효하면 사용자 정보 받아오기
-     * 
-     * 예시 코드 (백엔드 연결 시):
-     * ```javascript
-     * const token = await AsyncStorage.getItem('token');
-     * const response = await fetch('/api/auth/verify', {
-     *     headers: { Authorization: `Bearer ${token}` }
-     * });
-     * if (response.ok) {
-     *     const userData = await response.json();
-     *     setUser(userData);
-     * }
-     * ```
-     */
     const checkLoginStatus = async () => {
         try {
-            // ⚠️ TODO: 백엔드 연결 시 토큰 검증 추가 필요
-            // const token = await AsyncStorage.getItem('authToken');
-            // if (!token) {
-            //     setLoading(false);
-            //     return;
-            // }
-            // const response = await fetch(`${API_BASE_URL}/auth/verify`, {
-            //     headers: { 'Authorization': `Bearer ${token}` }
-            // });
-            // if (response.ok) {
-            //     const userData = await response.json();
-            //     setUser(userData);
-            // } else {
-            //     await AsyncStorage.removeItem('authToken');
-            //     await AsyncStorage.removeItem('user');
-            // }
-            // 현재는 저장된 사용자 정보만 확인 (토큰 검증 없음)
             const userData = await AsyncStorage.getItem('user');
             if (userData) {
                 setUser(JSON.parse(userData));
@@ -148,78 +40,26 @@ export const AuthProvider = ({ children }) => {
             setLoading(false);
         }
     };
-
-    /**
-     * login - 로그인 함수
-     * 
-     * @param {string} email - 사용자 이메일
-     * @param {string} password - 비밀번호
-     * @returns {Object} { success: true/false, error?: string }
-     * 
-     * 📱 현재 동작 (Mock):
-     * - 이메일과 비밀번호만 있으면 성공
-     * - 가짜 사용자 정보 생성
-     * - AsyncStorage에 저장
-     * 
-     * 🔴 백엔드 연결 시 변경사항:
-     * 1. API 호출로 교체
-     * 2. 서버에서 토큰 받기
-     * 3. 토큰을 AsyncStorage에 저장
-     * 4. 사용자 정보도 함께 저장
-     * 
-     * 백엔드 연결 예시:
-     * ```javascript
-     * const response = await fetch('https://your-api.com/auth/login', {
-     *     method: 'POST',
-     *     headers: { 'Content-Type': 'application/json' },
-     *     body: JSON.stringify({ email, password })
-     * });
-     * 
-     * if (response.ok) {
-     *     const { token, user } = await response.json();
-     *     await AsyncStorage.setItem('token', token);
-     *     await AsyncStorage.setItem('user', JSON.stringify(user));
-     *     setUser(user);
-     *     return { success: true };
-     * } else {
-     *     const error = await response.json();
-*     return { success: false, error: error.message };
- * }
- * ```
- * 
- * ⚠️ 중요: 위 예시 코드에서 반드시 토큰을 저장해야 합니다!
- * - 토큰은 모든 API 호출 시 Authorization 헤더에 필요
- * - AsyncStorage.setItem('authToken', token) 또는
- * - SecureStore.setItemAsync('authToken', token) 사용
- */
+    // 로그인
     const login = async (email, password) => {
-        // ✅ 백엔드 API 호출로 로그인
         try {
-            // OAuth2 form 형식으로 전송 (백엔드가 OAuth2PasswordRequestForm 사용)
             const formData = new URLSearchParams();
             formData.append('username', email);
             formData.append('password', password);
 
             const response = await fetch(`${API_BASE_URL}/users/login`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: formData.toString(),
             });
 
             if (response.ok) {
                 const tokenData = await response.json();
-                
-                // 토큰 저장
                 await AsyncStorage.setItem('authToken', tokenData.access_token);
                 await AsyncStorage.setItem('refreshToken', tokenData.refresh_token);
 
-                // 사용자 정보 가져오기
                 const userResponse = await fetch(`${API_BASE_URL}/users/me`, {
-                    headers: {
-                        'Authorization': `Bearer ${tokenData.access_token}`,
-                    },
+                    headers: { 'Authorization': `Bearer ${tokenData.access_token}` },
                 });
 
                 if (userResponse.ok) {
@@ -237,63 +77,16 @@ export const AuthProvider = ({ children }) => {
             return { success: false, error: '서버 연결에 실패했습니다.' };
         }
     };
-
-    /**
-     * signup - 회원가입 함수
-     * 
-     * @param {string} name - 사용자 이름
-     * @param {string} email - 이메일
-     * @param {string} password - 비밀번호
-     * @returns {Object} { success: true/false, error?: string }
-     * 
-     * 📱 현재 동작 (Mock):
-     * - 모든 필드가 있으면 성공
-     * - 가짜 사용자 정보 생성
-     * - AsyncStorage에 저장
-     * - 자동 로그인
-     * 
-     * 🔴 백엔드 연결 시 변경사항:
-     * 1. API 호출로 교체
-     * 2. 서버에 회원가입 요청
-     * 3. 성공하면 자동으로 login() 호출
-     * 
-     * 백엔드 연결 예시:
-     * ```javascript
-     * const response = await fetch('https://your-api.com/auth/signup', {
-     *     method: 'POST',
-     *     headers: { 'Content-Type': 'application/json' },
-     *     body: JSON.stringify({ name, email, password })
-     * });
-     * 
-     * if (response.ok) {
-     *     // 회원가입 성공 -> 자동 로그인
-     *     return await login(email, password);
-     * } else {
-     *     const error = await response.json();
-     *     return { success: false, error: error.message };
-     * }
-     * ```
-     */
+    // 회원가입
     const signup = async (name, email, password) => {
-        // ✅ 백엔드 API 호출로 회원가입
         try {
             const response = await fetch(`${API_BASE_URL}/users/signup`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    name: name,
-                    email: email,
-                    password: password,
-                }),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password }),
             });
 
             if (response.ok) {
-                const userData = await response.json();
-                console.log('✅ 회원가입 성공:', userData);
-                
-                // 회원가입만 성공 처리 (자동 로그인 제거)
                 return { success: true, message: '회원가입이 완료되었습니다. 로그인해주세요.' };
             }
 
@@ -304,59 +97,24 @@ export const AuthProvider = ({ children }) => {
             return { success: false, error: '서버 연결에 실패했습니다.' };
         }
     };
-
-    /**
-     * logout - 로그아웃 함수
-     * 
-     * 📱 동작:
-     * 1. AsyncStorage에서 사용자 정보 삭제
-     * 2. State를 null로 설정
-     * 3. 자동으로 로그인 화면으로 이동
-     * 
-     * 🔴 백엔드 연결 시 변경사항:
-     * - 서버에 로그아웃 요청 (optional)
-     * - 토큰도 함께 삭제
-     * 
-     * 백엔드 연결 예시:
-     * ```javascript
-     * // 서버에 로그아웃 알림 (optional)
-     * await fetch('https://your-api.com/auth/logout', {
-     *     method: 'POST',
-     *     headers: { Authorization: `Bearer ${token}` }
-     * });
-     * 
-     * // 로컬 저장소 정리
-     * await AsyncStorage.removeItem('token');
-     * await AsyncStorage.removeItem('user');
-     * setUser(null);
-     * ```
-     */
+    // 로그아웃
     const logout = async () => {
-        // ✅ 로컬 저장소에서 모든 인증 정보 삭제
         await AsyncStorage.removeItem('user');
         await AsyncStorage.removeItem('authToken');
         await AsyncStorage.removeItem('refreshToken');
-        
-        // State 초기화 (null = 로그인 안 됨)
         setUser(null);
     };
-
-    // kakaoLogin - 카카오 로그인 함수
-    // 
-    // @param {string} code - 카카오 인증 후 받은 authorization code
-    // @returns {Object} { success: true/false, error?: string }
+    // 카카오 로그인
     const kakaoLogin = async (code) => {
         try {
-            // 백엔드 API로 카카오 인증 코드 전송
             const response = await fetch(`${API_BASE_URL}/auth/kakao`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ code }),
             });
-
+            // 카카오 로그인 응답 처리
             if (response.ok) {
                 const data = await response.json();
-                // 사용자 정보 저장
                 const userData = {
                     id: data.user?.id || Date.now(),
                     name: data.user?.nickname || '카카오 사용자',
@@ -364,89 +122,69 @@ export const AuthProvider = ({ children }) => {
                     avatar: data.user?.profile_image || 'https://via.placeholder.com/100?text=K',
                     provider: 'kakao',
                 };
-                
+                // 로컬 스토리지에 사용자 정보 저장
                 await AsyncStorage.setItem('user', JSON.stringify(userData));
-                
-                // 백엔드는 access_token을 반환함
                 if (data.access_token) {
                     await AsyncStorage.setItem('authToken', data.access_token);
-                    console.log('✅ 카카오 로그인 토큰 저장 완료');
                 }
                 if (data.refresh_token) {
                     await AsyncStorage.setItem('refreshToken', data.refresh_token);
                 }
-                
+                // 로컬 스토리지에 사용자 정보 저장
                 setUser(userData);
                 return { success: true };
             } else {
-                // 백엔드 없을 경우 Mock 로그인
-                const mockUser = {
-                    id: Date.now(),
-                    name: '카카오 사용자',
-                    email: 'kakao@caffeine.app',
-                    avatar: 'https://via.placeholder.com/100?text=K',
-                    provider: 'kakao',
-                };
-                await AsyncStorage.setItem('user', JSON.stringify(mockUser));
-                setUser(mockUser);
-                return { success: true };
+                const errorData = await response.json().catch(() => ({}));
+                return { success: false, error: errorData.detail || '카카오 로그인에 실패했습니다.' };
             }
         } catch (error) {
             console.error('카카오 로그인 오류:', error);
-            // 네트워크 오류 시에도 Mock 로그인 허용
-            const mockUser = {
-                id: Date.now(),
-                name: '카카오 사용자',
-                email: 'kakao@caffeine.app',
-                avatar: 'https://via.placeholder.com/100?text=K',
-                provider: 'kakao',
-            };
-            await AsyncStorage.setItem('user', JSON.stringify(mockUser));
-            setUser(mockUser);
-            return { success: true };
+            return { success: false, error: '네트워크 오류가 발생했습니다.' };
         }
     };
 
-    // ═══ Context 제공 ═══
-    /**
-     * Provider를 통해 하위 컴포넌트에 값 전달
-     * 
-     * 제공되는 값:
-     * - user: 현재 로그인한 사용자 (null 또는 객체)
-     * - loading: 로그인 확인 중 여부 (true/false)
-     * - login: 로그인 함수
-     * - signup: 회원가입 함수
-     * - logout: 로그아웃 함수
-     * - kakaoLogin: 카카오 로그인 함수
-     */
+    // 카카오 회원가입
+    const kakaoSignup = async (code) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/kakao/signup`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code }),
+            });
+            // 카카오 회원가입 응답 처리
+            if (response.ok) {
+                const data = await response.json();
+                const userData = {
+                    id: data.user?.id || Date.now(),
+                    name: data.user?.nickname || '카카오 사용자',
+                    email: data.user?.email || 'kakao@user.com',
+                    avatar: data.user?.profile_image || 'https://via.placeholder.com/100?text=K',
+                    provider: 'kakao',
+                };
+                // 로컬 스토리지에 사용자 정보 저장
+                await AsyncStorage.setItem('user', JSON.stringify(userData));
+                if (data.access_token) {
+                    await AsyncStorage.setItem('authToken', data.access_token);
+                }
+                if (data.refresh_token) {
+                    await AsyncStorage.setItem('refreshToken', data.refresh_token);
+                }
+                // 로컬 스토리지에 사용자 정보 저장
+                setUser(userData);
+                return { success: true };
+            } else {
+                const errorData = await response.json().catch(() => ({}));
+                return { success: false, error: errorData.detail || '카카오 회원가입에 실패했습니다.' };
+            }
+        } catch (error) {
+            console.error('카카오 회원가입 오류:', error);
+            return { success: false, error: '네트워크 오류가 발생했습니다.' };
+        }
+    };
+    // AuthContext.Provider - 사용자 인증 상태 제공
     return (
-        <AuthContext.Provider value={{ user, loading, login, signup, logout, kakaoLogin }}>
+        <AuthContext.Provider value={{ user, loading, login, signup, logout, kakaoLogin, kakaoSignup }}>
             {children}
         </AuthContext.Provider>
     );
 };
-
-/**
- * ═══════════════════════════════════════════════════════════════
- * 📌 Quick Reference - 빠른 참조
- * ═══════════════════════════════════════════════════════════════
- * 
- * 1. 사용 방법:
- *    const { user, login, logout } = useAuth();
- * 
- * 2. 로그인 확인:
- *    if (user) { ... } // 로그인 됨
- *    else { ... }      // 로그인 안 됨
- * 
- * 3. 로그인 실행:
- *    const result = await login(email, password);
- *    if (result.success) { ... }
- * 
- * 4. 백엔드 연결 필요한 함수:
- *    ⚠️ login() - API 호출로 변경
- *    ⚠️ signup() - API 호출로 변경
- *    ⚠️ checkLoginStatus() - 토큰 검증 추가
- *    ⚠️ logout() - 토큰 삭제 추가
- * 
- * ═══════════════════════════════════════════════════════════════
- */
