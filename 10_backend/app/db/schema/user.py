@@ -10,7 +10,7 @@ class UserBase(BaseModel):
     nickname: Optional[str] = Field(None, max_length=50, description="닉네임")
     phone: Optional[str] = Field(None, max_length=20, description="전화번호")
     birth_date: Optional[datetime] = Field(None, description="생년월일")
-    last_login_at: Optional[datetime]
+    last_login_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

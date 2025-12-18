@@ -86,6 +86,7 @@ LOCAL_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:3001",
     "http://localhost:8001",
+    "http://localhost:8081",  # Expo Web
     "http://localhost:8082",
     "http://localhost:8080",
     "http://localhost:19000",
@@ -94,6 +95,7 @@ LOCAL_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://127.0.0.1:3001",
     "http://127.0.0.1:8001",
+    "http://127.0.0.1:8081",  # Expo Web
     "http://127.0.0.1:8082",
     "http://127.0.0.1:8080",
     "http://127.0.0.1:19000",
@@ -214,7 +216,8 @@ async def health(request: Request):
 # ============================================================
 # 라우터 등록
 # ============================================================
-from app.routers import ml, analysis, transactions, user, settings, reports, anomalies, user_analytics, analytics_demographics
+from app.routers import ml, analysis, transactions, user, settings, reports, anomalies, user_analytics, analytics_demographics, coupons
+from app.routers.chatbot import router as chatbot_router
 
 # ML 예측 API (/ml/*)
 app.include_router(ml.router)
