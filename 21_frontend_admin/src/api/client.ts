@@ -208,7 +208,7 @@ export async function rejectAnomaly(anomalyId: number) {
 
 // Users API
 export async function getAllUsers() {
-    return apiClient.get('/users');
+    return apiClient.get('/api/admin/users/');
 }
 
 export async function getCurrentUser() {
@@ -254,4 +254,5 @@ export async function getConsumptionByAge() {
 export async function getCategoryPreferencesByAge() {
     return apiClient.get('/api/analytics/demographics/category-preferences');
 }
+
 
