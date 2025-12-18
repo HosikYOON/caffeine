@@ -10,43 +10,31 @@
  * 2. 페이지 설명 표시
  * 3. 줌 레벨 조절 버튼 (67%, +, -, 초기화)
  * 4. 관리자 프로필 정보 표시
- * 
- * 팀원들이 수정할 부분:
- * - 새 페이지 추가 시: pageTitles와 pageDescriptions에 경로 추가
- * - 관리자 정보 변경: 42-48번 줄의 이메일/이름 수정
  * ============================================================
  */
 
 "use client";
 
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
 
 /**
  * ============================================================
  * 페이지별 제목 매핑 객체
  * ============================================================
- * 새로운 페이지를 만들 때 여기에 추가하세요!
- * 
- * 형식: '/경로': '페이지 제목'
- * 
- * 예시: 
- * '/my-new-page': '내 새로운 페이지',
- * ============================================================
  */
 const pageTitles: { [key: string]: string } = {
-    '/': '대시보드',                          // 메인 대시보드
-    '/age-analysis': '연령대별 소비 분석',    // 연령대 분석 페이지
-    '/consumption': '소비 분석',              // 소비 분석 메인
-    '/consumption/anomalies': '이상 거래 탐지',  // 이상 거래 탐지 (서브 페이지)
-    '/summary': '분석 요약',                  // 요약 리포트
-    '/settings': '설정',                      // 설정 페이지
+    '/': '대시보드',
+    '/age-analysis': '연령대별 소비 분석',
+    '/consumption': '소비 분석',
+    '/consumption/anomalies': '이상 거래 탐지',
+    '/summary': '분석 요약',
+    '/settings': '설정',
 };
 
 /**
  * ============================================================
  * 페이지별 설명 매핑 객체
- * ============================================================
- * pageTitles와 매칭되는 설명을 여기에 추가하세요
  * ============================================================
  */
 const pageDescriptions: { [key: string]: string } = {
@@ -62,26 +50,18 @@ const pageDescriptions: { [key: string]: string } = {
  * ========================================
  * Header 컴포넌트
  * ========================================
- * 모든 페이지 상단에 고정되는 헤더 컴포넌트
- * ========================================
  */
 export default function Header() {
-    // 현재 URL 경로 가져오기 (예: '/consumption/anomalies')
     const pathname = usePathname();
+    const { user } = useAuth();
 
-    // 현재 경로에 맞는 제목 찾기 (없으면 기본값 '대시보드')
     const title = pageTitles[pathname] || '대시보드';
-
-    // 현재 경로에 맞는 설명 찾기
     const description = pageDescriptions[pathname] || '';
 
+    // 유저 이름의 첫 글자 (아바타 표시용)
+    const userInitial = user?.name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'A';
+
     return (
-        /**
-         * 헤더 전체 컨테이너
-         * - 고정 위치 (fixed)
-         * - 사이드바 너비(256px) 만큼 왼쪽 여백
-         * - 상단에 고정 (z-index: 10)
-         */
         <header className="bg-[#1e293b] text-white h-16 flex items-center justify-between px-8 fixed top-0 left-64 right-0 z-10 shadow-sm">
             {/* 왼쪽: 경로 표시 (breadcrumb) */}
             <div>
@@ -102,25 +82,17 @@ export default function Header() {
 
                 {/* 관리자 프로필 영역 */}
                 <div className="flex items-center">
-                    {/* 관리자 정보 (이름, 이메일) */}
                     <div className="text-right mr-3">
-                        {/* 
-                         * ⭐ 팀원 TODO: 백엔드 연동 시 수정 필요 ⭐
-                         * 현재: 하드코딩된 값
-                         * 수정 방법:
-                         * 1. 로그인한 관리자 정보를 Context나 Store에서 가져오기
-                         * 2. 예: const { admin } = useAuth();
-                         * 3. {admin.name}, {admin.email}로 변경
-                         */}
-                        <p className="text-sm font-medium text-white">관리자</p>
-                        <p className="text-xs text-gray-400">admin@smartwallet.com</p>
+                        <p className="text-sm font-medium text-white">{user?.name || '관리자'}</p>
+                        <p className="text-xs text-gray-400">{user?.email || '로그인 필요'}</p>
                     </div>
                     {/* 관리자 아바타 (원형, 이니셜 표시) */}
                     <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
-                        A
+                        {userInitial}
                     </div>
                 </div>
             </div>
         </header>
     );
 }
+

@@ -2204,3 +2204,485 @@ TypeError: unsupported operand type(s) for /: 'decimal.Decimal' and 'float'
 2025-12-17 18:08:43,429 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
 2025-12-17 18:08:43,465 - audit - INFO - Response: 200 | Duration: 0.069s
 2025-12-17 18:08:43,553 - audit - INFO - Response: 200 | Duration: 0.124s
+2025-12-17 18:09:36,262 - audit - INFO - Request: OPTIONS /users | Client: 127.0.0.1
+2025-12-17 18:09:36,264 - audit - INFO - Request: OPTIONS /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:09:36,265 - audit - INFO - Request: OPTIONS /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:09:36,265 - audit - INFO - Request: OPTIONS /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:09:36,266 - audit - INFO - Response: 200 | Duration: 0.004s
+2025-12-17 18:09:36,267 - audit - INFO - Response: 200 | Duration: 0.003s
+2025-12-17 18:09:36,267 - audit - INFO - Response: 200 | Duration: 0.002s
+2025-12-17 18:09:36,268 - audit - INFO - Response: 200 | Duration: 0.003s
+2025-12-17 18:09:36,269 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:09:36,272 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:09:36,272 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:09:36,272 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:09:36,273 - audit - INFO - Response: 307 | Duration: 0.004s
+2025-12-17 18:09:36,283 - audit - INFO - Request: OPTIONS /users | Client: 127.0.0.1
+2025-12-17 18:09:36,285 - audit - INFO - Request: OPTIONS /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:09:36,286 - audit - INFO - Request: OPTIONS /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:09:36,286 - audit - INFO - Response: 200 | Duration: 0.003s
+2025-12-17 18:09:36,291 - audit - INFO - Response: 200 | Duration: 0.006s
+2025-12-17 18:09:36,292 - audit - INFO - Response: 200 | Duration: 0.007s
+2025-12-17 18:09:36,293 - audit - INFO - Request: OPTIONS /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:09:36,294 - audit - INFO - Request: OPTIONS /users/me | Client: 127.0.0.1
+2025-12-17 18:09:36,295 - audit - INFO - Request: OPTIONS /users | Client: 127.0.0.1
+2025-12-17 18:09:36,295 - audit - INFO - Response: 200 | Duration: 0.002s
+2025-12-17 18:09:36,302 - audit - INFO - Response: 200 | Duration: 0.008s
+2025-12-17 18:09:36,303 - audit - INFO - Response: 200 | Duration: 0.008s
+2025-12-17 18:09:36,303 - audit - INFO - Request: OPTIONS /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:09:36,305 - audit - INFO - Request: OPTIONS /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:09:36,305 - audit - INFO - Response: 200 | Duration: 0.002s
+2025-12-17 18:09:36,306 - audit - INFO - Request: OPTIONS /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:09:36,308 - audit - INFO - Response: 200 | Duration: 0.003s
+2025-12-17 18:09:36,309 - audit - INFO - Response: 200 | Duration: 0.003s
+2025-12-17 18:09:36,309 - audit - INFO - Request: OPTIONS /users/me | Client: 127.0.0.1
+2025-12-17 18:09:36,317 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:09:36,317 - audit - INFO - Request: OPTIONS /users/ | Client: 127.0.0.1
+2025-12-17 18:09:36,318 - audit - INFO - Response: 200 | Duration: 0.009s
+2025-12-17 18:09:36,322 - audit - INFO - Response: 307 | Duration: 0.005s
+2025-12-17 18:09:36,322 - audit - INFO - Response: 200 | Duration: 0.005s
+2025-12-17 18:09:36,323 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:09:36,325 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:09:36,333 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:09:36,335 - audit - INFO - Response: 200 | Duration: 0.063s
+2025-12-17 18:09:36,336 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:09:36,338 - audit - INFO - Response: 307 | Duration: 0.002s
+2025-12-17 18:09:36,355 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 18:09:36,373 - audit - INFO - Response: 200 | Duration: 0.048s
+2025-12-17 18:09:36,375 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:09:36,390 - audit - INFO - Response: 200 | Duration: 0.118s
+2025-12-17 18:09:36,395 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:09:36,430 - audit - INFO - Response: 200 | Duration: 0.158s
+2025-12-17 18:09:36,430 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:09:36,438 - audit - INFO - Response: 200 | Duration: 0.064s
+2025-12-17 18:09:36,440 - audit - INFO - Response: 200 | Duration: 0.115s
+2025-12-17 18:09:36,441 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 18:09:36,443 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:09:36,463 - audit - INFO - Response: 200 | Duration: 0.130s
+2025-12-17 18:09:36,465 - audit - INFO - Request: OPTIONS /users/ | Client: 127.0.0.1
+2025-12-17 18:09:36,465 - audit - INFO - Response: 200 | Duration: 0.110s
+2025-12-17 18:09:36,465 - audit - INFO - Response: 200 | Duration: 0.024s
+2025-12-17 18:09:36,471 - audit - INFO - Response: 200 | Duration: 0.006s
+2025-12-17 18:09:36,471 - audit - INFO - Request: OPTIONS /users/ | Client: 127.0.0.1
+2025-12-17 18:09:36,471 - audit - INFO - Response: 200 | Duration: 0.000s
+2025-12-17 18:09:36,474 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:09:36,476 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:09:36,476 - audit - INFO - Response: 200 | Duration: 0.033s
+2025-12-17 18:09:36,503 - audit - INFO - Response: 200 | Duration: 0.029s
+2025-12-17 18:09:36,515 - audit - INFO - Response: 200 | Duration: 0.120s
+2025-12-17 18:09:36,520 - audit - INFO - Response: 200 | Duration: 0.043s
+2025-12-17 18:09:36,531 - audit - INFO - Response: 200 | Duration: 0.101s
+2025-12-17 18:18:59,508 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:18:59,510 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:18:59,511 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:18:59,511 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:18:59,515 - audit - INFO - Response: 307 | Duration: 0.007s
+2025-12-17 18:18:59,518 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:18:59,569 - audit - INFO - Response: 200 | Duration: 0.059s
+2025-12-17 18:18:59,573 - audit - INFO - Response: 200 | Duration: 0.055s
+2025-12-17 18:18:59,607 - audit - INFO - Response: 200 | Duration: 0.096s
+2025-12-17 18:18:59,619 - audit - INFO - Response: 200 | Duration: 0.108s
+2025-12-17 18:20:51,202 - audit - INFO - Request: OPTIONS /api/analysis/full | Client: 127.0.0.1
+2025-12-17 18:20:51,203 - audit - INFO - Response: 200 | Duration: 0.001s
+2025-12-17 18:20:51,205 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 18:20:51,219 - audit - INFO - Request: OPTIONS /users/me | Client: 127.0.0.1
+2025-12-17 18:20:51,222 - audit - INFO - Response: 200 | Duration: 0.003s
+2025-12-17 18:20:51,224 - audit - INFO - Request: OPTIONS /users/me | Client: 127.0.0.1
+2025-12-17 18:20:51,227 - audit - INFO - Response: 200 | Duration: 0.003s
+2025-12-17 18:20:51,228 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 18:20:51,256 - audit - INFO - Response: 200 | Duration: 0.028s
+2025-12-17 18:20:51,259 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 18:20:51,284 - audit - INFO - Response: 200 | Duration: 0.025s
+2025-12-17 18:20:51,299 - audit - INFO - Response: 200 | Duration: 0.094s
+2025-12-17 18:20:51,301 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 18:20:51,389 - audit - INFO - Response: 200 | Duration: 0.088s
+2025-12-17 18:20:51,392 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 18:20:51,476 - audit - INFO - Response: 200 | Duration: 0.084s
+2025-12-17 18:20:52,911 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 18:20:52,925 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 18:20:52,951 - audit - INFO - Response: 200 | Duration: 0.026s
+2025-12-17 18:20:52,952 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 18:20:52,975 - audit - INFO - Response: 200 | Duration: 0.023s
+2025-12-17 18:20:53,016 - audit - INFO - Response: 200 | Duration: 0.105s
+2025-12-17 18:20:53,017 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 18:20:53,071 - audit - INFO - Response: 200 | Duration: 0.054s
+2025-12-17 18:20:53,074 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 18:20:53,131 - audit - INFO - Response: 200 | Duration: 0.058s
+2025-12-17 18:20:53,512 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 18:20:53,519 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 18:20:53,543 - audit - INFO - Response: 200 | Duration: 0.024s
+2025-12-17 18:20:53,544 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 18:20:53,584 - audit - INFO - Response: 200 | Duration: 0.039s
+2025-12-17 18:20:53,633 - audit - INFO - Response: 200 | Duration: 0.121s
+2025-12-17 18:20:53,742 - audit - INFO - Request: OPTIONS /api/analysis/full | Client: 127.0.0.1
+2025-12-17 18:20:53,742 - audit - INFO - Response: 200 | Duration: 0.000s
+2025-12-17 18:20:53,746 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 18:20:53,760 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 18:20:53,786 - audit - INFO - Response: 200 | Duration: 0.025s
+2025-12-17 18:20:53,789 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 18:20:53,812 - audit - INFO - Response: 200 | Duration: 0.066s
+2025-12-17 18:20:53,817 - audit - INFO - Response: 200 | Duration: 0.028s
+2025-12-17 18:20:54,058 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 18:20:54,076 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 18:20:54,127 - audit - INFO - Response: 200 | Duration: 0.070s
+2025-12-17 18:20:54,142 - audit - INFO - Response: 200 | Duration: 0.067s
+2025-12-17 18:20:54,195 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 18:20:54,250 - audit - INFO - Response: 200 | Duration: 0.055s
+2025-12-17 18:20:54,252 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 18:20:54,308 - audit - INFO - Response: 200 | Duration: 0.057s
+2025-12-17 18:20:54,312 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 18:20:54,376 - audit - INFO - Response: 200 | Duration: 0.064s
+2025-12-17 18:23:34,253 - audit - INFO - Request: POST /users/login | Client: 127.0.0.1
+2025-12-17 18:23:34,866 - audit - INFO - Response: 200 | Duration: 0.613s
+2025-12-17 18:23:34,869 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 18:23:34,889 - audit - INFO - Response: 200 | Duration: 0.021s
+2025-12-17 18:23:34,989 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 18:23:35,054 - audit - INFO - Response: 200 | Duration: 0.065s
+2025-12-17 18:23:35,056 - audit - INFO - Request: GET /api/analysis/full | Client: 127.0.0.1
+2025-12-17 18:23:35,125 - audit - INFO - Response: 200 | Duration: 0.068s
+2025-12-17 18:23:37,159 - audit - INFO - Request: OPTIONS /users | Client: 127.0.0.1
+2025-12-17 18:23:37,161 - audit - INFO - Request: OPTIONS /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:23:37,161 - audit - INFO - Request: OPTIONS /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:23:37,162 - audit - INFO - Response: 200 | Duration: 0.003s
+2025-12-17 18:23:37,164 - audit - INFO - Response: 200 | Duration: 0.004s
+2025-12-17 18:23:37,165 - audit - INFO - Request: OPTIONS /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:23:37,167 - audit - INFO - Response: 200 | Duration: 0.005s
+2025-12-17 18:23:37,170 - audit - INFO - Request: OPTIONS /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:23:37,172 - audit - INFO - Request: OPTIONS /users | Client: 127.0.0.1
+2025-12-17 18:23:37,173 - audit - INFO - Request: OPTIONS /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:23:37,173 - audit - INFO - Response: 200 | Duration: 0.008s
+2025-12-17 18:23:37,175 - audit - INFO - Request: OPTIONS /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:23:37,175 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:23:37,175 - audit - INFO - Response: 200 | Duration: 0.005s
+2025-12-17 18:23:37,176 - audit - INFO - Response: 200 | Duration: 0.003s
+2025-12-17 18:23:37,177 - audit - INFO - Response: 200 | Duration: 0.003s
+2025-12-17 18:23:37,179 - audit - INFO - Response: 200 | Duration: 0.005s
+2025-12-17 18:23:37,179 - audit - INFO - Response: 307 | Duration: 0.004s
+2025-12-17 18:23:37,180 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:23:37,182 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:23:37,182 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:23:37,184 - audit - INFO - Request: OPTIONS /users/ | Client: 127.0.0.1
+2025-12-17 18:23:37,185 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:23:37,186 - audit - INFO - Response: 200 | Duration: 0.002s
+2025-12-17 18:23:37,187 - audit - INFO - Response: 307 | Duration: 0.002s
+2025-12-17 18:23:37,189 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:23:37,223 - audit - INFO - Response: 200 | Duration: 0.043s
+2025-12-17 18:23:37,224 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:23:37,225 - audit - INFO - Response: 200 | Duration: 0.036s
+2025-12-17 18:23:37,227 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:23:37,261 - audit - INFO - Response: 200 | Duration: 0.034s
+2025-12-17 18:23:37,262 - audit - INFO - Response: 200 | Duration: 0.080s
+2025-12-17 18:23:37,263 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:23:37,265 - audit - INFO - Response: 200 | Duration: 0.041s
+2025-12-17 18:23:37,274 - audit - INFO - Response: 200 | Duration: 0.093s
+2025-12-17 18:23:37,276 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:23:37,347 - audit - INFO - Response: 200 | Duration: 0.084s
+2025-12-17 18:23:37,366 - audit - INFO - Response: 200 | Duration: 0.091s
+2025-12-17 18:24:28,285 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:24:28,285 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:24:28,286 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:24:28,286 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:24:28,289 - audit - INFO - Response: 307 | Duration: 0.004s
+2025-12-17 18:24:28,291 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:24:28,325 - audit - INFO - Response: 200 | Duration: 0.039s
+2025-12-17 18:24:28,328 - audit - INFO - Response: 200 | Duration: 0.037s
+2025-12-17 18:24:28,362 - audit - INFO - Response: 200 | Duration: 0.077s
+2025-12-17 18:24:28,376 - audit - INFO - Response: 200 | Duration: 0.090s
+2025-12-17 18:27:37,024 - audit - INFO - Request: OPTIONS /users | Client: 127.0.0.1
+2025-12-17 18:27:37,027 - audit - INFO - Request: OPTIONS /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:27:37,028 - audit - INFO - Request: OPTIONS /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:27:37,028 - audit - INFO - Request: OPTIONS /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:27:37,029 - audit - INFO - Response: 200 | Duration: 0.005s
+2025-12-17 18:27:37,030 - audit - INFO - Response: 200 | Duration: 0.004s
+2025-12-17 18:27:37,032 - audit - INFO - Response: 200 | Duration: 0.004s
+2025-12-17 18:27:37,032 - audit - INFO - Response: 200 | Duration: 0.004s
+2025-12-17 18:27:37,034 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:27:37,036 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:27:37,038 - audit - INFO - Response: 307 | Duration: 0.004s
+2025-12-17 18:27:37,039 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:27:37,039 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:27:37,063 - audit - INFO - Request: OPTIONS /users/ | Client: 127.0.0.1
+2025-12-17 18:27:37,064 - audit - INFO - Response: 200 | Duration: 0.001s
+2025-12-17 18:27:37,068 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:27:37,072 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:27:37,077 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 18:27:37,082 - audit - INFO - Response: 307 | Duration: 0.009s
+2025-12-17 18:27:37,083 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:27:37,084 - audit - INFO - Response: 307 | Duration: 0.001s
+2025-12-17 18:27:37,105 - audit - INFO - Response: 200 | Duration: 0.066s
+2025-12-17 18:27:37,107 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:27:37,114 - audit - INFO - Response: 200 | Duration: 0.038s
+2025-12-17 18:27:37,117 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 18:27:37,120 - audit - INFO - Response: 200 | Duration: 0.052s
+2025-12-17 18:27:37,122 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:27:37,145 - audit - INFO - Response: 200 | Duration: 0.038s
+2025-12-17 18:27:37,147 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:27:37,149 - audit - INFO - Response: 200 | Duration: 0.032s
+2025-12-17 18:27:37,165 - audit - INFO - Response: 200 | Duration: 0.126s
+2025-12-17 18:27:37,166 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:27:37,171 - audit - INFO - Response: 200 | Duration: 0.049s
+2025-12-17 18:27:37,173 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:27:37,183 - audit - INFO - Response: 200 | Duration: 0.037s
+2025-12-17 18:27:37,205 - audit - INFO - Response: 200 | Duration: 0.169s
+2025-12-17 18:27:37,206 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:27:37,217 - audit - INFO - Response: 200 | Duration: 0.044s
+2025-12-17 18:27:37,260 - audit - INFO - Response: 200 | Duration: 0.094s
+2025-12-17 18:27:37,262 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:27:37,297 - audit - INFO - Response: 200 | Duration: 0.091s
+2025-12-17 18:27:37,298 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:27:37,347 - audit - INFO - Response: 200 | Duration: 0.085s
+2025-12-17 18:27:37,454 - audit - INFO - Response: 200 | Duration: 0.156s
+2025-12-17 18:28:01,765 - audit - INFO - Request: OPTIONS /api/transactions | Client: 127.0.0.1
+2025-12-17 18:28:01,767 - audit - INFO - Request: OPTIONS /api/transactions | Client: 127.0.0.1
+2025-12-17 18:28:01,768 - audit - INFO - Response: 200 | Duration: 0.003s
+2025-12-17 18:28:01,770 - audit - INFO - Response: 200 | Duration: 0.002s
+2025-12-17 18:28:01,772 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 18:28:02,106 - audit - INFO - Response: 200 | Duration: 0.334s
+2025-12-17 18:28:02,110 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 18:28:02,451 - audit - INFO - Response: 200 | Duration: 0.341s
+2025-12-17 18:28:11,091 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:28:11,093 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:28:11,095 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:28:11,095 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:28:11,095 - audit - INFO - Response: 307 | Duration: 0.004s
+2025-12-17 18:28:11,099 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:28:11,100 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:28:11,101 - audit - INFO - Response: 307 | Duration: 0.002s
+2025-12-17 18:28:11,128 - audit - INFO - Response: 200 | Duration: 0.035s
+2025-12-17 18:28:11,130 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:28:11,139 - audit - INFO - Response: 200 | Duration: 0.039s
+2025-12-17 18:28:11,142 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:28:11,161 - audit - INFO - Response: 200 | Duration: 0.031s
+2025-12-17 18:28:11,174 - audit - INFO - Response: 200 | Duration: 0.033s
+2025-12-17 18:28:11,184 - audit - INFO - Response: 200 | Duration: 0.089s
+2025-12-17 18:28:11,186 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:28:11,200 - audit - INFO - Response: 200 | Duration: 0.105s
+2025-12-17 18:28:11,201 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:28:11,273 - audit - INFO - Response: 200 | Duration: 0.087s
+2025-12-17 18:28:11,286 - audit - INFO - Response: 200 | Duration: 0.084s
+2025-12-17 18:28:53,798 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 18:28:53,844 - audit - INFO - Response: 200 | Duration: 0.046s
+2025-12-17 18:29:53,306 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:29:53,307 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:29:53,309 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:29:53,309 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:29:53,309 - audit - INFO - Response: 307 | Duration: 0.004s
+2025-12-17 18:29:53,321 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:29:53,328 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:29:53,336 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 18:29:53,337 - audit - INFO - Response: 307 | Duration: 0.009s
+2025-12-17 18:29:53,341 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:29:53,345 - audit - INFO - Response: 307 | Duration: 0.003s
+2025-12-17 18:29:53,350 - audit - INFO - Response: 200 | Duration: 0.042s
+2025-12-17 18:29:53,351 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:29:53,358 - audit - INFO - Response: 200 | Duration: 0.022s
+2025-12-17 18:29:53,359 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 18:29:53,365 - audit - INFO - Response: 200 | Duration: 0.044s
+2025-12-17 18:29:53,366 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:29:53,383 - audit - INFO - Response: 200 | Duration: 0.024s
+2025-12-17 18:29:53,387 - audit - INFO - Response: 200 | Duration: 0.037s
+2025-12-17 18:29:53,389 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:29:53,396 - audit - INFO - Response: 200 | Duration: 0.087s
+2025-12-17 18:29:53,398 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:29:53,400 - audit - INFO - Response: 200 | Duration: 0.034s
+2025-12-17 18:29:53,401 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:29:53,418 - audit - INFO - Response: 200 | Duration: 0.029s
+2025-12-17 18:29:53,423 - audit - INFO - Response: 200 | Duration: 0.114s
+2025-12-17 18:29:53,425 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:29:53,432 - audit - INFO - Response: 200 | Duration: 0.031s
+2025-12-17 18:29:53,480 - audit - INFO - Response: 200 | Duration: 0.083s
+2025-12-17 18:29:53,482 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:29:53,508 - audit - INFO - Response: 200 | Duration: 0.084s
+2025-12-17 18:29:53,510 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:29:53,557 - audit - INFO - Response: 200 | Duration: 0.075s
+2025-12-17 18:29:53,615 - audit - INFO - Response: 200 | Duration: 0.106s
+2025-12-17 18:29:58,124 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:29:58,124 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:29:58,125 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:29:58,126 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:29:58,128 - audit - INFO - Response: 307 | Duration: 0.004s
+2025-12-17 18:29:58,140 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:29:58,146 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:29:58,148 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 18:29:58,156 - audit - INFO - Response: 307 | Duration: 0.010s
+2025-12-17 18:29:58,158 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:29:58,159 - audit - INFO - Response: 307 | Duration: 0.001s
+2025-12-17 18:29:58,168 - audit - INFO - Response: 200 | Duration: 0.043s
+2025-12-17 18:29:58,171 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:29:58,178 - audit - INFO - Response: 200 | Duration: 0.030s
+2025-12-17 18:29:58,179 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 18:29:58,180 - audit - INFO - Response: 200 | Duration: 0.039s
+2025-12-17 18:29:58,182 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:29:58,203 - audit - INFO - Response: 200 | Duration: 0.025s
+2025-12-17 18:29:58,206 - audit - INFO - Response: 200 | Duration: 0.035s
+2025-12-17 18:29:58,210 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:29:58,213 - audit - INFO - Response: 200 | Duration: 0.032s
+2025-12-17 18:29:58,214 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:29:58,216 - audit - INFO - Response: 200 | Duration: 0.092s
+2025-12-17 18:29:58,218 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:29:58,221 - audit - INFO - Response: 200 | Duration: 0.095s
+2025-12-17 18:29:58,223 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:29:58,248 - audit - INFO - Response: 200 | Duration: 0.033s
+2025-12-17 18:29:58,251 - audit - INFO - Response: 200 | Duration: 0.041s
+2025-12-17 18:29:58,286 - audit - INFO - Response: 200 | Duration: 0.068s
+2025-12-17 18:29:58,288 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:29:58,308 - audit - INFO - Response: 200 | Duration: 0.085s
+2025-12-17 18:29:58,309 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:29:58,362 - audit - INFO - Response: 200 | Duration: 0.074s
+2025-12-17 18:29:58,399 - audit - INFO - Response: 200 | Duration: 0.090s
+2025-12-17 18:31:23,191 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:31:23,191 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:31:23,192 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:31:23,194 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:31:23,195 - audit - INFO - Response: 307 | Duration: 0.004s
+2025-12-17 18:31:23,207 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:31:23,214 - audit - INFO - Request: OPTIONS /users/me | Client: 127.0.0.1
+2025-12-17 18:31:23,214 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:31:23,217 - audit - INFO - Response: 200 | Duration: 0.003s
+2025-12-17 18:31:23,218 - audit - INFO - Response: 307 | Duration: 0.004s
+2025-12-17 18:31:23,224 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:31:23,225 - audit - INFO - Request: OPTIONS /users/me | Client: 127.0.0.1
+2025-12-17 18:31:23,226 - audit - INFO - Response: 307 | Duration: 0.001s
+2025-12-17 18:31:23,226 - audit - INFO - Response: 200 | Duration: 0.002s
+2025-12-17 18:31:23,231 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 18:31:23,241 - audit - INFO - Response: 200 | Duration: 0.050s
+2025-12-17 18:31:23,243 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:31:23,251 - audit - INFO - Response: 200 | Duration: 0.044s
+2025-12-17 18:31:23,255 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:31:23,260 - audit - INFO - Response: 200 | Duration: 0.030s
+2025-12-17 18:31:23,261 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 18:31:23,282 - audit - INFO - Response: 200 | Duration: 0.021s
+2025-12-17 18:31:23,286 - audit - INFO - Response: 200 | Duration: 0.042s
+2025-12-17 18:31:23,288 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:31:23,289 - audit - INFO - Response: 200 | Duration: 0.097s
+2025-12-17 18:31:23,290 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:31:23,291 - audit - INFO - Response: 200 | Duration: 0.036s
+2025-12-17 18:31:23,292 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:31:23,298 - audit - INFO - Response: 200 | Duration: 0.104s
+2025-12-17 18:31:23,299 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:31:23,323 - audit - INFO - Response: 200 | Duration: 0.035s
+2025-12-17 18:31:23,324 - audit - INFO - Response: 200 | Duration: 0.032s
+2025-12-17 18:31:23,378 - audit - INFO - Response: 200 | Duration: 0.088s
+2025-12-17 18:31:23,380 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:31:23,381 - audit - INFO - Response: 200 | Duration: 0.082s
+2025-12-17 18:31:23,382 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:31:23,473 - audit - INFO - Response: 200 | Duration: 0.093s
+2025-12-17 18:31:23,485 - audit - INFO - Response: 200 | Duration: 0.102s
+2025-12-17 18:33:37,307 - audit - INFO - Request: OPTIONS /users | Client: 127.0.0.1
+2025-12-17 18:33:37,309 - audit - INFO - Request: OPTIONS /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:33:37,310 - audit - INFO - Request: OPTIONS /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:33:37,310 - audit - INFO - Request: OPTIONS /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:33:37,310 - audit - INFO - Response: 200 | Duration: 0.003s
+2025-12-17 18:33:37,311 - audit - INFO - Response: 200 | Duration: 0.003s
+2025-12-17 18:33:37,311 - audit - INFO - Response: 200 | Duration: 0.002s
+2025-12-17 18:33:37,312 - audit - INFO - Response: 200 | Duration: 0.003s
+2025-12-17 18:33:37,313 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:33:37,315 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:33:37,317 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:33:37,317 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:33:37,317 - audit - INFO - Response: 307 | Duration: 0.004s
+2025-12-17 18:33:37,330 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:33:37,331 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 18:33:37,333 - audit - INFO - Request: OPTIONS /users/ | Client: 127.0.0.1
+2025-12-17 18:33:37,334 - audit - INFO - Response: 307 | Duration: 0.004s
+2025-12-17 18:33:37,342 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:33:37,343 - audit - INFO - Response: 200 | Duration: 0.010s
+2025-12-17 18:33:37,346 - audit - INFO - Response: 307 | Duration: 0.004s
+2025-12-17 18:33:37,346 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:33:37,349 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:33:37,378 - audit - INFO - Response: 200 | Duration: 0.047s
+2025-12-17 18:33:37,406 - audit - INFO - Response: 200 | Duration: 0.088s
+2025-12-17 18:33:37,409 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 18:33:37,417 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:33:37,456 - audit - INFO - Response: 200 | Duration: 0.047s
+2025-12-17 18:33:37,457 - audit - INFO - Response: 200 | Duration: 0.110s
+2025-12-17 18:33:37,504 - audit - INFO - Response: 200 | Duration: 0.088s
+2025-12-17 18:33:37,507 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:33:37,517 - audit - INFO - Response: 200 | Duration: 0.202s
+2025-12-17 18:33:37,519 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:33:37,523 - audit - INFO - Response: 200 | Duration: 0.206s
+2025-12-17 18:33:37,525 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:33:37,548 - audit - INFO - Response: 200 | Duration: 0.041s
+2025-12-17 18:33:37,563 - audit - INFO - Response: 200 | Duration: 0.214s
+2025-12-17 18:33:37,565 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:33:37,604 - audit - INFO - Response: 200 | Duration: 0.039s
+2025-12-17 18:33:37,622 - audit - INFO - Response: 200 | Duration: 0.097s
+2025-12-17 18:33:37,626 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:33:37,648 - audit - INFO - Response: 200 | Duration: 0.128s
+2025-12-17 18:33:37,649 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:33:37,726 - audit - INFO - Response: 200 | Duration: 0.100s
+2025-12-17 18:33:37,744 - audit - INFO - Response: 200 | Duration: 0.095s
+2025-12-17 18:33:42,296 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 18:33:42,342 - audit - INFO - Response: 200 | Duration: 0.046s
+2025-12-17 18:34:09,462 - audit - INFO - Request: OPTIONS /users | Client: 127.0.0.1
+2025-12-17 18:34:09,466 - audit - INFO - Request: OPTIONS /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:34:09,466 - audit - INFO - Request: OPTIONS /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:34:09,467 - audit - INFO - Request: OPTIONS /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:34:09,468 - audit - INFO - Response: 200 | Duration: 0.006s
+2025-12-17 18:34:09,471 - audit - INFO - Response: 200 | Duration: 0.005s
+2025-12-17 18:34:09,472 - audit - INFO - Response: 200 | Duration: 0.006s
+2025-12-17 18:34:09,473 - audit - INFO - Response: 200 | Duration: 0.006s
+2025-12-17 18:34:09,475 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:34:09,477 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:34:09,481 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:34:09,482 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:34:09,482 - audit - INFO - Response: 307 | Duration: 0.007s
+2025-12-17 18:34:09,510 - audit - INFO - Request: OPTIONS /users | Client: 127.0.0.1
+2025-12-17 18:34:09,514 - audit - INFO - Request: OPTIONS /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:34:09,518 - audit - INFO - Request: OPTIONS /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:34:09,523 - audit - INFO - Response: 200 | Duration: 0.013s
+2025-12-17 18:34:09,526 - audit - INFO - Response: 200 | Duration: 0.012s
+2025-12-17 18:34:09,527 - audit - INFO - Response: 200 | Duration: 0.009s
+2025-12-17 18:34:09,539 - audit - INFO - Request: OPTIONS /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:34:09,543 - audit - INFO - Request: OPTIONS /users | Client: 127.0.0.1
+2025-12-17 18:34:09,543 - audit - INFO - Request: OPTIONS /users/me | Client: 127.0.0.1
+2025-12-17 18:34:09,546 - audit - INFO - Response: 200 | Duration: 0.008s
+2025-12-17 18:34:09,548 - audit - INFO - Response: 200 | Duration: 0.006s
+2025-12-17 18:34:09,549 - audit - INFO - Response: 200 | Duration: 0.006s
+2025-12-17 18:34:09,554 - audit - INFO - Response: 200 | Duration: 0.072s
+2025-12-17 18:34:09,556 - audit - INFO - Request: OPTIONS /users/ | Client: 127.0.0.1
+2025-12-17 18:34:09,560 - audit - INFO - Request: OPTIONS /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:34:09,560 - audit - INFO - Request: OPTIONS /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:34:09,560 - audit - INFO - Request: OPTIONS /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:34:09,561 - audit - INFO - Response: 200 | Duration: 0.005s
+2025-12-17 18:34:09,562 - audit - INFO - Response: 200 | Duration: 0.003s
+2025-12-17 18:34:09,563 - audit - INFO - Response: 200 | Duration: 0.003s
+2025-12-17 18:34:09,564 - audit - INFO - Response: 200 | Duration: 0.004s
+2025-12-17 18:34:09,567 - audit - INFO - Request: OPTIONS /users/me | Client: 127.0.0.1
+2025-12-17 18:34:09,571 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:34:09,572 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:34:09,574 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:34:09,575 - audit - INFO - Response: 200 | Duration: 0.007s
+2025-12-17 18:34:09,576 - audit - INFO - Response: 307 | Duration: 0.004s
+2025-12-17 18:34:09,579 - audit - INFO - Request: GET /users | Client: 127.0.0.1
+2025-12-17 18:34:09,579 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:34:09,581 - audit - INFO - Response: 307 | Duration: 0.003s
+2025-12-17 18:34:09,582 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 18:34:09,609 - audit - INFO - Response: 200 | Duration: 0.131s
+2025-12-17 18:34:09,613 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:34:09,616 - audit - INFO - Response: 200 | Duration: 0.134s
+2025-12-17 18:34:09,621 - audit - INFO - Request: GET /api/admin/users/churned | Client: 127.0.0.1
+2025-12-17 18:34:09,624 - audit - INFO - Response: 200 | Duration: 0.053s
+2025-12-17 18:34:09,626 - audit - INFO - Request: GET /api/admin/users/stats/churn-rate | Client: 127.0.0.1
+2025-12-17 18:34:09,672 - audit - INFO - Response: 200 | Duration: 0.058s
+2025-12-17 18:34:09,674 - audit - INFO - Request: GET /api/admin/users/new-signups | Client: 127.0.0.1
+2025-12-17 18:34:09,709 - audit - INFO - Response: 200 | Duration: 0.136s
+2025-12-17 18:34:09,711 - audit - INFO - Request: GET /users/me | Client: 127.0.0.1
+2025-12-17 18:34:09,729 - audit - INFO - Response: 200 | Duration: 0.150s
+2025-12-17 18:34:09,731 - audit - INFO - Request: OPTIONS /users/ | Client: 127.0.0.1
+2025-12-17 18:34:09,732 - audit - INFO - Response: 200 | Duration: 0.001s
+2025-12-17 18:34:09,733 - audit - INFO - Response: 200 | Duration: 0.059s
+2025-12-17 18:34:09,737 - audit - INFO - Request: OPTIONS /users/ | Client: 127.0.0.1
+2025-12-17 18:34:09,738 - audit - INFO - Response: 200 | Duration: 0.027s
+2025-12-17 18:34:09,739 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:34:09,742 - audit - INFO - Response: 200 | Duration: 0.006s
+2025-12-17 18:34:09,744 - audit - INFO - Request: GET /users/ | Client: 127.0.0.1
+2025-12-17 18:34:09,753 - audit - INFO - Response: 200 | Duration: 0.132s
+2025-12-17 18:34:09,755 - audit - INFO - Response: 200 | Duration: 0.174s
+2025-12-17 18:34:09,772 - audit - INFO - Response: 200 | Duration: 0.146s
+2025-12-17 18:34:09,774 - audit - INFO - Response: 200 | Duration: 0.036s
+2025-12-17 18:34:09,781 - audit - INFO - Response: 200 | Duration: 0.037s
+2025-12-17 18:35:37,139 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 18:35:37,198 - audit - INFO - Response: 200 | Duration: 0.059s
+2025-12-17 18:35:40,429 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
+2025-12-17 18:35:40,501 - audit - INFO - Response: 200 | Duration: 0.072s
