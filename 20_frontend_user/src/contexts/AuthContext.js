@@ -43,63 +43,79 @@ export const AuthProvider = ({ children }) => {
     // 로그인
     const login = async (email, password) => {
         try {
-            const formData = new URLSearchParams();
-            formData.append('username', email);
-            formData.append('password', password);
+            const params = new URLSearchParams();
+            params.append('username', email);
+            params.append('password', password);
 
-            const response = await fetch(`${API_BASE_URL}/users/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: formData.toString(),
+            const response = await apiClient.post('/users/login', params, {
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
             });
 
-            if (response.ok) {
-                const tokenData = await response.json();
-                await AsyncStorage.setItem('authToken', tokenData.access_token);
-                await AsyncStorage.setItem('refreshToken', tokenData.refresh_token);
+            if (response.data) {
+                const { access_token, refresh_token } = response.data;
+                await AsyncStorage.setItem('authToken', access_token);
+                await AsyncStorage.setItem('refreshToken', refresh_token);
 
-                const userResponse = await fetch(`${API_BASE_URL}/users/me`, {
-                    headers: { 'Authorization': `Bearer ${tokenData.access_token}` },
+                const userResponse = await apiClient.get('/users/me', {
+                    headers: { 'Authorization': `Bearer ${access_token}` }
                 });
 
-                if (userResponse.ok) {
-                    const userData = await userResponse.json();
-                    await AsyncStorage.setItem('user', JSON.stringify(userData));
-                    setUser(userData);
-                    return { success: true };
+                const userData = userResponse.data;
+                await AsyncStorage.setItem('user', JSON.stringify(userData));
+                setUser(userData);
+                return { success: true };
+            }
+            return { success: false, error: '로그인에 실패했습니다.' };
+        } catch (error) {
+            console.error('Login error:', error);
+            let errorMessage = '이메일 또는 비밀번호가 올바르지 않습니다.';
+            if (error.response?.data?.detail) {
+                const detail = error.response.data.detail;
+                if (Array.isArray(detail)) {
+                    errorMessage = detail.map(err => {
+                        const field = err.loc ? err.loc[err.loc.length - 1] : 'error';
+                        return `${field}: ${err.msg}`;
+                    }).join('\n');
+                } else {
+                    errorMessage = detail;
                 }
             }
-
-            const errorData = await response.json().catch(() => ({}));
-            return { success: false, error: errorData.detail || '이메일 또는 비밀번호가 올바르지 않습니다.' };
-        } catch (error) {
-            console.error('로그인 에러:', error);
-            return { success: false, error: '서버 연결에 실패했습니다.' };
+            return { success: false, error: errorMessage };
         }
     };
+
     // 회원가입
-    const signup = async (name, email, password, birthDate = null) => {
+    const signup = async (name, email, password, birthDate) => {
         try {
-            const body = { name, email, password };
-            if (birthDate) {
-                body.birth_date = birthDate;
-            }
-            
-            const response = await fetch(`${API_BASE_URL}/users/signup`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body),
+            const response = await apiClient.post('/users/signup', {
+                name,
+                email,
+                password,
+                birth_date: birthDate
             });
 
-            if (response.ok) {
-                return { success: true, message: '회원가입이 완료되었습니다. 로그인해주세요.' };
+            if (response.data) {
+                // 성공 시 자동 로그인
+                return await login(email, password);
             }
-
-            const errorData = await response.json().catch(() => ({}));
-            return { success: false, error: errorData.detail || '회원가입에 실패했습니다.' };
+            return { success: false, error: '회원가입에 실패했습니다.' };
         } catch (error) {
-            console.error('회원가입 에러:', error);
-            return { success: false, error: '서버 연결에 실패했습니다.' };
+            console.error('Signup error:', error);
+            let errorMessage = '회원가입 중 오류가 발생했습니다.';
+            if (error.response?.data?.detail) {
+                const detail = error.response.data.detail;
+                if (Array.isArray(detail)) {
+                    errorMessage = detail.map(err => {
+                        const field = err.loc ? err.loc[err.loc.length - 1] : 'error';
+                        return `${field}: ${err.msg}`;
+                    }).join('\n');
+                } else {
+                    errorMessage = detail;
+                }
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+            return { success: false, error: errorMessage };
         }
     };
     // 로그아웃
@@ -107,11 +123,11 @@ export const AuthProvider = ({ children }) => {
         // 사용자별 캐시 삭제를 위해 먼저 user 정보 가져오기
         const userJson = await AsyncStorage.getItem('user');
         const user = userJson ? JSON.parse(userJson) : null;
-        
+
         await AsyncStorage.removeItem('user');
         await AsyncStorage.removeItem('authToken');
         await AsyncStorage.removeItem('refreshToken');
-        
+
         // 사용자별 거래 캐시 삭제
         if (user?.id) {
             await AsyncStorage.removeItem(`transactions_cache_${user.id}`);
@@ -120,7 +136,7 @@ export const AuthProvider = ({ children }) => {
         // 레거시 캐시도 삭제 (이전 버전 호환)
         await AsyncStorage.removeItem('transactions_cache');
         await AsyncStorage.removeItem('last_sync_time');
-        
+
         setUser(null);
     };
     // 카카오 로그인
