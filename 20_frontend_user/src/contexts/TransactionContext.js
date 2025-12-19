@@ -1,8 +1,11 @@
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getTransactions, updateTransactionNote as apiUpdateNote, createTransaction, deleteTransaction } from '../api';
+import { getTransactions, updateTransactionNote as apiUpdateNote, createTransaction, deleteTransaction, evaluateTransaction } from '../api';
 import { predictNextTransaction } from '../api/ml';
+import { useAISettings } from './AISettingsContext';
+import { useToast } from './ToastContext';
+import { filterMonthlyTransactions, calculateTotalSpent, analyzeCategoryBreakdown } from '../utils/spendingAnalyzer';
 
 const TransactionContext = createContext();
 
@@ -10,6 +13,8 @@ export const TransactionProvider = ({ children }) => {
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(false);
     const [lastSyncTime, setLastSyncTime] = useState(null);
+    const { aiEnabled } = useAISettings();  // AI 설정 가져오기
+    const { showToast } = useToast();  // Toast 알림 함수
 
     // 앱 시작 시 캐시 로드
     useEffect(() => {
@@ -128,7 +133,51 @@ export const TransactionProvider = ({ children }) => {
             setTransactions(updated);
             await saveTransactionsToCache(updated);
 
-            return { success: true, transaction: formattedTx };
+            // 즉시 성공 반환 (모달을 빠르게 닫기 위해)
+            const successResult = { success: true, transaction: formattedTx };
+
+            // AI 평가를 백그라운드에서 비동기 실행 (await 없이)
+            if (aiEnabled) {
+                (async () => {
+                    try {
+                        // 소비 내역 요약 계산 (유틸리티 사용)
+                        const monthlyTransactions = filterMonthlyTransactions(updated);
+                        const totalSpent = calculateTotalSpent(monthlyTransactions);
+
+                        // 같은 카테고리 지출 계산
+                        const categoryBreakdown = analyzeCategoryBreakdown(monthlyTransactions);
+                        const categoryData = categoryBreakdown[formattedTx.category] || { count: 0, total: 0 };
+
+                        // LLM API 호출 (리팩토링된 API 사용)
+                        const evaluationResult = await evaluateTransaction({
+                            transaction: {
+                                merchant_name: formattedTx.merchant,
+                                amount: formattedTx.amount,
+                                category: formattedTx.category
+                            },
+                            budget: 1000000,  // 100만원 하드코딩
+                            spendingHistory: {
+                                total: totalSpent,
+                                category_total: categoryData.total,
+                                category_count: categoryData.count
+                            }
+                        });
+
+                        if (evaluationResult.success && evaluationResult.message) {
+                            console.log('✅ AI 평가:', evaluationResult.message);
+
+                            // Toast 알림 표시 (모달이 완전히 닫힌 후)
+                            setTimeout(() => {
+                                showToast(evaluationResult.message, 6000);  // 6초 동안 표시
+                            }, 1000);
+                        }
+                    } catch (evalError) {
+                        console.error('AI 평가 실패:', evalError);
+                    }
+                })();
+            }
+
+            return successResult;
         } catch (error) {
             console.error('거래 추가 실패:', error);
             return { success: false, error };
@@ -140,8 +189,8 @@ export const TransactionProvider = ({ children }) => {
             // API 호출
             await deleteTransaction(id);
 
-            // 로컬 상태 업데이트
-            const updated = transactions.filter(t => t.id !== String(id));
+            // 로컬 상태 업데이트 (양쪽 다 String으로 비교)
+            const updated = transactions.filter(t => String(t.id) !== String(id));
             setTransactions(updated);
             await saveTransactionsToCache(updated);
 

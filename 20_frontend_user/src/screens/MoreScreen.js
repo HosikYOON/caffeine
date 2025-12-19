@@ -1,96 +1,51 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Modal } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Modal, Switch } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAISettings } from '../contexts/AISettingsContext';
+import { useTransactions } from '../contexts/TransactionContext';
 import FadeInView from '../components/FadeInView';
+import { useChatbot } from '../hooks/useChatbot';
+
+// 상수 분리
+const DEFAULT_BUDGET = 1000000;
 
 export default function MoreScreen({ navigation, route }) {
     const { colors } = useTheme();
-    const [chatStarted, setChatStarted] = useState(false);
-    const [messages, setMessages] = useState([]);
+    const { aiEnabled, toggleAI } = useAISettings();
+    const { transactions } = useTransactions();
+
+    // 챗봇 훅 사용
+    const {
+        messages,
+        isTyping,
+        chatStarted,
+        startChat,
+        endChat,
+        sendMessage,
+    } = useChatbot({ transactions, budget: DEFAULT_BUDGET });
+
     const [inputText, setInputText] = useState('');
-    const [isTyping, setIsTyping] = useState(false); // Typing Indicator State
-    const scrollViewRef = useRef();
-    // 잠깐만AI 난이도 상태 (상/중/하)
+    const scrollViewRef = useRef(null);
     const [naggingLevel, setNaggingLevel] = useState('중');
 
     // 대시보드에서 "잠깐만" 버튼 누르면 바로 챗봇 시작
     useEffect(() => {
         if (route?.params?.openChat) {
             startChat();
-            // 파라미터 초기화 (뒤로가기 후 다시 올 때를 위해)
             navigation?.setParams({ openChat: false });
         }
-    }, [route?.params?.openChat]);
+    }, [route?.params?.openChat, startChat, navigation]);
 
-    // Old mock function removed
-
-    const startChat = () => {
-        setChatStarted(true);
-        setMessages([
-            {
-                id: 1,
-                type: 'bot',
-                text: '안녕하세요! 저는 소비 습관 개선을 도와주는 잠깐만 AI예요 🤖\n\n궁금한 점이나 상담하고 싶은 내용을 말씀해주세요!',
-                time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
-            }
-        ]);
-    };
-
-    const sendMessage = async () => {
+    // 메시지 전송 핸들러
+    const handleSendMessage = async () => {
         if (!inputText.trim()) return;
-
-        const userMessage = {
-            id: messages.length + 1,
-            type: 'user',
-            text: inputText,
-            time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
-        };
-
-        setMessages(prev => [...prev, userMessage]);
+        const text = inputText;
         setInputText('');
-        setIsTyping(true); // Show typing indicator
-
-        try {
-            // Call Backend API
-            const response = await fetch('http://localhost:8001/api/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    message: userMessage.text,
-                    naggingLevel: naggingLevel
-                }),
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                const botMessage = {
-                    id: messages.length + 2,
-                    type: 'bot',
-                    text: data.reply,
-                    time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
-                };
-                setMessages(prev => [...prev, botMessage]);
-            } else {
-                throw new Error('API Error');
-            }
-        } catch (error) {
-            console.error('Chat Error:', error);
-            const errorMessage = {
-                id: messages.length + 2,
-                type: 'bot',
-                text: "죄송해요, 잠시 연결이 불안정하네요. 다시 말씀해주시겠어요? 😥",
-                time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
-            };
-            setMessages(prev => [...prev, errorMessage]);
-        } finally {
-            setIsTyping(false); // Hide typing indicator
-        }
+        await sendMessage(text);
     };
+
     // 예산 설정 모달 상태
     const [budgetModalVisible, setBudgetModalVisible] = useState(false);
     const [monthlyBudget, setMonthlyBudget] = useState('0');
@@ -101,6 +56,7 @@ export default function MoreScreen({ navigation, route }) {
         '여가': '0',
         '기타': '0'
     });
+
 
     // 고객센터 Q&A 모달 상태
     const [qnaModalVisible, setQnaModalVisible] = useState(false);
@@ -234,30 +190,21 @@ export default function MoreScreen({ navigation, route }) {
                     </View>
                 </View>
 
-                {/* 난이도 선택 UI */}
+                {/* AI On/Off 토글 */}
                 <View style={[styles.levelSelector, { backgroundColor: colors.cardBackground }]}>
-                    <Text style={[styles.levelLabel, { color: colors.textSecondary }]}>잠깐만 강도:</Text>
-                    <View style={styles.levelButtons}>
-                        {['하', '중', '상'].map((level) => (
-                            <TouchableOpacity
-                                key={level}
-                                style={[
-                                    styles.levelButton,
-                                    naggingLevel === level && styles.levelButtonActive,
-                                    level === '상' && naggingLevel === level && styles.levelButtonHigh,
-                                    level === '하' && naggingLevel === level && styles.levelButtonLow,
-                                ]}
-                                onPress={() => setNaggingLevel(level)}
-                            >
-                                <Text style={[
-                                    styles.levelButtonText,
-                                    naggingLevel === level && styles.levelButtonTextActive
-                                ]}>
-                                    {level === '상' ? '🔥 상' : level === '중' ? '💬 중' : '😊 하'}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Text style={[styles.levelLabel, { color: colors.text, fontWeight: '600' }]}>🤖 잠깐만 AI</Text>
+                        <Text style={[styles.levelLabel, { color: colors.textSecondary, marginLeft: 8 }]}>
+                            {aiEnabled ? '거래마다 평가' : '비활성화'}
+                        </Text>
                     </View>
+                    <Switch
+                        value={aiEnabled}
+                        onValueChange={toggleAI}
+                        trackColor={{ false: '#E5E7EB', true: '#6366F1' }}
+                        thumbColor={'#FFFFFF'}
+                        ios_backgroundColor="#E5E7EB"
+                    />
                 </View>
 
                 {/* 메시지 리스트 */}
@@ -317,7 +264,7 @@ export default function MoreScreen({ navigation, route }) {
                     />
                     <TouchableOpacity
                         style={styles.sendButton}
-                        onPress={sendMessage}
+                        onPress={handleSendMessage}
                     >
                         <LinearGradient
                             colors={['#6366F1', '#4F46E5']}

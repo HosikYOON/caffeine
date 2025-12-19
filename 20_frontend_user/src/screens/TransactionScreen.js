@@ -7,6 +7,7 @@ import { apiClient } from '../api/client';
 import { useTheme } from '../contexts/ThemeContext';
 import { useTransactions } from '../contexts/TransactionContext';
 import EmptyState from '../components/EmptyState';
+import AddTransactionModal from '../components/AddTransactionModal';
 import { formatCurrency } from '../utils/currency';
 import { EMPTY_MESSAGES } from '../constants';
 
@@ -21,13 +22,6 @@ export default function TransactionScreen({ navigation }) {
     const [editedNote, setEditedNote] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const [prediction, setPrediction] = useState(null);
-
-    // 새 거래 입력 상태
-    const [newTransaction, setNewTransaction] = useState({
-        merchant: '',
-        amount: '',
-        category: '기타'
-    });
 
     const fetchPrediction = async () => {
         try {
@@ -121,41 +115,23 @@ export default function TransactionScreen({ navigation }) {
         }
     };
 
-    const handleAddTransaction = async () => {
-        if (!newTransaction.merchant || !newTransaction.amount) {
-            Alert.alert('알림', '가맹점명과 금액을 입력해주세요.');
-            return;
-        }
 
-        const data = {
-            merchant_name: newTransaction.merchant,
-            amount: parseFloat(newTransaction.amount),
-            category: newTransaction.category,
-            transaction_date: new Date().toISOString()
-        };
-
-        const result = await addTransaction(data);
-        if (result.success) {
-            setAddModalVisible(false);
-            setNewTransaction({ merchant: '', amount: '', category: '기타' });
-            Alert.alert('성공', '거래가 추가되었습니다.');
-        } else {
-            Alert.alert('오류', '거래 추가 실패: ' + (result.error?.message || '알 수 없는 오류'));
-        }
-    };
 
     const handleDeleteTransaction = async () => {
         if (!selectedTransaction) return;
 
         if (Platform.OS === 'web') {
-            const confirmed = window.confirm('정말 이 거래 내역을 삭제하시겠습니까?');
-            if (confirmed) {
-                const result = await removeTransaction(selectedTransaction.id);
-                if (result.success) {
-                    setModalVisible(false);
-                } else {
-                    alert('거래 삭제 실패');
-                }
+            // 웹에서는 바로 삭제 (confirm 대화상자 문제 회피)
+            const txId = selectedTransaction.id;
+            setModalVisible(false);
+            setSelectedTransaction(null);
+
+            const result = await removeTransaction(txId);
+            if (result.success) {
+                // 성공 알림은 조용히 처리
+                console.log('거래 삭제 완료:', txId);
+            } else {
+                alert('거래 삭제 실패: ' + (result.error?.message || '알 수 없는 오류'));
             }
         } else {
             Alert.alert(
@@ -326,7 +302,11 @@ export default function TransactionScreen({ navigation }) {
 
                                 {/* Action Buttons */}
                                 <View style={styles.modalActions}>
-                                    <TouchableOpacity style={[styles.actionButton, styles.deleteButton]} onPress={handleDeleteTransaction}>
+                                    <TouchableOpacity
+                                        style={[styles.actionButton, styles.deleteButton]}
+                                        onPress={handleDeleteTransaction}
+                                        activeOpacity={0.7}
+                                    >
                                         <Feather name="trash-2" size={18} color="#EF4444" />
                                         <Text style={styles.deleteButtonText}>삭제</Text>
                                     </TouchableOpacity>
@@ -350,67 +330,13 @@ export default function TransactionScreen({ navigation }) {
             </Modal>
 
             {/* Add Transaction Modal */}
-            <Modal
-                animationType="slide"
-                transparent={true}
+            <AddTransactionModal
                 visible={addModalVisible}
-                onRequestClose={() => setAddModalVisible(false)}
-            >
-                <View style={styles.modalOverlay}>
-                    <View style={[styles.modalContent, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
-                        <Text style={[styles.modalTitle, { color: colors.text }]}>거래 추가</Text>
-
-                        <View style={styles.inputGroup}>
-                            <Text style={[styles.label, { color: colors.textSecondary }]}>가맹점명</Text>
-                            <TextInput
-                                style={[styles.input, { color: colors.text, borderColor: colors.border, backgroundColor: colors.background }]}
-                                value={newTransaction.merchant}
-                                onChangeText={(text) => setNewTransaction({ ...newTransaction, merchant: text })}
-                                placeholder="예: 스타벅스"
-                                placeholderTextColor={colors.textSecondary}
-                            />
-                        </View>
-
-                        <View style={styles.inputGroup}>
-                            <Text style={[styles.label, { color: colors.textSecondary }]}>금액</Text>
-                            <TextInput
-                                style={[styles.input, { color: colors.text, borderColor: colors.border, backgroundColor: colors.background }]}
-                                value={newTransaction.amount}
-                                onChangeText={(text) => setNewTransaction({ ...newTransaction, amount: text })}
-                                placeholder="예: 5000"
-                                keyboardType="numeric"
-                                placeholderTextColor={colors.textSecondary}
-                            />
-                        </View>
-
-                        <View style={styles.inputGroup}>
-                            <Text style={[styles.label, { color: colors.textSecondary }]}>카테고리</Text>
-                            <TextInput
-                                style={[styles.input, { color: colors.text, borderColor: colors.border, backgroundColor: colors.background }]}
-                                value={newTransaction.category}
-                                onChangeText={(text) => setNewTransaction({ ...newTransaction, category: text })}
-                                placeholder="예: 식비, 쇼핑, 교통..."
-                                placeholderTextColor={colors.textSecondary}
-                            />
-                        </View>
-
-                        <View style={styles.modalButtons}>
-                            <TouchableOpacity
-                                style={[styles.modalButtonCancel, { backgroundColor: colors.background, borderColor: colors.border }]}
-                                onPress={() => setAddModalVisible(false)}
-                            >
-                                <Text style={[styles.modalButtonTextCancel, { color: colors.text }]}>취소</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.modalButtonConfirm, { backgroundColor: colors.primary }]}
-                                onPress={handleAddTransaction}
-                            >
-                                <Text style={styles.modalButtonText}>추가</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
+                onClose={() => setAddModalVisible(false)}
+                onSuccess={() => {
+                    setAddModalVisible(false);
+                }}
+            />
 
             {/* Anomaly Category Modal (Placeholder for explicit implementation if needed) */}
             {/* ... keeping existing logic if any ... */}

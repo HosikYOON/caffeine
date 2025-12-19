@@ -11,7 +11,7 @@ import FadeInView from '../components/FadeInView';
 import AnimatedButton from '../components/AnimatedButton';
 import EmptyState from '../components/EmptyState';
 import { SkeletonStats, SkeletonChart } from '../components/SkeletonCard';
-import AddTransactionModal from '../components/AddTransactionModal';
+
 import { formatCurrency } from '../utils/currency';
 import { CHART_COLORS, ANIMATION_DELAY } from '../constants';
 
@@ -56,11 +56,25 @@ export default function DashboardScreen({ navigation }) {
     const [tooltip, setTooltip] = useState(null);
     const [predictedTransaction, setPredictedTransaction] = useState(null);
     const [couponReceived, setCouponReceived] = useState(false);
-    const [showAddModal, setShowAddModal] = useState(false);
+
 
     const scrollViewRef = useRef(null);
 
-    // 거래 데이터로부터 대시보드 요약 계산
+    // 이번 달 거래만 필터링
+    const filterCurrentMonthTransactions = (txns) => {
+        if (!txns || txns.length === 0) return [];
+
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+
+        return txns.filter(t => {
+            const txDate = new Date(t.date);
+            return txDate.getMonth() === currentMonth && txDate.getFullYear() === currentYear;
+        });
+    };
+
+    // 거래 데이터로부터 대시보드 요약 계산 (이번 달 기준)
     const calculateSummary = (txns) => {
         if (!txns || txns.length === 0) return null;
 
@@ -189,8 +203,11 @@ export default function DashboardScreen({ navigation }) {
 
     useEffect(() => {
         if (transactions && transactions.length > 0) {
-            setSummary(calculateSummary(transactions));
-            setCategoryData(calculateCategoryData(transactions));
+            // 이번 달 거래만 필터링해서 요약 및 카테고리 계산
+            const currentMonthTxns = filterCurrentMonthTransactions(transactions);
+            setSummary(calculateSummary(currentMonthTxns));
+            setCategoryData(calculateCategoryData(currentMonthTxns));
+            // 월별 추이는 전체 데이터 사용
             setMonthlyData(calculateMonthlyData(transactions));
         }
     }, [transactions]);
@@ -551,30 +568,7 @@ export default function DashboardScreen({ navigation }) {
                 <View style={{ height: 100 }} />
             </ScrollView>
 
-            {/* Floating Action Button - 소비 추가 */}
-            <TouchableOpacity
-                style={styles.fab}
-                onPress={() => setShowAddModal(true)}
-                activeOpacity={0.85}
-            >
-                <LinearGradient
-                    colors={['#10B981', '#059669']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.fabGradient}
-                >
-                    <Feather name="plus" size={28} color="#FFFFFF" />
-                </LinearGradient>
-            </TouchableOpacity>
 
-            {/* 소비 추가 모달 */}
-            <AddTransactionModal
-                visible={showAddModal}
-                onClose={() => setShowAddModal(false)}
-                onSuccess={() => {
-                    refresh();  // 데이터 새로고침
-                }}
-            />
         </LinearGradient>
     );
 }

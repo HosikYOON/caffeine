@@ -4,4 +4,5 @@
 export * from './transactions';
 export * from './analysis';
 export * from './ml';
+export * from './chatbot';
 export { apiClient } from './client';
