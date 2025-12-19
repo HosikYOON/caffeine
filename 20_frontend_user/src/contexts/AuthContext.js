@@ -28,6 +28,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { apiClient } from '../api/client';
 
 // ═══ Context 생성 ═══
 // Context = 데이터 공유 창고 (앱 전체에서 접근 가능)
@@ -251,10 +252,11 @@ export const AuthProvider = ({ children }) => {
     const signup = async (name, email, password, birthDate) => {
         try {
             // 실제 백엔드 API 호출
-            const response = await apiClient.post('/api/auth/register', {
-                name: name,
+            const response = await apiClient.post('/users/signup', {
+                name: name,  // Backend expects 'name' not 'fullname'
                 email: email,
                 password: password,
+                phone: '000-0000-0000',  // Required field
                 birth_date: birthDate
             });
 
