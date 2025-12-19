@@ -1,6 +1,6 @@
 from datetime import datetime
-from typing import Optional
-from pydantic import BaseModel, EmailStr, Field
+from typing import Optional, Any, Union
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
 # 사용자 기본 스키마
@@ -10,7 +10,23 @@ class UserBase(BaseModel):
     nickname: Optional[str] = Field(None, max_length=50, description="닉네임")
     phone: Optional[str] = Field(None, max_length=20, description="전화번호")
     birth_date: Optional[datetime] = Field(None, description="생년월일")
-    last_login_at: Optional[datetime]
+    last_login_at: Optional[datetime] = None
+
+    @field_validator('birth_date', mode='before')
+    @classmethod
+    def parse_birth_date(cls, v):
+        if isinstance(v, str):
+            if not v:
+                return None
+            try:
+                # 20020202 형식 처리
+                if len(v) == 8 and v.isdigit():
+                    return datetime.strptime(v, '%Y%m%d')
+                # YYYY-MM-DD 형식 처리
+                return datetime.strptime(v, '%Y-%m-%d')
+            except ValueError:
+                raise ValueError("생년월일 형식이 올바르지 않습니다. (YYYY-MM-DD 또는 YYYYMMDD)")
+        return v
 
     class Config:
         from_attributes = True

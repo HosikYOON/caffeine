@@ -28,6 +28,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { apiClient } from '../api';
 
 // ═══ Context 생성 ═══
 // Context = 데이터 공유 창고 (앱 전체에서 접근 가능)
@@ -186,30 +187,55 @@ export const AuthProvider = ({ children }) => {
  * - SecureStore.setItemAsync('authToken', token) 사용
  */
     const login = async (email, password) => {
-        // ⚠️ 현재는 Mock (가짜) 로그인
-        // 🔴 백엔드 연결 시 이 부분을 API 호출로 교체하세요!
+        try {
+            // FastAPI OAuth2PasswordRequestForm expects application/x-www-form-urlencoded
+            const params = new URLSearchParams();
+            params.append('username', email);
+            params.append('password', password);
 
-        if (email && password) {
-            // 가짜 사용자 정보 생성
-            const userData = {
-                id: 1,
-                name: '홍길동',
-                email: email,
-                createdAt: new Date().toISOString()
-            };
+            const response = await apiClient.post('/users/login', params, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            });
 
-            // AsyncStorage에 저장 (앱 재시작해도 유지됨)
-            await AsyncStorage.setItem('user', JSON.stringify(userData));
+            if (response.data) {
+                const { access_token, refresh_token } = response.data;
 
-            // State 업데이트 (화면 자동 전환)
-            setUser(userData);
+                // 토큰 저장
+                await AsyncStorage.setItem('accessToken', access_token);
+                await AsyncStorage.setItem('refreshToken', refresh_token);
 
-            // 성공 반환
-            return { success: true };
+                // 사용자 정보 가져오기 (/users/me)
+                const userResponse = await apiClient.get('/users/me', {
+                    headers: {
+                        'Authorization': `Bearer ${access_token}`
+                    }
+                });
+
+                const userData = userResponse.data;
+                await AsyncStorage.setItem('user', JSON.stringify(userData));
+
+                // State 업데이트
+                setUser(userData);
+
+                return { success: true };
+            }
+
+            return { success: false, error: '로그인에 실패했습니다.' };
+        } catch (error) {
+            console.error('Login error:', error);
+            let errorMessage = '이메일 또는 비밀번호가 올바르지 않습니다.';
+            if (error.response?.data?.detail) {
+                const detail = error.response.data.detail;
+                if (Array.isArray(detail)) {
+                    errorMessage = detail.map(err => `${err.loc[err.loc.length - 1]}: ${err.msg}`).join('\n');
+                } else {
+                    errorMessage = detail;
+                }
+            }
+            return { success: false, error: errorMessage };
         }
-
-        // 실패 반환
-        return { success: false, error: '이메일과 비밀번호를 확인해주세요.' };
     };
 
     /**
@@ -251,7 +277,7 @@ export const AuthProvider = ({ children }) => {
     const signup = async (name, email, password, birthDate) => {
         try {
             // 실제 백엔드 API 호출
-            const response = await apiClient.post('/api/auth/register', {
+            const response = await apiClient.post('/users/signup', {
                 name: name,
                 email: email,
                 password: password,
@@ -259,32 +285,22 @@ export const AuthProvider = ({ children }) => {
             });
 
             if (response.data) {
-                const { access_token, refresh_token, user } = response.data;
-
-                // 토큰 저장
-                await AsyncStorage.setItem('accessToken', access_token);
-                await AsyncStorage.setItem('refreshToken', refresh_token);
-
-                // 사용자 정보 저장
-                const userData = {
-                    id: user.id,
-                    name: user.name,
-                    email: user.email,
-                    birth_date: user.birth_date,
-                    createdAt: user.created_at
-                };
-                await AsyncStorage.setItem('user', JSON.stringify(userData));
-
-                // State 업데이트
-                setUser(userData);
-
-                return { success: true };
+                // 회원가입 성공 -> 바로 자동 로그인 시도
+                return await login(email, password);
             }
 
             return { success: false, error: '회원가입에 실패했습니다.' };
         } catch (error) {
             console.error('Signup error:', error);
-            const errorMessage = error.response?.data?.detail || '회원가입 중 오류가 발생했습니다.';
+            let errorMessage = '회원가입 중 오류가 발생했습니다.';
+            if (error.response?.data?.detail) {
+                const detail = error.response.data.detail;
+                if (Array.isArray(detail)) {
+                    errorMessage = detail.map(err => `${err.loc[err.loc.length - 1]}: ${err.msg}`).join('\n');
+                } else {
+                    errorMessage = detail;
+                }
+            }
             return { success: false, error: errorMessage };
         }
     };
