@@ -9,7 +9,7 @@ RDS 스키마:
 - transactions.transaction_time (거래 시간)
 """
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, text
@@ -110,7 +110,7 @@ def get_mock_insights() -> List[SpendingInsight]:
 
 @router.get("/summary", response_model=DashboardSummary)
 async def get_dashboard_summary(
-    user_id: Optional[int] = None,
+    user_id: int = Query(..., description="사용자 ID (필수)"),
     db: AsyncSession = Depends(get_db)
 ):
     """대시보드 요약 통계"""
@@ -118,15 +118,15 @@ async def get_dashboard_summary(
         now = datetime.now()
         this_month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
         
-        # 이번 달 통계
+        # 이번 달 통계 (user_id 필수 필터링)
         query = select(
             func.coalesce(func.sum(Transaction.amount), 0).label('total'),
             func.coalesce(func.avg(Transaction.amount), 0).label('avg'),
             func.count(Transaction.id).label('count')
-        ).where(Transaction.transaction_time >= this_month_start)
-        
-        if user_id:
-            query = query.where(Transaction.user_id == user_id)
+        ).where(
+            Transaction.transaction_time >= this_month_start,
+            Transaction.user_id == user_id  # 필수 필터링
+        )
         
         result = await db.execute(query)
         row = result.fetchone()
@@ -135,17 +135,17 @@ async def get_dashboard_summary(
         avg = float(row.avg) if row.avg else 0
         count = row.count or 0
         
-        # 최다 카테고리 (JOIN 사용)
+        # 최다 카테고리 (JOIN 사용 + user_id 필터링)
         cat_query = text("""
             SELECT c.name, SUM(t.amount) as cat_total
             FROM transactions t
             LEFT JOIN categories c ON t.category_id = c.id
-            WHERE t.transaction_time >= :start_date
+            WHERE t.transaction_time >= :start_date AND t.user_id = :user_id
             GROUP BY c.name
             ORDER BY cat_total DESC
             LIMIT 1
         """)
-        cat_result = await db.execute(cat_query, {"start_date": this_month_start})
+        cat_result = await db.execute(cat_query, {"start_date": this_month_start, "user_id": user_id})
         cat_row = cat_result.fetchone()
         top_category = cat_row[0] if cat_row else "없음"
         
@@ -165,7 +165,7 @@ async def get_dashboard_summary(
 
 @router.get("/categories", response_model=List[CategoryBreakdown])
 async def get_category_breakdown(
-    user_id: Optional[int] = None,
+    user_id: int = Query(..., description="사용자 ID (필수)"),
     months: int = 1,
     db: AsyncSession = Depends(get_db)
 ):
@@ -173,18 +173,19 @@ async def get_category_breakdown(
     try:
         start_date = datetime.now() - timedelta(days=30 * months)
         
+        # user_id 필수 필터링
         query = text("""
             SELECT c.name as category, 
                    SUM(t.amount) as total, 
                    COUNT(t.id) as count
             FROM transactions t
             LEFT JOIN categories c ON t.category_id = c.id
-            WHERE t.transaction_time >= :start_date
+            WHERE t.transaction_time >= :start_date AND t.user_id = :user_id
             GROUP BY c.name
             ORDER BY total DESC
         """)
         
-        result = await db.execute(query, {"start_date": start_date})
+        result = await db.execute(query, {"start_date": start_date, "user_id": user_id})
         rows = result.fetchall()
         
         grand_total = sum(float(row[1]) for row in rows) if rows else 1
@@ -208,23 +209,25 @@ async def get_category_breakdown(
 
 @router.get("/monthly-trend", response_model=List[MonthlyTrend])
 async def get_monthly_trend(
-    user_id: Optional[int] = None,
+    user_id: int = Query(..., description="사용자 ID (필수)"),
     months: int = 6,
     db: AsyncSession = Depends(get_db)
 ):
     """월별 지출 추이"""
     try:
+        # user_id 필수 필터링
         query = text("""
             SELECT TO_CHAR(transaction_time, 'YYYY-MM') as month,
                    SUM(amount) as total,
                    COUNT(id) as count
             FROM transactions
+            WHERE user_id = :user_id
             GROUP BY TO_CHAR(transaction_time, 'YYYY-MM')
             ORDER BY month DESC
             LIMIT :limit
         """)
         
-        result = await db.execute(query, {"limit": months})
+        result = await db.execute(query, {"limit": months, "user_id": user_id})
         rows = result.fetchall()
         
         trends = [
@@ -241,16 +244,17 @@ async def get_monthly_trend(
 
 @router.get("/insights", response_model=List[SpendingInsight])
 async def get_spending_insights(
-    user_id: Optional[int] = None,
+    user_id: int = Query(..., description="사용자 ID (필수)"),
     db: AsyncSession = Depends(get_db)
 ):
     """AI 기반 소비 인사이트 (현재 Mock)"""
+    # TODO: user_id 기반으로 실제 인사이트 생성
     return get_mock_insights()
 
 
 @router.get("/full", response_model=AnalysisResponse)
 async def get_full_analysis(
-    user_id: Optional[int] = None,
+    user_id: int = Query(..., description="사용자 ID (필수)"),
     db: AsyncSession = Depends(get_db)
 ):
     """전체 분석 데이터"""

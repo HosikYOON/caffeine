@@ -64,6 +64,16 @@ export const AuthProvider = ({ children }) => {
 
                 if (userResponse.ok) {
                     const userData = await userResponse.json();
+                    
+                    // 이전 사용자 캐시 삭제 (다른 사용자 데이터 격리)
+                    const prevUserJson = await AsyncStorage.getItem('user');
+                    const prevUser = prevUserJson ? JSON.parse(prevUserJson) : null;
+                    if (prevUser?.id && prevUser.id !== userData.id) {
+                        // 다른 사용자로 로그인한 경우 이전 캐시 삭제
+                        await AsyncStorage.removeItem(`transactions_cache_${prevUser.id}`);
+                        await AsyncStorage.removeItem(`last_sync_time_${prevUser.id}`);
+                    }
+                    
                     await AsyncStorage.setItem('user', JSON.stringify(userData));
                     setUser(userData);
                     return { success: true };

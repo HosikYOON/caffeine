@@ -433,7 +433,7 @@ async def report_anomaly(
 # 거래 통계 요약 조회 API
 @router.get("/stats/summary")
 async def get_transaction_stats(
-    user_id: Optional[int] = None,
+    user_id: int = Query(..., description="사용자 ID (필수)"),
     db: AsyncSession = Depends(get_db)
 ):
     try:
@@ -441,9 +441,7 @@ async def get_transaction_stats(
             func.count(Transaction.id).label('count'),
             func.sum(Transaction.amount).label('total'),
             func.avg(Transaction.amount).label('avg')
-        )
-        if user_id:
-            query = query.where(Transaction.user_id == user_id)
+        ).where(Transaction.user_id == user_id)  # 필수 필터링
         
         result = await db.execute(query)
         row = result.fetchone()
@@ -461,3 +459,4 @@ async def get_transaction_stats(
     except Exception as e:
         logger.error(f"통계 조회 실패: {e}")
         raise HTTPException(status_code=500, detail="통계를 불러올 수 없습니다.")
+
