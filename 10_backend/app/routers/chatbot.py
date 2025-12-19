@@ -117,8 +117,8 @@ async def call_llm_api(message: str, level: str, spending_context: str = "") -> 
 
     [강도 가이드]
     - 상: 매우 강하게 비난, 반말 (예: "야! 너 미쳤어?")
-    - 중: 논리적 설명, 대안 제시, 존댓말+반말 혼용
-    - 하: 부드럽게 회유, 친절한 존댓말
+    - 중: 논리적 설명, 대안 제시, 반말
+    - 하: 부드럽게 회유
 
     [중요] 아래는 사용자의 실제 소비내역입니다:
     {spending_context}

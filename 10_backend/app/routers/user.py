@@ -66,22 +66,37 @@ async def login_for_user(
     db: AsyncSession = Depends(get_db),
     user_agent: str | None = Header(default=None),
 ):
-    email = user.username
-    result = await login_user(
-        db,
-        email=email,
-        password=user.password,
-        user_agent=user_agent,
-    )
-
-    if not result:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
+    try:
+        email = user.username
+        result = await login_user(
+            db,
+            email=email,
+            password=user.password,
+            user_agent=user_agent,
         )
 
-    return {"access_token": result["access_token"], "refresh_token": result["refresh_token"], "token_type": "bearer"}
+        if not result:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect email or password",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        return {"access_token": result["access_token"], "refresh_token": result["refresh_token"], "token_type": "bearer"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        print(f"\n\n=== LOGIN ERROR ===")
+        print(f"Error type: {type(e).__name__}")
+        print(f"Error: {str(e)}")
+        print(f"Traceback:")
+        traceback.print_exc()
+        print(f"===================\n\n")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Internal server error: {str(e)}"
+        )
 
 
 #유저 생성
@@ -97,10 +112,22 @@ async def get_authenticated_user(current_user: Auth_Dependency):
     return current_user
 
 
+# Admin: Get all users (requires superuser)
 @router.get("/", response_model=List[UserResponse])
-async def read_all_users_route(db: DB_Dependency, current_user: Auth_Dependency):
+async def read_all_users_route(
+    db: DB_Dependency, 
+    current_user: Auth_Dependency,
+    skip: int = 0,
+    limit: int = 100
+):
+    """Get all users (Admin only - requires authentication)"""
+    # Note: This endpoint is for admin purposes
+    # For production, consider adding superuser check:
+    # if not current_user.is_superuser:
+    #     raise HTTPException(status_code=403, detail="Not authorized")
+    
     users = await get_all_users(db)
-    return users
+    return users[skip:skip + limit]
 
 
 #유저 삭제

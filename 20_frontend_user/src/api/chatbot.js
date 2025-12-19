@@ -1,56 +1,32 @@
-/**
- * Chatbot API Service
- * LLM 챗봇과의 통신을 담당하는 모듈
- */
-
-// API 기본 URL (환경변수로 관리 권장)
-const LLM_API_URL = 'http://localhost:9102';
+import { apiClient } from './client';
 
 /**
  * AI 챗봇에게 메시지 전송
  * @param {Object} params - 요청 파라미터
  * @param {string} params.message - 사용자 메시지
- * @param {number} params.budget - 월 예산 (기본값: 1,000,000)
- * @param {Object} params.spendingHistory - 지출 내역 정보
+ * @param {string} params.naggingLevel - 잔소리 강도
+ * @param {Array} params.history - 이전 대화 내역
  * @returns {Promise<Object>} AI 응답
  */
-export const sendChatMessage = async ({ message, budget = 1000000, spendingHistory = {} }) => {
+export const sendChatMessage = async ({ message, naggingLevel = '중', history = [] }) => {
     try {
-        const response = await fetch(`${LLM_API_URL}/evaluate`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                message,
-                budget,
-                spending_history: spendingHistory,
-            }),
+        const response = await apiClient.post('/api/chat', {
+            message,
+            naggingLevel,
+            history
         });
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new ChatbotError(
-                `API 요청 실패: ${response.status}`,
-                response.status,
-                errorData
-            );
-        }
-
-        const data = await response.json();
         return {
             success: true,
-            message: data.message,
-            type: data.type || 'chat',
-            model: data.model,
+            message: response.data.reply,
+            mood: response.data.mood || 'neutral',
+            type: 'chat'
         };
     } catch (error) {
-        if (error instanceof ChatbotError) {
-            throw error;
-        }
+        console.error('Chat API Error:', error);
         throw new ChatbotError(
-            '네트워크 오류가 발생했습니다',
-            0,
+            error.response?.data?.detail || 'AI 응답을 가져오는데 실패했습니다',
+            error.response?.status || 0,
             { originalError: error.message }
         );
     }
@@ -58,37 +34,11 @@ export const sendChatMessage = async ({ message, budget = 1000000, spendingHisto
 
 /**
  * 거래에 대한 AI 평가 요청
- * @param {Object} params - 요청 파라미터
- * @param {Object} params.transaction - 거래 정보
- * @param {number} params.budget - 월 예산
- * @param {Object} params.spendingHistory - 지출 내역 정보
- * @returns {Promise<Object>} AI 평가 응답
  */
-export const evaluateTransaction = async ({ transaction, budget = 1000000, spendingHistory = {} }) => {
+export const evaluateTransaction = async ({ transaction, naggingLevel = '중' }) => {
     try {
-        const response = await fetch(`${LLM_API_URL}/evaluate`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                transaction,
-                budget,
-                spending_history: spendingHistory,
-            }),
-        });
-
-        if (!response.ok) {
-            throw new ChatbotError(`AI 평가 요청 실패: ${response.status}`, response.status);
-        }
-
-        const data = await response.json();
-        return {
-            success: true,
-            message: data.message,
-            type: 'transaction',
-            model: data.model,
-        };
+        const message = `이 거래 어때?:\n${transaction.merchant_name}에서 ${transaction.amount}원 결제함.`;
+        return await sendChatMessage({ message, naggingLevel });
     } catch (error) {
         console.error('AI 평가 실패:', error);
         return {

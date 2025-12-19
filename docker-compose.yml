@@ -1,12 +1,13 @@
 version: "3.9"
 
 services:
+
   # ============================================================
-  # FastAPI 백엔드 (AWS RDS 사용)
+  # FastAPI 백엔드
   # ============================================================
   backend:
     build: ./10_backend
-    image: caffeine-backend:latest
+    # image: caffeine-backend:latest
     container_name: caf_backend
     environment:
       # AWS RDS 연결
@@ -15,73 +16,41 @@ services:
       DB_PASSWORD: caffeineapprds
       DB_PORT: 5432
       DB_NAME: postgres
+      # App
       SECRET_KEY: your-super-secret-key-change-in-production
-    env_file:
-      - ./10_backend/.env
+      # Gmail SMTP
+      GMAIL_ADDRESS: ${GMAIL_ADDRESS}
+      GMAIL_APP_PASSWORD: ${GMAIL_APP_PASSWORD}
     ports:
       - "8001:8000"
     volumes:
       - ./10_backend/app:/app/app
 
   # ============================================================
-  # ML 서비스 - 예측 기능 사용
-  # ============================================================
-  ml_next:
-    image: caffeine-ml-next:latest
-    container_name: caf_ml_next
-    ports:
-      - "9001:9001"
-    volumes:
-      - ./10_backend/app/model_xgboost_acc_73.47.joblib:/app/model.joblib:ro
-    environment:
-      LOCAL_MODEL_PATH: /app/model.joblib
-  # ============================================================
-  # 이하 서비스들은 사용하지 않음 (주석 처리)
-  # ============================================================
-
-  # 프론트엔드 (사용자) - Expo 앱, 로컬에서 실행 권장
-  # cd 20_frontend_user && npm start
-  # app_front:
-  #   build: ./20_frontend_user
-  #   container_name: caf_front_user
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - backend
-
   # 프론트엔드 (관리자)
-  # admin_front:
-  #   image: caffeine-admin-front:latest
-  #   container_name: caf_front_admin
-  #   ports:
-  #     - "3001:3000"
-  #   depends_on:
-  #     - backend
+  # ============================================================
+  admin_front:
+    build: ./21_frontend_admin
+    container_name: caf_front_admin
+    ports:
+      - "3001:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost
+    depends_on:
+      - backend
 
   # Nginx (리버스 프록시)
-  # nginx:
-  #   image: caffeine-nginx:latest
-  #   container_name: caf_nginx
-  #   ports:
-  #     - "80:80"
-  #   depends_on:
-  #     - backend
-
-  # ML 사기 탐지
-  # ml_fraud:
-  #   build: ./41_ml_fraud
-  #   container_name: caf_ml_fraud
-  #   ports:
-  #     - "9002:9002"
-
-  # LLM 카테고리
-  # llm_category:
-  #   build: ./50_llm_category
-  #   container_name: caf_llm_category
-  #   ports:
-  #     - "9100:9100"
-
-  # LLM 분석 (AI 평가)
+  # ============================================================
+  nginx:
+    build: ./30_nginx
+    container_name: caf_nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+  # ============================================================
+  # LLM 서비스
+  # ============================================================
   llm_analysis:
     build: ./51_llm_analysis
     container_name: caf_llm_analysis
@@ -90,4 +59,4 @@ services:
     env_file:
       - .env
     environment:
-      GEMINI_API_KEY: ${gemini_key}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}

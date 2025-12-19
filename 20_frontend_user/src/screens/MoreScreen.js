@@ -11,6 +11,7 @@ import { useChatbot } from '../hooks/useChatbot';
 // 상수 분리
 const DEFAULT_BUDGET = 1000000;
 
+// 잠깐만AI 챗봇
 export default function MoreScreen({ navigation, route }) {
     const { colors } = useTheme();
     const { aiEnabled, toggleAI } = useAISettings();
@@ -100,8 +101,8 @@ export default function MoreScreen({ navigation, route }) {
             answer: '더보기 → 프로필 → 거래 데이터 초기화에서 모든 데이터를 삭제할 수 있습니다. 이 작업은 되돌릴 수 없으니 신중하게 결정해주세요.'
         }
     ];
-
-    // 예산 저장 핸들러
+    
+    // 예산 저장 버튼
     const handleSaveBudget = () => {
         // TODO: 백엔드 연결 시 저장 API 호출
         alert(`✅ 예산이 저장되었습니다!\n\n월 예산: ${Number(monthlyBudget).toLocaleString()}원`);
@@ -147,7 +148,6 @@ export default function MoreScreen({ navigation, route }) {
         },
     ];
 
-    // 프로필과 설정 분리
     const profileItems = [
         {
             title: '프로필',

@@ -1,7 +1,7 @@
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getTransactions, updateTransactionNote as apiUpdateNote, createTransaction, deleteTransaction, evaluateTransaction } from '../api';
+import { getTransactions, updateTransactionNote as apiUpdateNote, createTransactionsBulk, deleteAllTransactions, createTransaction, deleteTransaction, evaluateTransaction } from '../api';
 import { predictNextTransaction } from '../api/ml';
 import { useAISettings } from './AISettingsContext';
 import { useToast } from './ToastContext';
@@ -9,6 +9,7 @@ import { filterMonthlyTransactions, calculateTotalSpent, analyzeCategoryBreakdow
 
 const TransactionContext = createContext();
 
+// TransactionProvider - 거래 데이터 제공 컴포넌트
 export const TransactionProvider = ({ children }) => {
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -16,25 +17,48 @@ export const TransactionProvider = ({ children }) => {
     const { aiEnabled } = useAISettings();  // AI 설정 가져오기
     const { showToast } = useToast();  // Toast 알림 함수
 
-    // 앱 시작 시 캐시 로드
+    // 앱 시작 시 캐시 로드 (캐시 있으면 서버 호출 생략)
     useEffect(() => {
-        loadCachedTransactions();
-        // 자동으로 서버에서 최신 데이터 가져오기 
-        loadTransactionsFromServer();
+        const initTransactions = async () => {
+            const hasCached = await loadCachedTransactions();
+            // 캐시가 없을 때만 서버에서 가져오기
+            if (!hasCached) {
+                // 현재 로그인한 사용자 ID 가져오기
+                const userJson = await AsyncStorage.getItem('user');
+                const user = userJson ? JSON.parse(userJson) : null;
+                if (user?.id) {
+                    loadTransactionsFromServer(user.id);
+                }
+            }
+        };
+        initTransactions();
     }, []);
 
+
+    // loadCachedTransactions - 사용자별 캐시 로드
     const loadCachedTransactions = async () => {
         try {
-            const cached = await AsyncStorage.getItem('transactions_cache');
-            const syncTime = await AsyncStorage.getItem('last_sync_time');
+            // 현재 로그인한 사용자 ID 가져오기
+            const userJson = await AsyncStorage.getItem('user');
+            const user = userJson ? JSON.parse(userJson) : null;
+            if (!user?.id) return false;  // 사용자 정보 없으면 캐시 없음
+
+            const cacheKey = `transactions_cache_${user.id}`;
+            const syncKey = `last_sync_time_${user.id}`;
+
+            const cached = await AsyncStorage.getItem(cacheKey);
+            const syncTime = await AsyncStorage.getItem(syncKey);
 
             if (cached) {
-                setTransactions(JSON.parse(cached));
+                const parsedCache = JSON.parse(cached);
+                setTransactions(parsedCache);
                 setLastSyncTime(syncTime);
-                console.log(`✅ 캐시에서 ${JSON.parse(cached).length}건 거래 로드됨`);
+                return parsedCache.length > 0;  // 캐시 있음
             }
+            return false;  // 캐시 없음
         } catch (error) {
             console.error('캐시 로드 실패:', error);
+            return false;
         }
     };
 
@@ -44,7 +68,7 @@ export const TransactionProvider = ({ children }) => {
     const loadTransactionsFromServer = async (userId = 1) => {
         setLoading(true);
         try {
-            const response = await getTransactions({ user_id: userId, page_size: 100 });
+            const response = await getTransactions({ user_id: userId, page_size: 10000 });
 
             if (response && response.transactions) {
                 // API 응답을 앱 형식으로 변환
@@ -62,37 +86,47 @@ export const TransactionProvider = ({ children }) => {
                     status: t.status,
                 }));
 
-                await saveTransactionsToCache(formattedTransactions);
+                await saveTransactionsToCache(formattedTransactions, userId);
                 setTransactions(formattedTransactions);
 
                 const now = new Date().toISOString();
-                await AsyncStorage.setItem('last_sync_time', now);
+                const syncKey = `last_sync_time_${userId}`;
+                await AsyncStorage.setItem(syncKey, now);
                 setLastSyncTime(now);
 
-                console.log(`✅ 서버에서 ${formattedTransactions.length}건 거래 로드 완료 (data_source: ${response.data_source})`);
                 return { success: true, count: formattedTransactions.length };
             }
         } catch (error) {
-            console.error('❌ 서버 거래 로드 실패:', error);
+            console.error('서버 거래 로드 실패:', error);
             return { success: false, error: error.message };
         } finally {
             setLoading(false);
         }
     };
 
-    const saveTransactionsToCache = async (newTransactions) => {
+    // saveTransactionsToCache - 사용자별 캐시 저장
+    const saveTransactionsToCache = async (newTransactions, userId = null) => {
         try {
-            await AsyncStorage.setItem(
-                'transactions_cache',
-                JSON.stringify(newTransactions)
-            );
+            // userId가 없으면 AsyncStorage에서 가져오기
+            let uid = userId;
+            if (!uid) {
+                const userJson = await AsyncStorage.getItem('user');
+                const user = userJson ? JSON.parse(userJson) : null;
+                uid = user?.id;
+            }
+            if (!uid) return;  // 사용자 정보 없으면 저장 안 함
+
+            const cacheKey = `transactions_cache_${uid}`;
+            await AsyncStorage.setItem(cacheKey, JSON.stringify(newTransactions));
         } catch (error) {
             console.error('캐시 저장 실패:', error);
         }
     };
 
-    const saveTransactions = async (newTransactions) => {
+    // saveTransactions - 거래 저장
+    const saveTransactions = async (newTransactions, userId = 1) => {
         try {
+            // 1. 로컬 저장
             setTransactions(newTransactions);
             await saveTransactionsToCache(newTransactions);
 
@@ -100,7 +134,20 @@ export const TransactionProvider = ({ children }) => {
             await AsyncStorage.setItem('last_sync_time', now);
             setLastSyncTime(now);
 
-            console.log(`✅ ${newTransactions.length}건 거래 저장 완료`);
+            // 2. 백엔드 API 호출 (로그인된 사용자 ID 필요)
+            try {
+                const userJson = await AsyncStorage.getItem('user');
+                const user = userJson ? JSON.parse(userJson) : null;
+                const currentUserId = user?.id || userId;
+
+                if (currentUserId) {
+                    const result = await createTransactionsBulk(currentUserId, newTransactions);
+                    // 저장 완료
+                }
+            } catch (apiError) {
+                console.warn('백엔드 저장 실패 (로컬은 성공):', apiError);
+            }
+
             return { success: true };
         } catch (error) {
             console.error('거래 저장 실패:', error);
@@ -186,13 +233,22 @@ export const TransactionProvider = ({ children }) => {
 
     const removeTransaction = async (id) => {
         try {
-            // API 호출
-            await deleteTransaction(id);
-
-            // 로컬 상태 업데이트 (양쪽 다 String으로 비교)
+            // 먼저 로컬 상태 업데이트 (UI 반응성 향상)
             const updated = transactions.filter(t => String(t.id) !== String(id));
             setTransactions(updated);
             await saveTransactionsToCache(updated);
+
+            // 백엔드 API 호출 시도 (실패해도 로컬에서는 이미 삭제됨)
+            try {
+                await deleteTransaction(id);
+            } catch (apiError) {
+                // 백엔드에서 404(Not Found)인 경우 무시 - 이미 삭제되었거나 존재하지 않음
+                if (apiError.response?.status === 404) {
+                    console.log('백엔드에 해당 거래가 없음 (로컬에서만 삭제):', id);
+                } else {
+                    console.warn('백엔드 삭제 실패 (로컬에서는 삭제됨):', apiError);
+                }
+            }
 
             return { success: true };
         } catch (error) {
@@ -223,12 +279,28 @@ export const TransactionProvider = ({ children }) => {
         }
     };
 
+    // clearTransactions - 거래 삭제
     const clearTransactions = async () => {
         try {
+            // 1. 로컬 삭제
             setTransactions([]);
             await AsyncStorage.removeItem('transactions_cache');
             await AsyncStorage.removeItem('last_sync_time');
             setLastSyncTime(null);
+
+            // 2. 백엔드 API 호출
+            try {
+                const userJson = await AsyncStorage.getItem('user');
+                const user = userJson ? JSON.parse(userJson) : null;
+
+                if (user?.id) {
+                    const result = await deleteAllTransactions(user.id);
+                    // 삭제 완료
+                }
+            } catch (apiError) {
+                console.warn('백엔드 삭제 실패 (로컬은 성공):', apiError);
+            }
+
             return { success: true };
         } catch (error) {
             console.error('거래 삭제 실패:', error);
@@ -236,6 +308,7 @@ export const TransactionProvider = ({ children }) => {
         }
     };
 
+    // predictNextPurchase - 다음 구매 예측
     const predictNextPurchase = async () => {
         if (!transactions || transactions.length === 0) {
             return { success: false, error: '거래 데이터가 없습니다' };
@@ -273,11 +346,9 @@ export const TransactionProvider = ({ children }) => {
 
             // API 호출 (api/ml.js 사용)
             const result = await predictNextTransaction(blob);
-            console.log('✅ 다음 소비 예측 성공:', result);
-
             return { success: true, data: result };
         } catch (error) {
-            console.error('❌ 다음 소비 예측 실패:', error);
+            console.error('다음 소비 예측 실패:', error);
             return { success: false, error: error.message };
         } finally {
             setLoading(false);
@@ -286,7 +357,15 @@ export const TransactionProvider = ({ children }) => {
 
     // 새로고침 함수
     const refresh = async (userId = 1) => {
-        return await loadTransactionsFromServer(userId);
+        // userId가 없으면 현재 로그인한 사용자 ID 가져오기
+        let uid = userId;
+        if (!uid) {
+            const userJson = await AsyncStorage.getItem('user');
+            const user = userJson ? JSON.parse(userJson) : null;
+            uid = user?.id;
+        }
+        if (!uid) return { success: false, error: '사용자 정보 없음' };
+        return await loadTransactionsFromServer(uid);
     };
 
     return (
@@ -309,6 +388,7 @@ export const TransactionProvider = ({ children }) => {
     );
 };
 
+// useTransactions - 거래 데이터 사용
 export const useTransactions = () => {
     const context = useContext(TransactionContext);
     if (!context) {

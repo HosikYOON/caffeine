@@ -28,13 +28,13 @@ class Settings(BaseSettings):
     local_db_password: str = Field("caffeineapprds", alias="LOCAL_DB_PASSWORD")
 
     # App 설정
-    app_port: int = Field(8081, alias="APP_PORT")
+    app_port: int = Field(8001, alias="APP_PORT")
     app_host: str = Field("localhost", alias="APP_HOST")
 
     # JWT 설정
     secret_key: str = Field("change-me-secret", alias="SECRET_KEY")
     algorithm: str = Field("HS256", alias="ALGORITHM")
-    access_token_expire_minutes: int = Field(30, alias="ACCESS_TOKEN_EXPIRE_MINUTES")
+    access_token_expire_minutes: int = Field(480, alias="ACCESS_TOKEN_EXPIRE_MINUTES")  # 8시간
     refresh_token_expire_days: int = Field(7, alias="REFRESH_TOKEN_EXPIRE_DAYS")
 
     class Config:
