@@ -1,6 +1,6 @@
 // API Client for Admin Dashboard
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
 
 interface FetchOptions extends RequestInit {
     timeout?: number;

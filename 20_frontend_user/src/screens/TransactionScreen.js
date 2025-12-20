@@ -2,16 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Modal, TextInput } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
-import { apiClient } from '../api/client';
+import { apiClient, getAnomalies } from '../api';
 import { useTheme } from '../contexts/ThemeContext';
 import { useTransactions } from '../contexts/TransactionContext';
 import EmptyState from '../components/EmptyState';
 import { formatCurrency } from '../utils/currency';
 import { EMPTY_MESSAGES } from '../constants';
 
-export default function TransactionScreen({ navigation }) {
+export default function TransactionScreen({ navigation, route }) {
     const { colors } = useTheme();
     const { transactions, updateTransactionNote } = useTransactions();
+    const [displayTransactions, setDisplayTransactions] = useState([]);
     const [selectedTransaction, setSelectedTransaction] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [anomalyCategoryModalVisible, setAnomalyCategoryModalVisible] = useState(false);
@@ -19,41 +20,68 @@ export default function TransactionScreen({ navigation }) {
     const [editedNote, setEditedNote] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const [prediction, setPrediction] = useState(null);
+    const [isAnomalyMode, setIsAnomalyMode] = useState(false);
 
-
+    useEffect(() => {
+        const loadData = async () => {
+            if (route.params?.filter === 'suspicious') {
+                setIsAnomalyMode(true);
+                try {
+                    const anomalies = await getAnomalies();
+                    const mapped = anomalies.map(a => ({
+                        id: a.id,
+                        merchant: a.merchant || a.userName,
+                        businessName: "이상 거래 감지",
+                        amount: a.amount,
+                        category: a.category,
+                        date: a.date,
+                        cardType: a.riskLevel === 'high' ? '위험' : '주의',
+                        notes: a.reason,
+                        isAnomaly: true
+                    }));
+                    setDisplayTransactions(mapped);
+                } catch (error) {
+                    console.error("Failed to load anomalies", error);
+                    setDisplayTransactions([]);
+                }
+            } else {
+                setIsAnomalyMode(false);
+                setDisplayTransactions(transactions);
+            }
+        };
+        loadData();
+    }, [transactions, route.params?.filter]);
 
     const fetchPrediction = async () => {
         try {
-            // 가장 최근 거래 데이터를 기반으로 다음 소비 패턴 예측
             const recentTransaction = transactions[0];
+            if (!recentTransaction) return;
+
             const requestData = {
                 날짜: recentTransaction.date.split(' ')[0],
-                시간: recentTransaction.date.split(' ')[1],
+                시간: recentTransaction.date.split(' ')[1] || '00:00',
                 타입: '지출',
                 대분류: recentTransaction.category,
                 소분류: '기타',
                 내용: recentTransaction.merchant,
                 금액: String(-recentTransaction.amount),
                 화폐: 'KRW',
-                결제수단: recentTransaction.cardType + '카드',
+                결제수단: (recentTransaction.cardType || '신용') + '카드',
                 메모: recentTransaction.notes || ''
             };
 
-            // 1. ML 예측
             const response = await apiClient.post('/ml/predict', {
                 features: requestData
             });
             const predictedCategory = response.data.prediction;
             setPrediction(predictedCategory);
 
-            // 2. 쿠폰 자동 생성
             try {
                 const couponResponse = await apiClient.post('/api/coupons/generate-from-prediction', {
                     predicted_category: predictedCategory,
                     confidence: response.data.confidence || 0.8
                 });
 
-                // 쿠폰 발급 성공 알림
                 alert(
                     `🎉 다음 소비 예측: ${predictedCategory}\n\n` +
                     `🎁 쿠폰 발급 완료!\n` +
@@ -63,7 +91,6 @@ export default function TransactionScreen({ navigation }) {
                 );
             } catch (couponError) {
                 console.error('Coupon generation failed:', couponError);
-                // 예측은 성공했지만 쿠폰 발급 실패 시
                 alert(`다음 소비 예측: ${predictedCategory}\n\n쿠폰 발급 중 오류가 발생했습니다.`);
             }
         } catch (error) {
@@ -72,14 +99,14 @@ export default function TransactionScreen({ navigation }) {
         }
     };
 
-    const filteredTransactions = transactions.filter(t => {
+    const filteredTransactions = displayTransactions.filter(t => {
         if (!searchQuery) return true;
         const query = searchQuery.toLowerCase();
         return (
-            t.merchant?.toLowerCase().includes(query) ||
-            t.category?.toLowerCase().includes(query) ||
-            t.notes?.toLowerCase().includes(query) ||
-            t.businessName?.toLowerCase().includes(query)
+            (t.merchant?.toLowerCase() || '').includes(query) ||
+            (t.category?.toLowerCase() || '').includes(query) ||
+            (t.notes?.toLowerCase() || '').includes(query) ||
+            (t.businessName?.toLowerCase() || '').includes(query)
         );
     });
 
@@ -97,65 +124,14 @@ export default function TransactionScreen({ navigation }) {
         }, 300);
     };
 
-    // ============================================================
-    // TODO: 백엔드 API 연결 - 이상거래 신고
-    // ============================================================
-    // 백엔드 연결 시 아래 함수를 수정하여 서버에 이상거래 정보를 전송하세요.
-    //
-    // 예시 코드:
-    // const handleCategorySelect = async (category) => {
-    //     if (!selectedTransaction) return;
-    //
-    //     try {
-    //         const token = await AsyncStorage.getItem('authToken');
-    //         
-    //         // 이상거래 신고 API 호출
-    //         const response = await fetch(`${API_BASE_URL}/transactions/${selectedTransaction.id}/anomaly`, {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 'Authorization': `Bearer ${token}`
-    //             },
-    //             body: JSON.stringify({
-    //                 category: category,  // 'safe', 'suspicious', 'dangerous'
-    //                 merchant: selectedTransaction.merchant,
-    //                 amount: selectedTransaction.amount,
-    //                 timestamp: new Date().toISOString()
-    //             })
-    //         });
-    //
-    //         if (!response.ok) throw new Error('신고 실패');
-    //
-    //         const result = await response.json();
-    //         
-    //         setAnomalyCategoryModalVisible(false);
-    //         setTransactions(prev => prev.filter(t => t.id !== selectedTransaction.id));
-    //
-    //         const messages = {
-    //             safe: '✅ 안전한 거래로 표시되었습니다.',
-    //             suspicious: '🟡 의심 거래로 표시되었습니다.\n이상탐지 탭에서 확인할 수 있습니다.',
-    //             dangerous: '🔴 위험 거래로 표시되었습니다.\n고객센터로 자동 신고되었습니다.'
-    //         };
-    //
-    //         setTimeout(() => {
-    //             alert(messages[category]);
-    //             if (category === 'suspicious' || category === 'dangerous') {
-    //                 navigation?.navigate('이상탐지');
-    //             }
-    //         }, 300);
-    //
-    //     } catch (error) {
-    //         console.error('신고 실패:', error);
-    //         alert('신고 처리 중 오류가 발생했습니다.');
-    //     }
-    // };
-    // ============================================================
     const handleCategorySelect = (category) => {
         if (!selectedTransaction) return;
 
-        // 현재는 로컬에서만 처리 (백엔드 연결 시 위의 예시 코드로 교체)
         setAnomalyCategoryModalVisible(false);
-        setTransactions(prev => prev.filter(t => t.id !== selectedTransaction.id));
+        // Only update local state if showing standard transactions
+        if (!isAnomalyMode) {
+            // In a real app, we would update this via API
+        }
 
         const messages = {
             safe: '✅ 안전한 거래로 표시되었습니다.',
@@ -166,7 +142,7 @@ export default function TransactionScreen({ navigation }) {
         setTimeout(() => {
             alert(messages[category]);
             if (category === 'suspicious' || category === 'dangerous') {
-                navigation?.navigate('이상탐지');
+                // Already there or similar
             }
         }, 300);
     };
@@ -177,6 +153,10 @@ export default function TransactionScreen({ navigation }) {
 
             if (result.success) {
                 setSelectedTransaction({ ...selectedTransaction, notes: editedNote });
+                // Also update display list locally to reflect change immediately
+                setDisplayTransactions(prev => prev.map(t =>
+                    t.id === selectedTransaction.id ? { ...t, notes: editedNote } : t
+                ));
                 setIsEditingNote(false);
                 alert('메모가 저장되었습니다.');
             } else {
@@ -208,18 +188,18 @@ export default function TransactionScreen({ navigation }) {
             {/* Header */}
             <View style={styles(colors).header}>
                 <View>
-                    <Text style={styles(colors).title}>거래내역</Text>
+                    <Text style={styles(colors).title}>{isAnomalyMode ? '이상 거래 탐지' : '거래내역'}</Text>
                     <Text style={styles(colors).subtitle}>
-                        {searchQuery ? `검색 결과 ${filteredTransactions.length}건` : `총 ${transactions.length}건`}
+                        {searchQuery ? `검색 결과 ${filteredTransactions.length}건` : `총 ${displayTransactions.length}건`}
                     </Text>
                 </View>
                 <View style={styles(colors).headerIcon}>
-                    <Feather name="file-text" size={24} color="#2563EB" />
+                    <Feather name={isAnomalyMode ? "alert-triangle" : "file-text"} size={24} color={isAnomalyMode ? "#EF4444" : "#2563EB"} />
                 </View>
             </View>
 
-            {/* AI Prediction Card - 거래가 있을 때만 표시 */}
-            {transactions.length > 0 && (
+            {/* AI Prediction Card - Only show in normal mode and if transactions exist */}
+            {!isAnomalyMode && transactions.length > 0 && (
                 <View style={styles(colors).predictionCard}>
                     <View style={styles(colors).predictionHeader}>
                         <Text style={styles(colors).predictionIcon}>🤖</Text>
@@ -268,30 +248,32 @@ export default function TransactionScreen({ navigation }) {
                 ) : null}
             </View>
 
-            {transactions.length === 0 ? (
-                <EmptyState
-                    icon="📊"
-                    title="연동된 거래내역이 없습니다"
-                    description="프로필 → 데이터 동기화로 CSV 파일을 업로드하세요"
-                    actionText="동기화 하러 가기"
-                    onAction={() => navigation.navigate('프로필')}
-                />
-            ) : filteredTransactions.length === 0 ? (
-                <EmptyState
-                    icon="🔍"
-                    title="검색 결과 없음"
-                    description="검색 조건과 일치하는 거래가 없습니다"
-                    actionText="검색 초기화"
-                    onAction={() => setSearchQuery('')}
-                />
-            ) : (
-                <FlatList
-                    data={filteredTransactions}
-                    renderItem={renderItem}
-                    keyExtractor={item => item.id.toString()}
-                    contentContainerStyle={styles(colors).list}
-                />
-            )}
+            {
+                displayTransactions.length === 0 ? (
+                    <EmptyState
+                        icon="📊"
+                        title={isAnomalyMode ? "이상 거래가 없습니다" : "연동된 거래내역이 없습니다"}
+                        description={isAnomalyMode ? "안전하게 거래하고 계시네요!" : "프로필 → 데이터 동기화로 CSV 파일을 업로드하세요"}
+                        actionText={isAnomalyMode ? "돌아가기" : "동기화 하러 가기"}
+                        onAction={() => isAnomalyMode ? navigation.goBack() : navigation.navigate('프로필')}
+                    />
+                ) : filteredTransactions.length === 0 ? (
+                    <EmptyState
+                        icon="🔍"
+                        title="검색 결과 없음"
+                        description="검색 조건과 일치하는 거래가 없습니다"
+                        actionText="검색 초기화"
+                        onAction={() => setSearchQuery('')}
+                    />
+                ) : (
+                    <FlatList
+                        data={filteredTransactions}
+                        renderItem={renderItem}
+                        keyExtractor={item => item.id.toString()}
+                        contentContainerStyle={styles(colors).list}
+                    />
+                )
+            }
 
             {/* Transaction Detail Modal */}
             <Modal
@@ -327,16 +309,18 @@ export default function TransactionScreen({ navigation }) {
                                         <Text style={styles(colors).detailLabel}>거래금액</Text>
                                         <Text style={styles(colors).detailValueAmount}>-{formatCurrency(selectedTransaction.amount, false)} 원</Text>
                                     </View>
-                                    <View style={styles(colors).detailRow}>
-                                        <Text style={styles(colors).detailLabel}>
-                                            {selectedTransaction.cardType === '체크' ? '거래후잔액' : '결제액누계'}
-                                        </Text>
-                                        <Text style={styles(colors).detailValueBalance}>
-                                            {selectedTransaction.cardType === '체크'
-                                                ? formatCurrency(selectedTransaction.balance, false)
-                                                : formatCurrency(selectedTransaction.accumulated, false)} 원
-                                        </Text>
-                                    </View>
+                                    {!isAnomalyMode && (
+                                        <View style={styles(colors).detailRow}>
+                                            <Text style={styles(colors).detailLabel}>
+                                                {selectedTransaction.cardType === '체크' ? '거래후잔액' : '결제액누계'}
+                                            </Text>
+                                            <Text style={styles(colors).detailValueBalance}>
+                                                {selectedTransaction.cardType === '체크'
+                                                    ? formatCurrency(selectedTransaction.balance || 0, false)
+                                                    : formatCurrency(selectedTransaction.accumulated || 0, false)} 원
+                                            </Text>
+                                        </View>
+                                    )}
                                     <View style={styles(colors).detailRow}>
                                         <Text style={styles(colors).detailLabel}>추가메모</Text>
                                         {isEditingNote ? (
@@ -503,8 +487,8 @@ const styles = (colors) => StyleSheet.create({
     merchant: { fontSize: 16, fontWeight: 'bold', color: colors.text },
     cardTypeBadge: (type) => ({
         fontSize: 11,
-        color: type === '신용' ? '#2563EB' : '#059669',
-        backgroundColor: type === '신용' ? '#DBEAFE' : '#D1FAE5',
+        color: type === '신용' || type === '주의' ? '#2563EB' : type === '위험' ? '#EF4444' : '#059669',
+        backgroundColor: type === '신용' || type === '주의' ? '#DBEAFE' : type === '위험' ? '#FEE2E2' : '#D1FAE5',
         paddingHorizontal: 8,
         paddingVertical: 3,
         borderRadius: 8,
@@ -565,12 +549,6 @@ const styles = (colors) => StyleSheet.create({
         maxWidth: 500,
         borderWidth: 1,
         borderColor: colors.border,
-    },
-    categoryModalSubtitle: {
-        fontSize: 14,
-        color: colors.textSecondary,
-        textAlign: 'center',
-        marginBottom: 20,
     },
     categoryTransactionInfo: {
         alignItems: 'center',

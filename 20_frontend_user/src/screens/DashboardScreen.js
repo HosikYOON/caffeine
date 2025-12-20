@@ -6,6 +6,7 @@ import { Feather } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useTransactions } from '../contexts/TransactionContext';
+import { getAnomalies } from '../api';
 import CountUpNumber from '../components/CountUpNumber';
 import FadeInView from '../components/FadeInView';
 import AnimatedButton from '../components/AnimatedButton';
@@ -57,6 +58,7 @@ export default function DashboardScreen({ navigation }) {
     const [predictedTransaction, setPredictedTransaction] = useState(null);
     const [couponReceived, setCouponReceived] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
+    const [anomalyCount, setAnomalyCount] = useState(0);
 
     const scrollViewRef = useRef(null);
 
@@ -107,7 +109,7 @@ export default function DashboardScreen({ navigation }) {
             frequent_merchant: frequentMerchant,
             frequent_merchant_count: frequentMerchantCount,
             monthly_trend: '증가',
-            anomaly_count: 0
+            anomaly_count: anomalyCount
         };
     };
 
@@ -193,11 +195,32 @@ export default function DashboardScreen({ navigation }) {
             setCategoryData(calculateCategoryData(transactions));
             setMonthlyData(calculateMonthlyData(transactions));
         }
-    }, [transactions]);
+    }, [transactions, anomalyCount]);
+
+    // 이상 거래 데이터 가져오기
+    useEffect(() => {
+        const fetchAnomalies = async () => {
+            try {
+                const data = await getAnomalies();
+                if (data) {
+                    setAnomalyCount(data.length);
+                }
+            } catch (error) {
+                console.error('이상 거래 데이터 로드 실패:', error);
+            }
+        };
+
+        fetchAnomalies();
+    }, [transactions]); // 거래 내역이 변경될 때마다 다시 확인
 
     const onRefresh = async () => {
         setRefreshing(true);
         await refresh();
+        // 이상 거래도 같이 새로고침
+        try {
+            const data = await getAnomalies();
+            if (data) setAnomalyCount(data.length);
+        } catch (e) { }
         setRefreshing(false);
     };
 
@@ -443,7 +466,7 @@ export default function DashboardScreen({ navigation }) {
                 <FadeInView style={styles.alertContainer} delay={350}>
                     <TouchableOpacity
                         style={styles.alertCard}
-                        onPress={() => navigation?.navigate('거래내역')}
+                        onPress={() => navigation?.navigate('거래내역', { filter: 'suspicious' })}
                         activeOpacity={0.8}
                     >
                         <View style={styles.alertIconContainer}>
@@ -451,7 +474,7 @@ export default function DashboardScreen({ navigation }) {
                         </View>
                         <View style={styles.alertContent}>
                             <Text style={styles.alertTitle}>의심스러운 거래 발견</Text>
-                            <Text style={styles.alertDesc}>{summary?.anomaly_count || 3}건의 이상 거래가 감지되었습니다.</Text>
+                            <Text style={styles.alertDesc}>{anomalyCount}건의 이상 거래가 감지되었습니다.</Text>
                         </View>
                         <Feather name="chevron-right" size={20} color="#EF4444" />
                     </TouchableOpacity>
@@ -798,8 +821,8 @@ const styles = StyleSheet.create({
         borderRadius: 20,
     },
     couponBadgeText: {
-        fontSize: 13,
-        fontWeight: '700',
+        fontSize: 12,
+        fontWeight: '600',
         color: '#FFFFFF',
     },
 
@@ -812,47 +835,34 @@ const styles = StyleSheet.create({
     },
     quickActionItem: {
         alignItems: 'center',
-        flex: 1,
+        gap: 8,
     },
     quickActionIcon: {
         width: 56,
         height: 56,
-        borderRadius: 18,
+        borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.1,
-        shadowRadius: 6,
-        elevation: 4,
-    },
-    quickActionEmoji: {
-        fontSize: 26,
     },
     quickActionLabel: {
         fontSize: 12,
-        color: '#374151',
         fontWeight: '600',
-        fontFamily: 'Inter_600SemiBold',
+        color: '#4B5563',
     },
 
-    // Alert
+    // Anomaly Alert - Updated Styles
     alertContainer: {
         paddingHorizontal: 24,
-        paddingTop: 16,
+        paddingTop: 24,
     },
     alertCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#FEE2E2',
+        backgroundColor: '#FEF2F2',
         borderRadius: 16,
         padding: 16,
-        shadowColor: '#EF4444',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 3,
+        borderWidth: 1,
+        borderColor: '#FECACA',
     },
     alertIconContainer: {
         width: 40,
@@ -863,25 +873,18 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginRight: 12,
     },
-    alertEmoji: {
-        fontSize: 28,
-    },
     alertContent: {
         flex: 1,
     },
     alertTitle: {
-        fontSize: 15,
+        fontSize: 14,
         fontWeight: '700',
-        color: '#991B1B',
+        color: '#B91C1C',
         marginBottom: 2,
     },
     alertDesc: {
         fontSize: 13,
-        color: '#DC2626',
-    },
-    alertArrow: {
-        fontSize: 24,
-        color: '#EF4444',
+        color: '#991B1B',
     },
 
     // Section
@@ -903,102 +906,112 @@ const styles = StyleSheet.create({
     },
     sectionMore: {
         fontSize: 14,
-        color: '#2563EB',
+        color: '#6B7280',
         fontWeight: '500',
     },
 
-    // Chart
-    chartCard: {
-        backgroundColor: '#FFFFFF',
-        borderRadius: 20,
+    // Insight Card
+    insightCard: {
+        borderRadius: 16,
         padding: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.06,
-        shadowRadius: 8,
-        elevation: 2,
+        marginBottom: 12,
+    },
+    insightRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
+    insightIconContainer: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    insightText: {
+        flex: 1,
+        fontSize: 14,
+        color: '#374151',
+        lineHeight: 20,
+    },
+    insightHighlight: {
+        fontWeight: '700',
+    },
+
+    // Chart Card
+    chartCard: {
+        borderRadius: 24,
+        padding: 20,
+        alignItems: 'center',
     },
     chart: {
         marginVertical: 8,
         borderRadius: 16,
     },
     chartCaption: {
-        fontSize: 11,
+        fontSize: 12,
         color: '#9CA3AF',
-        textAlign: 'center',
         marginTop: 8,
     },
-
-    // Tooltip
     tooltip: {
         position: 'absolute',
-        backgroundColor: '#2563EB',
+        backgroundColor: 'rgba(30, 41, 59, 0.9)',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
         borderRadius: 8,
-        padding: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        elevation: 5,
-        zIndex: 1000,
+        alignItems: 'center',
     },
     tooltipMonth: {
-        fontSize: 10,
-        color: 'rgba(255, 255, 255, 0.8)',
+        color: '#FFFFFF',
+        fontSize: 12,
         marginBottom: 2,
     },
     tooltipValue: {
-        fontSize: 13,
         color: '#FFFFFF',
+        fontSize: 14,
         fontWeight: 'bold',
     },
 
     // Category Grid
     categoryGrid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
         gap: 12,
     },
     categoryCard: {
-        width: (Dimensions.get('window').width - 60) / 2,
-        backgroundColor: '#FFFFFF',
-        borderRadius: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
         padding: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.06,
-        shadowRadius: 8,
-        elevation: 2,
+        borderRadius: 16,
+        paddingVertical: 12,
     },
     categoryIconContainer: {
-        width: 44,
-        height: 44,
+        width: 40,
+        height: 40,
         borderRadius: 12,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 12,
-    },
-    categoryEmoji: {
-        fontSize: 22,
+        marginRight: 12,
     },
     categoryName: {
-        fontSize: 14,
+        fontSize: 15,
         fontWeight: '600',
-        color: '#1F2937',
-        marginBottom: 4,
+        color: '#374151',
+        width: 80,
     },
     categoryAmount: {
-        fontSize: 16,
-        fontWeight: '700',
-        color: '#1F2937',
-        marginBottom: 8,
+        fontSize: 15,
+        fontWeight: '600',
+        color: '#111827',
+        flex: 1,
+        textAlign: 'right',
+        marginRight: 12,
     },
     categoryProgress: {
+        width: 60,
         height: 6,
-        backgroundColor: '#E5E7EB',
         borderRadius: 3,
+        backgroundColor: '#E5E7EB',
         overflow: 'hidden',
-        marginBottom: 6,
+        marginRight: 8,
     },
     categoryProgressBar: {
         height: '100%',
@@ -1007,62 +1020,25 @@ const styles = StyleSheet.create({
     categoryPercent: {
         fontSize: 12,
         color: '#6B7280',
+        width: 32,
+        textAlign: 'right',
     },
 
-    // Insight
-    insightCard: {
-        backgroundColor: '#FFFFFF',
-        borderRadius: 16,
-        padding: 16,
-        marginBottom: 12,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.06,
-        shadowRadius: 8,
-        elevation: 2,
-    },
-    insightRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    insightIconContainer: {
-        width: 36,
-        height: 36,
-        borderRadius: 10,
-        backgroundColor: '#F3F4F6',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 12,
-    },
-    insightText: {
-        flex: 1,
-        fontSize: 14,
-        color: '#4B5563',
-        lineHeight: 20,
-    },
-    insightHighlight: {
-        fontWeight: '700',
-        color: '#2563EB',
-    },
-
-    // Floating Action Button
+    // FAB
     fab: {
         position: 'absolute',
+        bottom: 24,
         right: 24,
-        bottom: 100,
-        width: 60,
-        height: 60,
-        borderRadius: 30,
         shadowColor: '#10B981',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.4,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
         shadowRadius: 12,
         elevation: 8,
     },
     fabGradient: {
-        width: '100%',
-        height: '100%',
-        borderRadius: 30,
+        width: 64,
+        height: 64,
+        borderRadius: 32,
         justifyContent: 'center',
         alignItems: 'center',
     },

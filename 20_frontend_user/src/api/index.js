@@ -3,5 +3,6 @@
 
 export * from './transactions';
 export * from './analysis';
+export * from './anomalies';
 export * from './ml';
 export { apiClient } from './client';

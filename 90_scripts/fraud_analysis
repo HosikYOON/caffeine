@@ -1,0 +1,39 @@
+
+import joblib
+import pandas as pd
+import numpy as np
+from pathlib import Path
+
+try:
+    model_path = Path(r"c:\caffeine\41_ml_fraud\model_fraud.joblib")
+    model = joblib.load(model_path)
+    
+    # Step name is 'model'
+    clf = model.named_steps['model']
+    print(f"Classifier: {type(clf)}")
+    
+    if hasattr(clf, "feature_importances_"):
+        imps = clf.feature_importances_
+        # Try to get names
+        names = []
+        if hasattr(clf, "feature_name_"):
+            names = clf.feature_name_
+        elif hasattr(model, "feature_names_in_"):
+            names = model.feature_names_in_
+        else:
+            names = [f"Feature_{i}" for i in range(len(imps))]
+            
+        # Ensure lengths match
+        if len(names) != len(imps):
+             print(f"Mismatch: names={len(names)}, imps={len(imps)}")
+             # Fallback
+             names = [f"Feat_{i}" for i in range(len(imps))]
+
+        df_imp = pd.DataFrame({"Feature": names, "Importance": imps})
+        df_imp = df_imp.sort_values("Importance", ascending=False)
+        
+        print("\n🏆 Top Important Features:")
+        print(df_imp.to_string(index=False))
+        
+except Exception as e:
+    print(f"Error: {e}")

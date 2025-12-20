@@ -222,12 +222,23 @@ async def create_transaction(
             cat_result = await db.execute(cat_query)
             category = cat_result.scalar_one_or_none()
         
-        # 거래 시각 파싱
+        # 거래 시각 파싱 - Robust Parsing
         if data.transaction_date:
             try:
+                # 1. ISO Format (with Z or offset)
                 tx_time = datetime.fromisoformat(data.transaction_date.replace('Z', '+00:00'))
-            except:
-                tx_time = datetime.now()
+            except ValueError:
+                try:
+                    # 2. Simple YYYY-MM-DD HH:MM:SS
+                    tx_time = datetime.strptime(data.transaction_date, "%Y-%m-%d %H:%M:%S")
+                except ValueError:
+                    try:
+                        # 3. CSV Format YYYY-MM-DD HH:MM
+                        tx_time = datetime.strptime(data.transaction_date, "%Y-%m-%d %H:%M")
+                    except ValueError:
+                         # 4. Fallback
+                        logger.warning(f"Date parse failed for {data.transaction_date}, using now()")
+                        tx_time = datetime.now()
         else:
             tx_time = datetime.now()
         

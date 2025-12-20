@@ -60,10 +60,7 @@ node_modules/
 .npm/
 
 # Temporary Scripts
+# Temporary Scripts
 check_dates.py
 clear_data.py
-reproduce_*.py
-verify_*.py
-test_*.py
-check_*.py
 mnist_cnn.pt
