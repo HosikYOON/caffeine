@@ -41,7 +41,27 @@ app.middleware("http")(security_headers_middleware)
 init_routers(app)
 
 # CORS 설정
-    "https://d26uyg5darllja.cloudfront.net",
+CLOUDFRONT_URL = "https://d26uyg5darllja.cloudfront.net"
+
+LOCAL_ORIGINS = [
+    # Localhost (Dev)
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://localhost:8001",
+    "http://localhost:8081",
+    "http://localhost:8082",
+    "http://localhost:8080",
+    "http://localhost:19000",
+    "http://localhost:19006",
+    # 127.0.0.1 (Local)
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:3001",
+    "http://127.0.0.1:8001",
+    "http://127.0.0.1:8081",
+    "http://127.0.0.1:8082",
+    "http://127.0.0.1:8080",
+    "http://127.0.0.1:19000",
+    "http://127.0.0.1:19006",
 ]
 
 CUSTOM_DOMAINS = [
@@ -54,7 +74,7 @@ CUSTOM_DOMAINS = [
     "https://api.caffeineai.net/",
 ]
 
-ALLOWED_ORIGINS = LOCAL_ORIGINS + CUSTOM_DOMAINS
+ALLOWED_ORIGINS = LOCAL_ORIGINS + [CLOUDFRONT_URL] + CUSTOM_DOMAINS
 
 app.add_middleware(
     CORSMiddleware,
