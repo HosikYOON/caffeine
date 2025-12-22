@@ -27,3 +27,4 @@ export const deleteAllCoupons = async () => {
     const response = await apiClient.delete('/coupons');
     return response.data;
 };
+

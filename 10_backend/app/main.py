@@ -129,7 +129,11 @@ async def health(request: Request):
     }
 
 # 라우터 등록
-from app.routers import ml, analysis, transactions, user, auth, coupons, settings, reports, anomalies, user_analytics, analytics_demographics
+from app.routers import (
+    ml, analysis, transactions, user, auth, coupons, 
+    settings, reports, anomalies, user_analytics, analytics_demographics
+)
+from app.routers.chatbot import router as chatbot_router
 
 # 라우터 포함 (모든 라우터에 /api 접두사 추가)
 app.include_router(ml.router, prefix="/api")
@@ -145,6 +149,9 @@ app.include_router(analytics_demographics.router, prefix="/api")
 app.include_router(settings.router, prefix="/api")
 app.include_router(reports.router, prefix="/api")
 app.include_router(anomalies.router, prefix="/api")
+
+# 챗봇 API (/api/chat/*)
+app.include_router(chatbot_router)
 
 # CORS 설정을 가장 마지막에 추가하여 outermost 레이어로 만듦
 app.add_middleware(

@@ -8,7 +8,7 @@ export default function EmptyState({ icon = '📊', title, description, actionTe
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const scaleAnim = useRef(new Animated.Value(0.9)).current;
     const slideAnim = useRef(new Animated.Value(30)).current;
-
+    
     // 점 애니메이션
     const dot1Anim = useRef(new Animated.Value(0)).current;
     const dot2Anim = useRef(new Animated.Value(0)).current;
