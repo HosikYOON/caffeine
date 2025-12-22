@@ -85,8 +85,8 @@ async def get_transactions(
     db: AsyncSession = Depends(get_db)
 ):
     try:
-        # 인증되지 않은 경우 빈 목록 반환
-        if current_user_id is None:
+        # user_id가 없으면 빈 목록 반환 (인증되지 않은 경우)
+        if user_id is None:
             return TransactionList(
                 total=0,
                 page=page,
