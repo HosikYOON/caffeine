@@ -149,6 +149,7 @@ export const ThemeProvider = ({ children }) => {
         tabBarActive: '#2563EB',
         tabBarInactive: '#64748B',
 
+
         // Interactive
         disabled: '#BDBDBD',
         placeholder: '#9E9E9E',

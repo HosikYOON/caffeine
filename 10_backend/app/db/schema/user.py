@@ -61,8 +61,10 @@ class UserUpdate(BaseModel):
 class UserResponse(UserBase):
     id: int
     role: str
-    is_active: bool
-    is_superuser: bool
+    is_superuser: bool  # 슈퍼유저 여부
+    is_active: bool  # 계정 활성화 여부
+    status: str  # ACTIVE/AWAY/BUSY 등
+    group_id: Optional[int]
     social_provider: Optional[str]
     social_id: Optional[str]
     birth_date: Optional[datetime]

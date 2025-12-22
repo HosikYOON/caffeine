@@ -77,15 +77,15 @@ export default function TransactionScreen({ navigation }) {
             const response = await apiClient.post('/ml/predict-next', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-            
+
             const predictedCategory = response.data.predicted_category;
             const confidence = response.data.confidence;
             setPrediction(predictedCategory);
-            
-            
+
+
             // 예측된 카테고리에 맞는 쿠폰 발급 알림
             const couponInfo = CATEGORY_COUPONS[predictedCategory] || CATEGORY_COUPONS['기타'];
-            
+
             // 새 쿠폰 객체 생성
             const newCoupon = {
                 id: Date.now(),
@@ -98,7 +98,7 @@ export default function TransactionScreen({ navigation }) {
                 minPurchase: couponInfo.discount * 3,
                 daysLeft: 30
             };
-            
+
             // 쿠폰 발급 배너 표시 (confirm 대신)
             setCouponNotification({
                 category: predictedCategory,
@@ -107,7 +107,7 @@ export default function TransactionScreen({ navigation }) {
                 couponInfo: couponInfo,
                 txCount: transactions.length
             });
-            
+
         } catch (error) {
             console.error('Prediction failed:', error);
             alert('예측 실패: ' + (error.response?.data?.detail || error.message));
@@ -300,7 +300,7 @@ export default function TransactionScreen({ navigation }) {
             {couponNotification && (
                 <View style={styles(colors).couponBannerTop}>
                     <TouchableOpacity onPress={() => setCouponNotification(null)} style={styles(colors).couponBannerCloseTop}>
-                        <Text style={{fontSize: 20, color: '#1E40AF'}}>✕</Text>
+                        <Text style={{ fontSize: 20, color: '#1E40AF' }}>✕</Text>
                     </TouchableOpacity>
                     <Text style={styles(colors).couponBannerTitleTop}>🎉 추천 쿠폰 도착!</Text>
                     <View style={styles(colors).couponBannerCouponTop}>
@@ -308,10 +308,10 @@ export default function TransactionScreen({ navigation }) {
                         <Text style={styles(colors).couponBannerDiscount}>{couponNotification.couponInfo.discount.toLocaleString()}원 할인</Text>
                     </View>
                     <View style={styles(colors).couponBannerInfoTop}>
-                        <Text style={styles(colors).couponBannerInfoText}>다음 소비 예측: <Text style={{fontWeight: 'bold'}}>{couponNotification.category}</Text></Text>
+                        <Text style={styles(colors).couponBannerInfoText}>다음 소비 예측: <Text style={{ fontWeight: 'bold' }}>{couponNotification.category}</Text></Text>
                         <Text style={styles(colors).couponBannerInfoText}>신뢰도: {(couponNotification.confidence * 100).toFixed(1)}%</Text>
                     </View>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={styles(colors).couponBannerButtonTop}
                         onPress={async () => {
                             try {
@@ -550,7 +550,7 @@ export default function TransactionScreen({ navigation }) {
 // 스타일
 const styles = (colors) => StyleSheet.create({
     container: { flex: 1 },
-    header: { 
+    header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -570,11 +570,11 @@ const styles = (colors) => StyleSheet.create({
     title: { fontSize: 28, fontWeight: '700', color: colors.text, fontFamily: 'Inter_700Bold' },
     subtitle: { fontSize: 16, color: '#2563EB', marginTop: 6, fontWeight: '600' },
     list: { padding: 16 },
-    transactionCard: { 
-        backgroundColor: colors.cardBackground, 
-        borderRadius: 16, 
-        padding: 16, 
-        marginBottom: 12, 
+    transactionCard: {
+        backgroundColor: colors.cardBackground,
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 12,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.06,

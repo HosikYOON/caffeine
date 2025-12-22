@@ -6,7 +6,7 @@ const LOCAL_BASE_URL = "http://localhost:8001";  // 로컬 개발 (Docker backen
 const PROD_BASE_URL = "https://d26uyg5darllja.cloudfront.net/api";
 
 // 환경 판별: 웹에서 localhost면 로컬, 그 외(앱 포함)는 프로덕션
-const isLocal = 
+const isLocal =
   Platform.OS === "web" &&
   typeof window !== "undefined" &&
   window.location?.hostname?.includes("localhost");

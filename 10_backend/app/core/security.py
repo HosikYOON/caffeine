@@ -1,7 +1,6 @@
 #비밀번호 암호화
 import bcrypt
 
-
 def hash_password(password: str) -> str:
     # bcrypt는 72바이트 제한이 있으므로 미리 잘라서 전달
     password_bytes = password.encode('utf-8')[:72]

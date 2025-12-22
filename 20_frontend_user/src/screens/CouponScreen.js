@@ -310,7 +310,7 @@ export default function CouponScreen({ route }) {
 
             {/* Search Bar */}
             <View style={styles(colors).searchContainer}>
-                <Text style={styles(colors).searchIcon}></Text>
+                <Text style={styles(colors).searchIcon}>🔍</Text>
                 <TextInput
                     style={styles(colors).searchInput}
                     placeholder="가맹점 검색..."
@@ -393,7 +393,7 @@ export default function CouponScreen({ route }) {
                     <EmptyState
                         icon="🎁"
                         title="쿠폰이 없습니다"
-                        message="AI가 예측한 쿠폰을 받아보세요!"
+                        description="AI가 예측한 쿠폰을 받아보세요!"
                     />
                 )}
             </ScrollView>

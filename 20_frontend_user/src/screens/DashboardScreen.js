@@ -12,6 +12,7 @@ import FadeInView from '../components/FadeInView';
 import AnimatedButton from '../components/AnimatedButton';
 import EmptyState from '../components/EmptyState';
 import { SkeletonStats, SkeletonChart } from '../components/SkeletonCard';
+import AddTransactionModal from '../components/AddTransactionModal';
 import { formatCurrency } from '../utils/currency';
 import { CHART_COLORS, ANIMATION_DELAY } from '../constants';
 

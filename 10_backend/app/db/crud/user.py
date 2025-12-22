@@ -56,8 +56,6 @@ async def create_user(db: AsyncSession, user: UserCreate) -> User:
         phone=user.phone,
         birth_date=user.birth_date,
         role="USER",
-        is_active=True, # Default to True
-        is_superuser=False, # Default to False
         social_provider=user.social_provider,
         social_id=user.social_id,
         group_id=user.group_id,
