@@ -60,8 +60,11 @@ ALLOWED_ORIGINS = [
     "http://127.0.0.1:8080",
     "http://127.0.0.1:19000",
     "http://127.0.0.1:19006",
-    # Production (CloudFront)
-    "https://d26uyg5darllja.cloudfront.net"
+    # Production (CloudFront & Custom Domains)
+    "https://d26uyg5darllja.cloudfront.net",
+    "https://caffeineai.net",
+    "https://admin.caffeineai.net",
+    "https://api.caffeineai.net",
 ]
 
 app.add_middleware(

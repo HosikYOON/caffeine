@@ -3,7 +3,7 @@ import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const LOCAL_BASE_URL = "http://localhost:8001/api";  // 로컬 개발 (FastAPI /api prefix 대응)
-const PROD_BASE_URL = "https://d26uyg5darllja.cloudfront.net/api";
+const PROD_BASE_URL = "https://api.caffeineai.net/api";  // 프로덕션 (커스텀 도메인)
 
 // 환경 판별: 웹에서 localhost면 로컬, 그 외(앱 포함)는 프로덕션
 const isLocal =

@@ -30,6 +30,8 @@ jobs:
       # next.config.ts 에 output: "export" 들어있다는 전제
       - name: Build Next.js (static export)
         working-directory: 21_frontend_admin
+        env:
+          NEXT_PUBLIC_API_URL: https://api.caffeineai.net/api
         run: npm run build
 
       - name: Configure AWS credentials
