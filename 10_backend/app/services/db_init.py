@@ -11,6 +11,7 @@ from app.db.database import Base
 from app.db.model.user import User, LoginHistory
 from app.db.model.group import UserGroup
 from app.db.model.transaction import Transaction, Category, CouponTemplate, UserCoupon, Anomaly
+from app.db.model.notification import Notification
 
 async def ensure_database_and_tables():
     """

@@ -5,7 +5,7 @@ import os
 import httpx
 
 router = APIRouter(
-    prefix="/api/chat",
+    prefix="/chat",
     tags=["chatbot"],
     responses={404: {"description": "Not found"}},
 )

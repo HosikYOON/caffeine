@@ -18,7 +18,9 @@ CATEGORY_MAP = {
 class MLService:
     def __init__(self):
         self.model = None
+        self.fraud_model = None
         self._load_model()
+        self._load_fraud_model()
 
     def _load_model(self):
         try:
@@ -27,7 +29,26 @@ class MLService:
             if os.path.exists(model_path):
                 self.model = joblib.load(model_path)
         except Exception as e:
-            logger.error(f"Model Load Failed: {e}")
+            logger.error(f"Category Model Load Failed: {e}")
+
+    def _load_fraud_model(self):
+        try:
+            app_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            paths = [
+                os.path.join(app_dir, "models", "fraud_model.joblib"),
+                os.path.join(app_dir, "models", "model.joblib"),
+                os.path.join(app_dir, "fraud_model.joblib")
+            ]
+            for path in paths:
+                if os.path.exists(path):
+                    self.fraud_model = joblib.load(path)
+                    print(f"DEBUG: Fraud Detection Model Loaded from {path}")
+                    logger.info(f"Fraud Detection Model Loaded from: {path}")
+                    break
+            if self.fraud_model is None:
+                print("DEBUG: No Fraud Model found in search paths")
+        except Exception as e:
+            logger.error(f"Fraud Model Load Failed: {e}")
 
     async def predict_single(self, features: dict):
         if self.model is None: self._load_model()
@@ -40,6 +61,40 @@ class MLService:
         processed = get_preprocessor().preprocess(input_data)
         prediction = self.model.predict(processed)[0]
         return {"prediction": CATEGORY_MAP.get(int(prediction), '기타')}
+
+    async def detect_anomaly(self, transaction_data: dict) -> dict:
+        """거래 데이터를 입력받아 이상 여부 탐지"""
+        if self.fraud_model is None: self._load_fraud_model()
+        
+        if self.fraud_model is None:
+            return {"is_anomaly": False, "score": 0.0, "reason": "Model unavailable", "source": "rule"}
+
+        try:
+            input_df = pd.DataFrame([transaction_data])
+            processed = get_preprocessor().preprocess(input_df)
+            
+            prediction = self.fraud_model.predict(processed)[0]
+            
+            # 1 또는 -1이 이상징후 (모델에 따라 다름)
+            is_anomaly = bool(prediction == 1 or prediction == -1)
+            
+            score = 0.0
+            if hasattr(self.fraud_model, "predict_proba"):
+                score = float(np.max(self.fraud_model.predict_proba(processed)[0]))
+            
+            if is_anomaly:
+                logger.info(f"Anomaly detected by ML: Score={score}")
+                print(f"DEBUG: Anomaly Detected! Score={score}")
+                
+            return {
+                "is_anomaly": is_anomaly,
+                "score": score,
+                "reason": "AI 분석 결과 이상 징후 감지" if is_anomaly else "정상 거래",
+                "source": "ml"
+            }
+        except Exception as e:
+            logger.error(f"Anomaly Detection Error: {e}")
+            return {"is_anomaly": False, "score": 0.0, "reason": f"Detection Error: {e}", "source": "error"}
 
     def calculate_confidence_metrics(self, probabilities: np.ndarray) -> dict:
         """예측 신뢰도 계산 (Entropy, Gap 등)"""

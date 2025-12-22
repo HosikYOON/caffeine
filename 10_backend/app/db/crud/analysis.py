@@ -79,3 +79,84 @@ async def fetch_top_category(db: AsyncSession, user_id: Optional[int], start_dat
         
     result = await db.execute(cat_query, params)
     return result.fetchone()
+
+async def fetch_monthly_trend(db: AsyncSession, user_id: Optional[int], months: int = 6) -> List[MonthlyTrend]:
+    """최근 N개월간의 월별 지출 추이 집계"""
+    from datetime import datetime
+    from dateutil.relativedelta import relativedelta
+    
+    # 최근 N개월의 시작일 계산
+    now = datetime.now()
+    start_date = (now - relativedelta(months=months-1)).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    
+    # PostgreSQL/SQLite 호환을 위한 날짜 포맷팅 및 그룹화
+    # AWS RDS가 PostgreSQL이므로 TO_CHAR 사용, 로컬 SQLite 등을 위해 strftime 고려 (여기서는 PostgreSQL 우선)
+    date_format = "TO_CHAR(transaction_time, 'YYYY-MM')"
+    
+    query = select(
+        text(f"{date_format} as month_str"),
+        func.sum(Transaction.amount).label('total'),
+        func.count(Transaction.id).label('count')
+    ).where(Transaction.transaction_time >= start_date)
+    
+    if user_id is not None:
+        query = query.where(Transaction.user_id == user_id)
+    else:
+        from app.db.model.user import User
+        query = query.join(User, Transaction.user_id == User.id).where(User.is_superuser == False)
+        
+    query = query.group_by(text("month_str")).order_by(text("month_str ASC"))
+    
+    result = await db.execute(query)
+    rows = result.all()
+    
+    return [
+        MonthlyTrend(month=row[0], total_amount=float(row[1]), transaction_count=row[2])
+        for row in rows
+    ]
+
+async def fetch_category_breakdown(db: AsyncSession, user_id: Optional[int], start_date: datetime) -> List[CategoryBreakdown]:
+    """카테고리별 지출 비중 집계"""
+    from app.db.model.transaction import Category
+    
+    # 1. 특정 기간 전체 금액 합계
+    total_query = select(func.sum(Transaction.amount)).where(Transaction.transaction_time >= start_date)
+    if user_id is not None:
+        total_query = total_query.where(Transaction.user_id == user_id)
+    else:
+        from app.db.model.user import User
+        total_query = total_query.join(User, Transaction.user_id == User.id).where(User.is_superuser == False)
+    
+    total_res = await db.execute(total_query)
+    grand_total = float(total_res.scalar() or 0)
+    
+    if grand_total == 0:
+        return []
+
+    # 2. 카테고리별 합계
+    query = select(
+        Category.name,
+        func.sum(Transaction.amount).label('total'),
+        func.count(Transaction.id).label('count')
+    ).join(Category, Transaction.category_id == Category.id).where(Transaction.transaction_time >= start_date)
+    
+    if user_id is not None:
+        query = query.where(Transaction.user_id == user_id)
+    else:
+        from app.db.model.user import User
+        query = query.join(User, Transaction.user_id == User.id).where(User.is_superuser == False)
+        
+    query = query.group_by(Category.name).order_by(text("total DESC"))
+    
+    result = await db.execute(query)
+    rows = result.all()
+    
+    return [
+        CategoryBreakdown(
+            category=row[0], 
+            total_amount=float(row[1]), 
+            transaction_count=row[2],
+            percentage=round(float(row[1]) / grand_total * 100, 1) if grand_total > 0 else 0
+        )
+        for row in rows
+    ]

@@ -219,6 +219,18 @@ export default function ProfileScreen({ navigation }) {
                 </View>
 
                 <View style={styles.section}>
+                    <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>알림</Text>
+                    <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
+                        <MenuItem
+                            icon="🔔"
+                            title="알림 센터"
+                            subtitle="이상거래 알림 및 시스템 알림 확인"
+                            onPress={() => navigation?.navigate('Notifications')}
+                        />
+                    </View>
+                </View>
+
+                <View style={styles.section}>
                     <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>데이터 관리</Text>
                     <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
                         <MenuItem icon="📤" title="데이터 내보내기" subtitle="CSV, JSON 형식으로 저장" onPress={handleExportData} />

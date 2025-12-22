@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
-import { apiClient } from '../api/client';
+import { apiClient, API_BASE_URL } from '../api/client';
 
 const AuthContext = createContext();
 
@@ -238,7 +238,7 @@ export const AuthProvider = ({ children }) => {
     };
     // AuthContext.Provider - 사용자 인증 상태 제공
     return (
-        <AuthContext.Provider value={{ user, loading, login, signup, logout, kakaoLogin }}>
+        <AuthContext.Provider value={{ user, loading, login, signup, logout, kakaoLogin, kakaoSignup }}>
             {children}
         </AuthContext.Provider>
     );

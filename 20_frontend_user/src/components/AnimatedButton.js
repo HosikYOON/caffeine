@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { TouchableOpacity, Animated } from 'react-native';
+import { TouchableOpacity, Animated, Platform } from 'react-native';
 
 // 애니메이션 버튼
 export default function AnimatedButton({
@@ -17,14 +17,14 @@ export default function AnimatedButton({
         Animated.parallel([
             Animated.spring(scaleAnim, {
                 toValue: scaleValue,
-                useNativeDriver: true,
+                useNativeDriver: Platform.OS !== 'web',
                 speed: 50,
                 bounciness: 4,
             }),
             Animated.timing(opacityAnim, {
                 toValue: 0.8,
                 duration: 100,
-                useNativeDriver: true,
+                useNativeDriver: Platform.OS !== 'web',
             }),
         ]).start();
     };
@@ -33,14 +33,14 @@ export default function AnimatedButton({
         Animated.parallel([
             Animated.spring(scaleAnim, {
                 toValue: 1,
-                useNativeDriver: true,
+                useNativeDriver: Platform.OS !== 'web',
                 speed: 50,
                 bounciness: 4,
             }),
             Animated.timing(opacityAnim, {
                 toValue: 1,
                 duration: 100,
-                useNativeDriver: true,
+                useNativeDriver: Platform.OS !== 'web',
             }),
         ]).start();
     };

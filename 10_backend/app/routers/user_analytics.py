@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from typing import List, Optional
 from fastapi import APIRouter, Depends, Query, HTTPException, status
+from sqlalchemy import select, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.database import get_db
 from app.db.model.user import User
@@ -9,7 +10,7 @@ from app.routers.user import get_current_user
 from app.services import analytics as analytics_service
 from pydantic import BaseModel
 
-router = APIRouter(prefix="/api/admin/users", tags=["Admin - User Analytics"])
+router = APIRouter(prefix="/admin/users", tags=["Admin - User Analytics"])
 
 class ChurnMetrics(BaseModel):
     churn_rate: float
@@ -64,7 +65,7 @@ async def get_new_signups(
     # Calculate has_recent_activity for each user
     user_responses = []
     for user in users:
-        has_activity = not await is_user_churned(db, user.id, days=30)
+        has_activity = not await analytics_service.is_user_churned_service(db, user.id, days=30)
         user_dict = {
             **user.__dict__,
             'has_recent_activity': has_activity
@@ -98,7 +99,7 @@ async def get_churned_users(
     # Filter churned users (no transactions in last N days)
     churned_user_responses = []
     for user in all_users:
-        if await is_user_churned(db, user.id, days):
+        if await analytics_service.is_user_churned_service(db, user.id, days):
             user_dict = {
                 **user.__dict__,
                 'has_recent_activity': False  # Churned users have no recent activity
@@ -157,7 +158,7 @@ async def get_churn_rate(
     
     total_churned = 0
     for user in all_users:
-        if await is_user_churned(db, user.id, churn_days):
+        if await analytics_service.is_user_churned_service(db, user.id, churn_days):
             total_churned += 1
     
     active_users = total_users - total_churned

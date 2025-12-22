@@ -21,6 +21,7 @@ import LoginScreen from './src/screens/LoginScreen';
 import SignupScreen from './src/screens/SignupScreen';
 import FindEmailScreen from './src/screens/FindEmailScreen';
 import ResetPasswordScreen from './src/screens/ResetPasswordScreen';
+import NotificationsScreen from './src/screens/NotificationsScreen';
 
 // 스플래시 스크린 유지
 SplashScreen.preventAutoHideAsync();
@@ -143,12 +144,12 @@ function AppContent() {
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get('code');
       const pathname = window.location.pathname;
-      
+
       // code가 있고 로그인되지 않은 경우
       if (code && !user) {
         // URL에서 code 파라미터 제거
         window.history.replaceState({}, document.title, '/');
-        
+
         // 회원가입 콜백인지 로그인 콜백인지 경로로 구분
         if (pathname.includes('/signup')) {
           // 카카오 회원가입 처리
@@ -203,6 +204,19 @@ function AppContent() {
             options={{
               headerShown: true,
               headerTitle: '프로필',
+              headerStyle: { backgroundColor: colors.headerBackground },
+              headerTintColor: colors.text,
+              headerTitleStyle: { fontFamily: 'Inter_700Bold' },
+              cardStyle: { flex: 1 },
+            }}
+          />
+          {/* 알림 화면 */}
+          <Stack.Screen
+            name="Notifications"
+            component={NotificationsScreen}
+            options={{
+              headerShown: true,
+              headerTitle: '알림',
               headerStyle: { backgroundColor: colors.headerBackground },
               headerTintColor: colors.text,
               headerTitleStyle: { fontFamily: 'Inter_700Bold' },

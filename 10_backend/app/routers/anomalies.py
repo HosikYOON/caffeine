@@ -15,11 +15,12 @@ import logging
 from app.db.database import get_db
 from app.db.model.transaction import Transaction, Category
 from app.db.model.user import User
+from app.services.ml_service import ml_service
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(
-    prefix="/api/anomalies",
+    prefix="/anomalies",
     tags=["anomalies"],
     responses={404: {"description": "Not found"}},
 )
@@ -113,7 +114,7 @@ async def get_anomalies(
             func.avg(Transaction.amount).label('avg_amount')
         ).group_by(Transaction.user_id).subquery()
         
-        # 고액 거래 조회 (평균의 3배 이상 또는 50만원 이상)
+        # 최근 모든 거래 조회 (시간 기준)
         query = select(
             Transaction.id,
             Transaction.user_id,
@@ -129,24 +130,39 @@ async def get_anomalies(
         ).join(
             avg_query, Transaction.user_id == avg_query.c.user_id, isouter=True
         ).where(
-            and_(
-                Transaction.transaction_time >= start_date,
-                or_(
-                    Transaction.amount >= 500000,  # 50만원 이상
-                    Transaction.amount >= avg_query.c.avg_amount * 3  # 평균의 3배 이상
-                )
-            )
-        ).order_by(Transaction.transaction_time.desc()).limit(100)
+            Transaction.transaction_time >= start_date
+        ).order_by(Transaction.transaction_time.desc()).limit(200)
         
         result = await db.execute(query)
         rows = result.fetchall()
         
         anomalies = []
         for row in rows:
-            avg_amount = float(row.avg_amount) if row.avg_amount else 0
-            risk_level_str, reason = determine_risk_level(row.amount, avg_amount)
+            amount_float = float(row.amount) if row.amount else 0.0
+            avg_amount = float(row.avg_amount) if row.avg_amount else 0.0
+            risk_level_str, reason = determine_risk_level(amount_float, avg_amount)
             
-            # 위험 등급 필터 적용
+            # ML 탐지 연동
+            tx_data = {
+                "user_id": row.user_id,
+                "amount": float(row.amount),
+                "category": row.category_name or "기타",
+                "transaction_time": row.transaction_time.isoformat()
+            }
+            ml_result = await ml_service.detect_anomaly(tx_data)
+            
+            # 탐지 여부 결정 (ML 우선, 룰 베이스 보조)
+            is_detected = ml_result["is_anomaly"] or risk_level_str in ["위험", "경고"]
+            
+            if not is_detected:
+                continue
+
+            # ML 결과가 '이상'인 경우 정보 보강
+            if ml_result["is_anomaly"]:
+                risk_level_str = "위험" if ml_result["score"] > 0.8 else "경고"
+                reason = f"ML 탐지: {ml_result['reason']} (신뢰도: {ml_result['score']:.2f})"
+            
+            # 위험 등급 필터 적용 (프론트엔드 요청 시)
             if risk_level and risk_level_str != risk_level:
                 continue
             
@@ -159,7 +175,7 @@ async def get_anomalies(
                 date=row.transaction_time.strftime("%Y-%m-%d %H:%M"),
                 riskLevel=risk_level_str,
                 reason=reason,
-                status="pending"  # 현재는 모두 pending, 추후 별도 테이블 관리
+                status="pending"
             )
             anomalies.append(anomaly)
         
@@ -203,3 +219,90 @@ async def reject_anomaly(
     """
     logger.info(f"Anomaly {anomaly_id} rejected")
     return {"message": "Anomaly rejected", "id": anomaly_id}
+
+
+@router.post("/{anomaly_id}/notify")
+async def notify_anomaly(
+    anomaly_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    이상 거래에 대해 해당 사용자에게 알림을 전송합니다.
+    
+    - 앱 내 알림 센터에 저장 (항상)
+    - 푸시 알림 전송 (토큰이 있을 경우)
+    """
+    from app.services.push_service import send_anomaly_alert
+    from app.db.model.notification import Notification
+    import json
+    
+    try:
+        # 해당 거래 정보 조회
+        query = select(
+            Transaction.id,
+            Transaction.user_id,
+            Transaction.amount,
+            Category.name.label('category_name'),
+            User.push_token,
+            User.name.label('user_name')
+        ).join(
+            Category, Transaction.category_id == Category.id, isouter=True
+        ).join(
+            User, Transaction.user_id == User.id
+        ).where(
+            Transaction.id == anomaly_id
+        )
+        
+        result = await db.execute(query)
+        row = result.fetchone()
+        
+        if not row:
+            raise HTTPException(status_code=404, detail="Transaction not found")
+        
+        category_name = row.category_name or "기타"
+        amount = float(row.amount)
+        reason = "관리자가 이상 거래로 판단하여 알림을 보냈습니다."
+        
+        # 1. 앱 내 알림 센터에 저장 (항상 실행)
+        notification = Notification(
+            user_id=row.user_id,
+            type="anomaly",
+            title="⚠️ 이상 거래 감지",
+            message=f"{category_name}에서 ₩{amount:,.0f} 거래가 의심됩니다. (거래 ID: {row.id})\n{reason}"
+        )
+        db.add(notification)
+        await db.commit()
+        
+        logger.info(f"알림 저장 완료: user_id={row.user_id}, transaction_id={anomaly_id}")
+        
+        # 2. 푸시 알림 전송 (토큰이 있을 경우)
+        push_result = {"success": False, "message": "푸시 토큰 없음"}
+        
+        if row.push_token:
+            push_result = await send_anomaly_alert(
+                push_token=row.push_token,
+                transaction_id=row.id,
+                amount=amount,
+                category=category_name,
+                reason=reason
+            )
+            logger.info(f"푸시 알림 전송: {push_result}")
+        
+        return {
+            "success": True,
+            "message": "알림이 전송되었습니다." + (" (푸시 포함)" if row.push_token else " (앱 내 알림만)"),
+            "id": anomaly_id,
+            "notification_saved": True,
+            "push_sent": row.push_token is not None,
+            "push_result": push_result
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to send anomaly notification: {e}", exc_info=True)
+        await db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"알림 전송 중 오류가 발생했습니다: {str(e)}"
+        )

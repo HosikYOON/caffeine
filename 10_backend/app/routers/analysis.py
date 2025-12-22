@@ -25,7 +25,7 @@ from app.db.crud import analysis as crud_analysis
 
 
 router = APIRouter(
-    prefix="/api/analysis",
+    prefix="/analysis",
     tags=["analysis"],
     responses={404: {"description": "Not found"}},
 )

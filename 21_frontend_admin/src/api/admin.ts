@@ -24,19 +24,19 @@ export async function getAllUsers() {
 }
 
 export async function getCurrentUser() {
-    return apiClient.get('/users/me');
+    return apiClient.get('/api/users/me');
 }
 
 export async function createUser(userData: { email: string; name: string; password: string }) {
-    return apiClient.post('/users/signup', userData);
+    return apiClient.post('/api/users/signup', userData);
 }
 
 export async function updateUser(userData: { name?: string; email?: string }) {
-    return apiClient.patch('/users/me', userData);
+    return apiClient.patch('/api/users/me', userData);
 }
 
 export async function deleteUser() {
-    return apiClient.delete('/users/me');
+    return apiClient.delete('/api/users/me');
 }
 
 // User Analytics
@@ -50,4 +50,9 @@ export async function getChurnedUsers(days: number = 30) {
 
 export async function getChurnMetrics(churnDays: number = 30, signupDays: number = 30) {
     return apiClient.get(`/api/admin/users/stats/churn-rate?churn_days=${churnDays}&signup_days=${signupDays}`);
+}
+
+// Anomaly Notification API
+export async function notifyAnomaly(anomalyId: number) {
+    return apiClient.post(`/api/anomalies/${anomalyId}/notify`, {});
 }

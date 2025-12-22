@@ -33,12 +33,20 @@ async def get_user_summary(db: AsyncSession, user_id: int, year: Optional[int] =
         logger.warning(f"User Summary Error: {e}")
         return crud_analysis.get_mock_summary()
 
-async def get_user_full_analysis(db: AsyncSession, user_id: int) -> AnalysisResponse:
-    summary = await get_user_summary(db, user_id)
+async def get_user_full_analysis(db: AsyncSession, user_id: int, year: Optional[int] = None, month: Optional[int] = None) -> AnalysisResponse:
+    now = datetime.now()
+    start_date = datetime(year, month, 1) if year and month else now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    
+    summary = await get_user_summary(db, user_id, year, month)
+    
+    # 실제 데이터 집계
+    category_data = await crud_analysis.fetch_category_breakdown(db, user_id, start_date)
+    trend_data = await crud_analysis.fetch_monthly_trend(db, user_id, months=6)
+    
     return AnalysisResponse(
         summary=summary, 
-        category_breakdown=crud_analysis.get_mock_category_breakdown(),
-        monthly_trend=crud_analysis.get_mock_monthly_trend(),
+        category_breakdown=category_data or crud_analysis.get_mock_category_breakdown(),
+        monthly_trend=trend_data,
         insights=crud_analysis.get_mock_insights(),
-        data_source="Hybrid (DB+Mock)"
+        data_source="DB (Individual User)"
     )

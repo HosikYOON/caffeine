@@ -101,8 +101,15 @@ export async function registerForPushNotifications() {
         // AsyncStorage에 저장
         await AsyncStorage.setItem('pushToken', token);
 
-        // TODO: 백엔드로 토큰 전송
-        // await sendPushTokenToBackend(token);
+        // 백엔드로 토큰 전송
+        try {
+            const { registerPushToken } = await import('../api/client');
+            await registerPushToken(token);
+            console.log('✅ Push Token이 백엔드에 등록되었습니다.');
+        } catch (backendError) {
+            // 백엔드 전송 실패해도 앱은 계속 작동 (나중에 재시도 가능)
+            console.warn('⚠️ 백엔드 Push Token 등록 실패 (나중에 재시도):', backendError);
+        }
 
         return token;
     } catch (error) {

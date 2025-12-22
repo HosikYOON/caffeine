@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated } from 'react-native';
+import { Animated, Platform } from 'react-native';
 
 // 단일 아이템에 페이드인 애니메이션 적용
 export default function FadeInView({
@@ -18,13 +18,13 @@ export default function FadeInView({
                 toValue: 1,
                 duration: duration,
                 delay: delay,
-                useNativeDriver: true,
+                useNativeDriver: Platform.OS !== 'web',
             }),
             Animated.timing(slideAnim, {
                 toValue: 0,
                 duration: duration,
                 delay: delay,
-                useNativeDriver: true,
+                useNativeDriver: Platform.OS !== 'web',
             }),
         ]).start();
     }, []);

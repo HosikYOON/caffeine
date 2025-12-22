@@ -3,180 +3,82 @@ from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
-import logging
-from datetime import datetime
 import os
 from dotenv import load_dotenv
 
-# 환경 변수 로드
+# 로컬 모듈 임포트
+from app.core.logging import setup_logging
+from app.core.middleware import security_headers_middleware, audit_log_middleware
+from app.core.lifespan import lifespan
+from app.routers import init_routers
+
+# 환경 변수 및 로깅 초기화
 load_dotenv()
+setup_logging()
 
-# 로거 설정 (라이트 Audit 로그)
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('audit.log'),  # 파일 로깅
-        logging.StreamHandler()             # 콘솔 로깅
-    ]
-)
-logger = logging.getLogger(__name__)
-audit_logger = logging.getLogger('audit')  # Audit 전용 로거
-
-# Rate Limiter 초기화 (slowapi)
+# Rate Limiter 초기화
 limiter = Limiter(key_func=get_remote_address)
 
-# FastAPI 앱 생성
+# FastAPI 앱 생성 (Lifespan 도입)
 app = FastAPI(
     title="Caffeine API",
     description="AI 기반 스마트 금융 관리 앱 백엔드 API",
     version="1.0.0",
-    docs_url="/docs",      # Swagger UI
-    redoc_url="/redoc"     # ReDoc
+    docs_url="/docs",
+    redoc_url="/redoc",
+    lifespan=lifespan
 )
 
-# Rate Limiter를 앱 상태에 연결
+# 기본 설정 주입
 app.state.limiter = limiter
-# Rate Limit 초과 시 에러 핸들러 등록
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# CORS 설정 (Cross-Origin Resource Sharing)
-CLOUDFRONT_URL = "https://d26uyg5darllja.cloudfront.net"
+# 미들웨어 순서대로 등록 (역순으로 쌓임)
+app.middleware("http")(audit_log_middleware)
+app.middleware("http")(security_headers_middleware)
 
-LOCAL_ORIGINS = [
+# 라우터 통합 등록
+init_routers(app)
+
+# CORS 설정
+ALLOWED_ORIGINS = [
+    # Localhost (Dev)
     "http://localhost:3000",
     "http://localhost:3001",
     "http://localhost:8001",
-    "http://localhost:8081",  # Expo Web
+    "http://localhost:8081",
     "http://localhost:8082",
     "http://localhost:8080",
-    "http://localhost:8081",
     "http://localhost:19000",
     "http://localhost:19006",
-    # 127.0.0.1 variants
+    # 127.0.0.1 (Local)
     "http://127.0.0.1:3000",
     "http://127.0.0.1:3001",
     "http://127.0.0.1:8001",
-    "http://127.0.0.1:8081",  # Expo Web
+    "http://127.0.0.1:8081",
     "http://127.0.0.1:8082",
     "http://127.0.0.1:8080",
-    "http://127.0.0.1:8081",
     "http://127.0.0.1:19000",
-    "http://127.0.0.1:19006"
+    "http://127.0.0.1:19006",
+    # Production (CloudFront)
+    "https://d26uyg5darllja.cloudfront.net"
 ]
 
-allowed_origins = LOCAL_ORIGINS + [CLOUDFRONT_URL]
-
-
-# 보안 헤더 미들웨어
-@app.middleware("http")
-async def security_headers_middleware(request: Request, call_next):
-    """
-    모든 응답에 보안 헤더를 추가하는 미들웨어
-    """
-    response = await call_next(request)
-    response.headers["X-Content-Type-Options"] = "nosniff"
-    response.headers["X-Frame-Options"] = "DENY"
-    response.headers["X-XSS-Protection"] = "1; mode=block"
-    return response
-
-# 라이트 Audit 로그 미들웨어
-@app.middleware("http")
-async def audit_log_middleware(request: Request, call_next):
-    """
-    모든 HTTP 요청/응답을 로깅하는 미들웨어
-    """
-    start_time = datetime.utcnow()
-    
-    # 요청 로깅
-    audit_logger.info(
-        f"Request: {request.method} {request.url.path} | "
-        f"Client: {request.client.host if request.client else 'unknown'}"
-    )
-    
-    # 실제 요청 처리
-    response = await call_next(request)
-    
-    # 응답 로깅
-    duration = (datetime.utcnow() - start_time).total_seconds()
-    audit_logger.info(
-        f"Response: {response.status_code} | Duration: {duration:.3f}s"
-    )
-    
-    return response
-
-# 기본 엔드포인트
-@app.get("/")
-async def root():
-    return {
-        "message": "Caffeine API v1.0",
-        "status": "running",
-        "docs": "/docs",
-        "redoc": "/redoc"
-    }
-
-@app.get("/health")
-@limiter.limit("10/minute")
-async def health(request: Request):
-    return {
-        "status": "ok",
-        "timestamp": datetime.utcnow().isoformat()
-    }
-
-# 라우터 등록
-from app.routers import ml, analysis, transactions, user, auth, coupons, settings, reports, anomalies, user_analytics, analytics_demographics
-
-# 라우터 포함 (모든 라우터에 /api 접두사 추가)
-app.include_router(ml.router, prefix="/api")
-app.include_router(analysis.router, prefix="/api")
-app.include_router(transactions.router, prefix="/api")
-app.include_router(user.router, prefix="/api")
-app.include_router(auth.router, prefix="/api")
-app.include_router(coupons.router, prefix="/api")
-
-# 관리자/분석 라우터 추가
-app.include_router(user_analytics.router, prefix="/api")
-app.include_router(analytics_demographics.router, prefix="/api")
-app.include_router(settings.router, prefix="/api")
-app.include_router(reports.router, prefix="/api")
-app.include_router(anomalies.router, prefix="/api")
-
-# CORS 설정을 가장 마지막에 추가하여 outermost 레이어로 만듦
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# 기본 헬스체크 엔드포인트
+@app.get("/")
+async def root():
+    return {"message": "Caffeine API v1.0", "status": "running", "docs": "/docs"}
 
-# 시작 / 종료 이벤트
-@app.on_event("startup")
-async def startup_event():
-    logger.info("=" * 60)
-    logger.info("Caffeine API started")
-    logger.info(f"Environment: {os.getenv('ENVIRONMENT', 'development')}")
-    logger.info(f"CORS Allowed Origins: {allowed_origins}")
-    
-    # 데이터베이스 테이블 생성
-    from app.services.db_init import ensure_database_and_tables
-    await ensure_database_and_tables()
-    
-    # ML 모델 로드
-    from app.services.ml_service import get_ml_service
-    get_ml_service() # 초기화 시 _load_model() 자동 실행됨
-    
-    # 스케줄러 시작 (reports용)
-    from app.services.scheduler import start_scheduler
-    start_scheduler()
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    # 스케줄러 종료
-    from app.services.scheduler import shutdown_scheduler
-    shutdown_scheduler()
-    
-    logger.info("Caffeine API stopped")
-    logger.info("=" * 60)
+@app.get("/health")
+@limiter.limit("10/minute")
+async def health(request: Request):
+    from datetime import datetime
+    return {"status": "ok", "timestamp": datetime.utcnow().isoformat()}

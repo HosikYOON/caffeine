@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Animated, StyleSheet, Text } from 'react-native';
+import { View, Animated, StyleSheet, Text, Platform } from 'react-native';
 import { useTheme } from '../contexts/ThemeContext';
 
 /**
@@ -32,7 +32,7 @@ export default function LoadingSpinner({
             Animated.timing(spinValue, {
                 toValue: 1,
                 duration: 1000,
-                useNativeDriver: true,
+                useNativeDriver: Platform.OS !== 'web',
             })
         ).start();
     }, []);

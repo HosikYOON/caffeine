@@ -24,7 +24,7 @@ async def get_transactions(
     max_amount: Optional[float] = Query(None, description="최대 금액"),
     search: Optional[str] = Query(None, description="검색어 (가맹점명, 메모)"),
     page: int = Query(1, ge=1, description="페이지 번호"),
-    page_size: int = Query(20, ge=1, le=100, description="페이지 크기"),
+    page_size: int = Query(20, ge=1, le=1000000, description="페이지 크기"),
     db: DB_Dependency = None
 ):
     """거래 내역 검색 및 필터링 조회"""

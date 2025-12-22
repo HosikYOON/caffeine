@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 
@@ -154,11 +154,20 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFFFFF',
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: '#2563EB',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.15,
-        shadowRadius: 24,
-        elevation: 8,
+        ...Platform.select({
+            ios: {
+                shadowColor: '#2563EB',
+                shadowOffset: { width: 0, height: 8 },
+                shadowOpacity: 0.15,
+                shadowRadius: 24,
+            },
+            android: {
+                elevation: 8,
+            },
+            web: {
+                boxShadow: '0 8px 24px rgba(37, 99, 235, 0.15)',
+            }
+        })
     },
     icon: {
         fontSize: 56,
@@ -184,11 +193,20 @@ const styles = StyleSheet.create({
     buttonContainer: {
         borderRadius: 16,
         overflow: 'hidden',
-        shadowColor: '#2563EB',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 12,
-        elevation: 6,
+        ...Platform.select({
+            ios: {
+                shadowColor: '#2563EB',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.3,
+                shadowRadius: 12,
+            },
+            android: {
+                elevation: 6,
+            },
+            web: {
+                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)',
+            }
+        })
     },
     button: {
         paddingHorizontal: 32,
