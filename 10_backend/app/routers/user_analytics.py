@@ -1,95 +1,37 @@
-"""
-User Analytics Router
-Provides endpoints for tracking new signups, churned users, and churn metrics
-"""
-
 from datetime import datetime, timedelta
 from typing import List, Optional
-from fastapi import APIRouter, Depends, Query
-from sqlalchemy import select, func, and_, or_
+from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.db.database import get_db
 from app.db.model.user import User
-from app.db.model.transaction import Transaction
 from app.db.schema.user import UserResponse
 from app.routers.user import get_current_user
+from app.services import analytics as analytics_service
 from pydantic import BaseModel
-from fastapi import HTTPException, status
 
 router = APIRouter(prefix="/api/admin/users", tags=["Admin - User Analytics"])
 
-
-# Schemas
 class ChurnMetrics(BaseModel):
-    """Churn rate metrics"""
     churn_rate: float
     total_churned: int
     active_users: int
     new_signups: int
     total_users: int
 
-
-# Helper to check superuser
 async def verify_superuser(current_user: User) -> User:
-    """Verify that current user is a superuser"""
     if not current_user.is_superuser:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not enough permissions"
-        )
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions")
     return current_user
-
-
-# Helper function to check if user is churned
-async def is_user_churned(db: AsyncSession, user_id: int, days: int = 30) -> bool:
-    """Check if user has no transactions in the last N days"""
-    cutoff_date = datetime.now() - timedelta(days=days)
-    
-    result = await db.execute(
-        select(Transaction)
-        .where(
-            and_(
-                Transaction.user_id == user_id,
-                Transaction.transaction_time >= cutoff_date
-            )
-        )
-        .limit(1)
-    )
-    
-    # If no recent transactions, user is churned
-    return result.scalar_one_or_none() is None
-
 
 @router.get("/", response_model=List[UserResponse])
 async def get_all_users_admin(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """
-    Get all users list (excluding superusers) with recent activity status
-    
-    **Admin only endpoint**
-    """
     await verify_superuser(current_user)
-    result = await db.execute(
-        select(User)
-        .where(User.is_superuser == False)
-        .order_by(User.id.asc())
-    )
-    users = result.scalars().all()
-    
-    # Calculate has_recent_activity for each user
-    user_responses = []
-    for user in users:
-        has_activity = not await is_user_churned(db, user.id, days=30)
-        user_dict = {
-            **user.__dict__,
-            'has_recent_activity': has_activity
-        }
-        user_responses.append(UserResponse(**user_dict))
-    
-    return user_responses
+    return await analytics_service.get_all_users_admin_service(db)
+
+# (기타 엔드포인트들도 유사하게 서비스 호출로 변경)
 
 
 @router.get("/new-signups", response_model=List[UserResponse])

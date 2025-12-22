@@ -162,7 +162,8 @@ async def startup_event():
     await ensure_database_and_tables()
     
     # ML 모델 로드
-    ml.load_model()
+    from app.services.ml_service import get_ml_service
+    get_ml_service() # 초기화 시 _load_model() 자동 실행됨
     
     # 스케줄러 시작 (reports용)
     from app.services.scheduler import start_scheduler
