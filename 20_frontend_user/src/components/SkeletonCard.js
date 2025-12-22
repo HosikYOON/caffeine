@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Animated } from 'react-native';
+import { View, StyleSheet, Animated, Platform } from 'react-native';
 import { useTheme } from '../contexts/ThemeContext';
 
+// 스켈레톤 카드 컴포넌트
 export function SkeletonCard() {
     const { colors } = useTheme();
     const opacity = useRef(new Animated.Value(0.3)).current;
@@ -12,12 +13,12 @@ export function SkeletonCard() {
                 Animated.timing(opacity, {
                     toValue: 0.7,
                     duration: 700,
-                    useNativeDriver: true,
+                    useNativeDriver: Platform.OS !== 'web',
                 }),
                 Animated.timing(opacity, {
                     toValue: 0.3,
                     duration: 700,
-                    useNativeDriver: true,
+                    useNativeDriver: Platform.OS !== 'web',
                 }),
             ])
         ).start();
@@ -32,6 +33,7 @@ export function SkeletonCard() {
     );
 }
 
+// 스켈레톤 리스트 컴포넌트
 export function SkeletonList({ count = 3 }) {
     return (
         <View>
@@ -53,12 +55,12 @@ export function SkeletonChart() {
                 Animated.timing(opacity, {
                     toValue: 0.7,
                     duration: 700,
-                    useNativeDriver: true,
+                    useNativeDriver: Platform.OS !== 'web',
                 }),
                 Animated.timing(opacity, {
                     toValue: 0.3,
                     duration: 700,
-                    useNativeDriver: true,
+                    useNativeDriver: Platform.OS !== 'web',
                 }),
             ])
         ).start();
@@ -83,12 +85,12 @@ export function SkeletonTransaction() {
                 Animated.timing(opacity, {
                     toValue: 0.7,
                     duration: 700,
-                    useNativeDriver: true,
+                    useNativeDriver: Platform.OS !== 'web',
                 }),
                 Animated.timing(opacity, {
                     toValue: 0.3,
                     duration: 700,
-                    useNativeDriver: true,
+                    useNativeDriver: Platform.OS !== 'web',
                 }),
             ])
         ).start();
@@ -116,12 +118,12 @@ export function SkeletonStats() {
                 Animated.timing(opacity, {
                     toValue: 0.7,
                     duration: 700,
-                    useNativeDriver: true,
+                    useNativeDriver: Platform.OS !== 'web',
                 }),
                 Animated.timing(opacity, {
                     toValue: 0.3,
                     duration: 700,
-                    useNativeDriver: true,
+                    useNativeDriver: Platform.OS !== 'web',
                 }),
             ])
         ).start();

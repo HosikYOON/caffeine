@@ -1,0 +1,1092 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Modal } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Feather } from '@expo/vector-icons';
+import { useTheme } from '../contexts/ThemeContext';
+import FadeInView from '../components/FadeInView';
+
+// 잠깐만AI 챗봇
+export default function MoreScreen({ navigation, route }) {
+    const { colors } = useTheme();
+    const [chatStarted, setChatStarted] = useState(false);
+    const [messages, setMessages] = useState([]);
+    const [inputText, setInputText] = useState('');
+    const [isTyping, setIsTyping] = useState(false); // Typing Indicator State
+    const scrollViewRef = useRef();
+    // 잠깐만AI 난이도 상태 (상/중/하)
+    const [naggingLevel, setNaggingLevel] = useState('중');
+
+    // 대시보드에서 "잠깐만" 버튼 누르면 바로 챗봇 시작
+    useEffect(() => {
+        if (route?.params?.openChat) {
+            startChat();
+            // 파라미터 초기화 (뒤로가기 후 다시 올 때를 위해)
+            navigation?.setParams({ openChat: false });
+        }
+    }, [route?.params?.openChat]);
+
+    // 난이도별 챗봇 응답 (잠깐만AI 스타일)
+    const getChatbotResponse = (userMessage) => {
+        const responses = {
+            '상': [
+                "🔥 또 배달 시켰어요?! 한 달에 배달비만 10만원이에요! 당장 그만두세요!",
+                "😤 카페 지출 보세요! 이러다 집 한 채 값 다 써요! 텀블러 들고 다니세요!",
+                "⚡ 충동구매 그만해요! 장바구니에 24시간 두고 다시 생각하세요! 지금 당장!",
+                "🚨 저축 비율이 뭐예요?! 급여의 30%는 무조건 저축! 오늘부터 시작!",
+                "💢 쇼핑 중독이에요?! 이번 달 쇼핑 예산 다 썼어요! 손 떼세요!",
+                "😡 외식비가 월급의 절반이에요! 도시락 싸세요! 변명 듣기 싫어요!",
+            ],
+            '중': [
+                "이번 달 카페 지출이 너무 많아요! 커피 한 잔 줄이면 한 달에 5만원 절약할 수 있어요 ☕",
+                "배달앱 사용이 잦네요. 직접 요리하면 건강도 챙기고 돈도 아낄 수 있어요! 🍳",
+                "쇼핑 지출이 평균보다 30% 높아요. 정말 필요한 건지 다시 생각해보세요 🛍️",
+                "저축 비율이 낮아요! 급여의 20%는 먼저 저축하는 습관을 들여보세요 💰",
+                "외식비가 많이 나가고 있어요. 도시락 싸가면 한 달에 20만원은 절약됩니다! 🍱",
+                "구독 서비스가 많네요. 안 쓰는 구독은 과감히 해지하세요! 📺",
+            ],
+            '하': [
+                "혹시 커피 지출을 조금 줄여보시는 건 어떨까요? 작은 변화도 도움이 돼요 😊",
+                "배달 대신 가끔 직접 요리해보시는 것도 좋을 것 같아요~ 🍳",
+                "쇼핑 전에 한 번 더 생각해보시면 좋겠어요. 천천히 결정하셔도 돼요! 💭",
+                "저축을 조금씩 시작해보시는 건 어떨까요? 부담 없이 시작해보세요 🌱",
+                "외식도 좋지만, 가끔은 집밥도 좋답니다~ 건강에도 좋아요! 🏠",
+                "지출 패턴을 한 번 돌아보시는 것도 좋을 것 같아요. 화이팅! 💪",
+            ]
+        };
+
+        const levelResponses = responses[naggingLevel] || responses['중'];
+        return levelResponses[Math.floor(Math.random() * levelResponses.length)];
+    };
+
+    // 챗봇 시작
+    const startChat = () => {
+        setChatStarted(true);
+        setMessages([
+            {
+                id: 1,
+                type: 'bot',
+                text: '안녕하세요! 저는 소비 습관 개선을 도와주는 잠깐만 AI예요 🤖\n\n궁금한 점이나 상담하고 싶은 내용을 말씀해주세요!',
+                time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+            }
+        ]);
+    };
+
+    const sendMessage = async () => {
+        if (!inputText.trim()) return;
+
+        const userMessage = {
+            id: messages.length + 1,
+            type: 'user',
+            text: inputText,
+            time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+        };
+
+        setMessages(prev => [...prev, userMessage]);
+        setInputText('');
+        setIsTyping(true); // Show typing indicator
+
+        try {
+            // Call Backend API
+            const response = await fetch('http://localhost:8001/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: userMessage.text,
+                    naggingLevel: naggingLevel
+                }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                const botMessage = {
+                    id: messages.length + 2,
+                    type: 'bot',
+                    text: data.reply,
+                    time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+                };
+                setMessages(prev => [...prev, botMessage]);
+            } else {
+                throw new Error('API Error');
+            }
+        } catch (error) {
+            console.error('Chat Error:', error);
+            const errorMessage = {
+                id: messages.length + 2,
+                type: 'bot',
+                text: "죄송해요, 잠시 연결이 불안정하네요. 다시 말씀해주시겠어요? 😥",
+                time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+            };
+            setMessages(prev => [...prev, errorMessage]);
+        } finally {
+            setIsTyping(false); // Hide typing indicator
+        }
+    };
+    // 예산 설정 모달 상태
+    const [budgetModalVisible, setBudgetModalVisible] = useState(false);
+    const [monthlyBudget, setMonthlyBudget] = useState('0');
+    const [categoryBudgets, setCategoryBudgets] = useState({
+        '식비': '0',
+        '교통': '0',
+        '쇼핑': '0',
+        '여가': '0',
+        '기타': '0'
+    });
+
+    // 고객센터 Q&A 모달 상태
+    const [qnaModalVisible, setQnaModalVisible] = useState(false);
+    const [expandedQna, setExpandedQna] = useState(null);
+
+    // Q&A 데이터
+    const qnaData = [
+        {
+            id: 1,
+            question: '잠깐만 AI는 무엇인가요?',
+            answer: '잠깐만 AI는 AI 잔소리 모드입니다! 소비 습관에 대해 따끔하게 조언해주는 챗봇이에요. 난이도를 상/중/하로 설정하면 잔소리 강도를 조절할 수 있습니다. 더보기 화면에서 "잠깐만 AI" 버튼을 눌러 시작해보세요!'
+        },
+        {
+            id: 2,
+            question: '거래 내역은 어떻게 동기화하나요?',
+            answer: '더보기 → 프로필 → 데이터 동기화에서 CSV 파일을 업로드하면 됩니다. 카드사 앱에서 내보내기한 CSV 파일을 사용해주세요.'
+        },
+        {
+            id: 3,
+            question: '이상 거래 알림은 어떻게 확인하나요?',
+            answer: '대시보드 상단에 빨간색 알림 카드로 표시됩니다. AI가 평소와 다른 소비 패턴을 감지하면 자동으로 알려드립니다.'
+        },
+        {
+            id: 4,
+            question: '다크모드는 어디서 설정하나요?',
+            answer: '더보기 → 설정 → 다크모드에서 on/off 할 수 있습니다.'
+        },
+        {
+            id: 5,
+            question: '쿠폰은 어떻게 사용하나요?',
+            answer: '쿠폰함에서 사용할 쿠폰을 선택하고 "사용하기" 버튼을 누르면 됩니다. 한 번에 1개 쿠폰만 선택 가능합니다.'
+        },
+        {
+            id: 6,
+            question: '예산 설정은 어떻게 하나요?',
+            answer: '더보기 → 예산 설정에서 월별 총 예산과 카테고리별 예산을 설정할 수 있습니다.'
+        },
+        {
+            id: 7,
+            question: '데이터를 초기화하고 싶어요',
+            answer: '더보기 → 프로필 → 거래 데이터 초기화에서 모든 데이터를 삭제할 수 있습니다. 이 작업은 되돌릴 수 없으니 신중하게 결정해주세요.'
+        }
+    ];
+
+    // 예산 저장 버튼
+    const handleSaveBudget = () => {
+        // TODO: 백엔드 연결 시 저장 API 호출
+        alert(`✅ 예산이 저장되었습니다!\n\n월 예산: ${Number(monthlyBudget).toLocaleString()}원`);
+        setBudgetModalVisible(false);
+    };
+
+    // 예산 초기화 버튼
+    const handleResetBudget = () => {
+        setMonthlyBudget('0');
+        setCategoryBudgets({
+            '식비': '0',
+            '교통': '0',
+            '쇼핑': '0',
+            '여가': '0',
+            '기타': '0'
+        });
+    };
+
+    // 메뉴 아이템
+    const menuItems = [
+        {
+            title: '지출 분석',
+            description: '월별/카테고리별 상세 분석',
+            icon: 'bar-chart-2',
+            color: '#10B981',
+            bgColor: '#D1FAE5',
+            onPress: () => navigation?.navigate('분석')
+        },
+        {
+            title: '예산 설정',
+            description: '월별 예산 목표 설정',
+            icon: 'target',
+            color: '#8B5CF6',
+            bgColor: '#EDE9FE',
+            onPress: () => setBudgetModalVisible(true)
+        },
+        {
+            title: '고객센터',
+            description: '자주 묻는 질문 (Q&A)',
+            icon: 'help-circle',
+            color: '#6B7280',
+            bgColor: '#F3F4F6',
+            onPress: () => setQnaModalVisible(true)
+        },
+    ];
+
+    const profileItems = [
+        {
+            title: '프로필',
+            description: '계정 정보, 데이터 동기화',
+            icon: 'user',
+            color: '#3B82F6',
+            bgColor: '#DBEAFE',
+            onPress: () => navigation?.navigate('프로필')
+        },
+    ];
+
+    const settingsItems = [
+        {
+            title: '앱 설정',
+            description: '테마, 알림, 보안 설정',
+            icon: 'settings',
+            color: '#6366F1',
+            bgColor: '#E0E7FF',
+            onPress: () => navigation?.navigate('설정')
+        },
+    ];
+
+    // 챗봇 화면
+    if (chatStarted) {
+        return (
+            <LinearGradient colors={colors.screenGradient} style={styles.container}>
+                {/* 챗봇 헤더 */}
+                <View style={[styles.chatHeader, { backgroundColor: colors.cardBackground }]}>
+                    <TouchableOpacity onPress={() => setChatStarted(false)} style={styles.backButton}>
+                        <Feather name="arrow-left" size={24} color={colors.text} />
+                    </TouchableOpacity>
+                    <View style={styles.chatHeaderInfo}>
+                        <View style={styles.chatBotAvatar}>
+                            <Feather name="message-circle" size={20} color="#6366F1" />
+                        </View>
+                        <View>
+                            <Text style={[styles.chatBotName, { color: colors.text }]}>잠깐만 AI</Text>
+                            <Text style={[styles.chatBotStatus, { color: colors.textSecondary }]}>난이도: {naggingLevel}</Text>
+                        </View>
+                    </View>
+                </View>
+
+                {/* 난이도 선택 UI */}
+                <View style={[styles.levelSelector, { backgroundColor: colors.cardBackground }]}>
+                    <Text style={[styles.levelLabel, { color: colors.textSecondary }]}>잠깐만 강도:</Text>
+                    <View style={styles.levelButtons}>
+                        {['하', '중', '상'].map((level) => (
+                            <TouchableOpacity
+                                key={level}
+                                style={[
+                                    styles.levelButton,
+                                    naggingLevel === level && styles.levelButtonActive,
+                                    level === '상' && naggingLevel === level && styles.levelButtonHigh,
+                                    level === '하' && naggingLevel === level && styles.levelButtonLow,
+                                ]}
+                                onPress={() => setNaggingLevel(level)}
+                            >
+                                <Text style={[
+                                    styles.levelButtonText,
+                                    naggingLevel === level && styles.levelButtonTextActive
+                                ]}>
+                                    {level === '상' ? '🔥 상' : level === '중' ? '💬 중' : '😊 하'}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                </View>
+
+                {/* 메시지 리스트 */}
+                <ScrollView
+                    ref={scrollViewRef}
+                    style={styles.messageList}
+                    onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+                >
+                    {messages.map((message) => (
+                        <View
+                            key={message.id}
+                            style={[
+                                styles.messageBubble,
+                                message.type === 'user' ? styles.userBubble : styles.botBubble,
+                                message.type === 'user'
+                                    ? { backgroundColor: '#6366F1' }
+                                    : { backgroundColor: colors.cardBackground }
+                            ]}
+                        >
+                            <Text style={[
+                                styles.messageText,
+                                { color: message.type === 'user' ? '#FFFFFF' : colors.text }
+                            ]}>
+                                {message.text}
+                            </Text>
+                            <Text style={[
+                                styles.messageTime,
+                                { color: message.type === 'user' ? 'rgba(255,255,255,0.7)' : colors.textSecondary }
+                            ]}>
+                                {message.time}
+                            </Text>
+                        </View>
+                    ))}
+                    {/* Typing Indicator */}
+                    {isTyping && (
+                        <View style={[styles.messageBubble, styles.botBubble, { backgroundColor: colors.cardBackground }]}>
+                            <Text style={[styles.messageText, { color: colors.textSecondary, fontStyle: 'italic' }]}>
+                                AI가 생각 중... 💬
+                            </Text>
+                        </View>
+                    )}
+                    <View style={{ height: 20 }} />
+                </ScrollView>
+
+                {/* 입력창 */}
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    style={[styles.inputContainer, { backgroundColor: colors.cardBackground }]}
+                >
+                    <TextInput
+                        style={[styles.textInput, { color: colors.text, backgroundColor: colors.background }]}
+                        placeholder="메시지를 입력하세요..."
+                        placeholderTextColor={colors.textSecondary}
+                        value={inputText}
+                        onChangeText={setInputText}
+                        onSubmitEditing={sendMessage}
+                    />
+                    <TouchableOpacity
+                        style={styles.sendButton}
+                        onPress={sendMessage}
+                    >
+                        <LinearGradient
+                            colors={['#6366F1', '#4F46E5']}
+                            style={styles.sendButtonGradient}
+                        >
+                            <Feather name="send" size={20} color="#FFFFFF" />
+                        </LinearGradient>
+                    </TouchableOpacity>
+                </KeyboardAvoidingView>
+            </LinearGradient>
+        );
+    }
+
+    // 기본 더보기 화면
+    return (
+        <LinearGradient colors={colors.screenGradient} style={styles.container}>
+            <ScrollView showsVerticalScrollIndicator={false}>
+                <FadeInView style={styles.header} delay={0}>
+                    <Text style={[styles.title, { color: colors.text }]}>더보기</Text>
+                    <Text style={[styles.subtitle, { color: colors.textSecondary }]}>추가 기능을 이용해보세요</Text>
+                </FadeInView>
+
+                {/* 잠깐만 AI 시작 버튼 */}
+                <FadeInView style={styles.chatSection} delay={50}>
+                    <TouchableOpacity
+                        style={styles.startChatButton}
+                        onPress={startChat}
+                        activeOpacity={0.8}
+                    >
+                        <LinearGradient
+                            colors={['#6366F1', '#4F46E5']}
+                            style={styles.startChatGradient}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                        >
+                            <View style={styles.chatIconContainer}>
+                                <Feather name="message-circle" size={32} color="#FFFFFF" />
+                            </View>
+                            <View style={styles.chatTextContainer}>
+                                <Text style={styles.chatButtonTitle}>🤖 잠깐만 AI</Text>
+                                <Text style={styles.chatButtonDesc}>AI와 소비 습관에 대해 상담해보세요</Text>
+                            </View>
+                            <Feather name="chevron-right" size={24} color="#FFFFFF" />
+                        </LinearGradient>
+                    </TouchableOpacity>
+                </FadeInView>
+
+                <FadeInView style={styles.menuSection} delay={100}>
+                    {menuItems.map((item, index) => (
+                        <TouchableOpacity
+                            key={index}
+                            style={[styles.menuItem, { backgroundColor: colors.cardBackground }]}
+                            onPress={item.onPress}
+                            activeOpacity={0.7}
+                        >
+                            <View style={[styles.menuIcon, { backgroundColor: item.bgColor }]}>
+                                <Feather name={item.icon} size={24} color={item.color} />
+                            </View>
+                            <View style={styles.menuContent}>
+                                <Text style={[styles.menuTitle, { color: colors.text }]}>{item.title}</Text>
+                                <Text style={[styles.menuDesc, { color: colors.textSecondary }]}>{item.description}</Text>
+                            </View>
+                            <Feather name="chevron-right" size={20} color={colors.textSecondary} />
+                        </TouchableOpacity>
+                    ))}
+                </FadeInView>
+
+                {/* 프로필 섹션 */}
+                <FadeInView style={styles.menuSection} delay={150}>
+                    <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>프로필</Text>
+                    {profileItems.map((item, index) => (
+                        <TouchableOpacity
+                            key={index}
+                            style={[styles.menuItem, { backgroundColor: colors.cardBackground }]}
+                            onPress={item.onPress}
+                            activeOpacity={0.7}
+                        >
+                            <View style={[styles.menuIcon, { backgroundColor: item.bgColor }]}>
+                                <Feather name={item.icon} size={24} color={item.color} />
+                            </View>
+                            <View style={styles.menuContent}>
+                                <Text style={[styles.menuTitle, { color: colors.text }]}>{item.title}</Text>
+                                <Text style={[styles.menuDesc, { color: colors.textSecondary }]}>{item.description}</Text>
+                            </View>
+                            <Feather name="chevron-right" size={20} color={colors.textSecondary} />
+                        </TouchableOpacity>
+                    ))}
+                </FadeInView>
+
+                {/* 설정 섹션 */}
+                <FadeInView style={styles.menuSection} delay={200}>
+                    <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>설정</Text>
+                    {settingsItems.map((item, index) => (
+                        <TouchableOpacity
+                            key={index}
+                            style={[styles.menuItem, { backgroundColor: colors.cardBackground }]}
+                            onPress={item.onPress}
+                            activeOpacity={0.7}
+                        >
+                            <View style={[styles.menuIcon, { backgroundColor: item.bgColor }]}>
+                                <Feather name={item.icon} size={24} color={item.color} />
+                            </View>
+                            <View style={styles.menuContent}>
+                                <Text style={[styles.menuTitle, { color: colors.text }]}>{item.title}</Text>
+                                <Text style={[styles.menuDesc, { color: colors.textSecondary }]}>{item.description}</Text>
+                            </View>
+                            <Feather name="chevron-right" size={20} color={colors.textSecondary} />
+                        </TouchableOpacity>
+                    ))}
+                </FadeInView>
+
+                <FadeInView style={styles.versionSection} delay={250}>
+                    <Text style={styles.versionText}>앱 버전 1.0.0</Text>
+                </FadeInView>
+
+                <View style={{ height: 100 }} />
+            </ScrollView>
+
+            {/* 예산 설정 모달 */}
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={budgetModalVisible}
+                onRequestClose={() => setBudgetModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
+                        <View style={styles.modalHandle} />
+                        <Text style={[styles.modalTitle, { color: colors.text }]}>💰 예산 설정</Text>
+
+                        {/* 월 예산 */}
+                        <View style={styles.budgetSection}>
+                            <Text style={[styles.budgetLabel, { color: colors.text }]}>월 총 예산</Text>
+                            <View style={[styles.budgetInputContainer, { backgroundColor: colors.background }]}>
+                                <TextInput
+                                    style={[styles.budgetInput, { color: colors.text }]}
+                                    value={monthlyBudget}
+                                    onChangeText={(value) => {
+                                        // 앞의 0 제거 (빈 값이면 0으로)
+                                        const cleaned = value.replace(/^0+/, '') || '0';
+                                        setMonthlyBudget(cleaned);
+                                    }}
+                                    keyboardType="numeric"
+                                    placeholder="1,000,000"
+                                    placeholderTextColor={colors.textSecondary}
+                                />
+                                <Text style={[styles.budgetUnit, { color: colors.textSecondary }]}>원</Text>
+                            </View>
+                        </View>
+
+                        {/* 카테고리별 예산 */}
+                        <Text style={[styles.budgetSubtitle, { color: colors.textSecondary }]}>카테고리별 예산</Text>
+                        <ScrollView style={styles.categoryBudgetList} showsVerticalScrollIndicator={false}>
+                            {Object.entries(categoryBudgets).map(([category, budget]) => (
+                                <View key={category} style={styles.categoryBudgetRow}>
+                                    <Text style={[styles.categoryName, { color: colors.text }]}>{category}</Text>
+                                    <View style={[styles.categoryInputContainer, { backgroundColor: colors.background }]}>
+                                        <TextInput
+                                            style={[styles.categoryInput, { color: colors.text }]}
+                                            value={budget}
+                                            onChangeText={(value) => {
+                                                // 앞의 0 제거 (빈 값이면 0으로)
+                                                const cleaned = value.replace(/^0+/, '') || '0';
+                                                setCategoryBudgets(prev => ({ ...prev, [category]: cleaned }));
+                                            }}
+                                            keyboardType="numeric"
+                                        />
+                                        <Text style={[styles.budgetUnit, { color: colors.textSecondary }]}>원</Text>
+                                    </View>
+                                </View>
+                            ))}
+                        </ScrollView>
+
+                        {/* 초기화 버튼 */}
+                        <TouchableOpacity
+                            style={styles.resetBudgetButton}
+                            onPress={handleResetBudget}
+                        >
+                            <Text style={styles.resetBudgetButtonText}>🔄 전체 초기화</Text>
+                        </TouchableOpacity>
+
+                        <View style={styles.modalButtons}>
+                            <TouchableOpacity
+                                style={styles.cancelButton}
+                                onPress={() => setBudgetModalVisible(false)}
+                            >
+                                <Text style={styles.cancelButtonText}>취소</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.saveButton}
+                                onPress={handleSaveBudget}
+                            >
+                                <LinearGradient colors={['#8B5CF6', '#7C3AED']} style={styles.saveButtonGradient}>
+                                    <Text style={styles.saveButtonText}>저장</Text>
+                                </LinearGradient>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* Q&A 모달 */}
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={qnaModalVisible}
+                onRequestClose={() => setQnaModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, { backgroundColor: colors.cardBackground, maxHeight: '85%' }]}>
+                        <View style={styles.modalHandle} />
+                        <Text style={[styles.modalTitle, { color: colors.text }]}>❓ 자주 묻는 질문</Text>
+
+                        <ScrollView style={styles.qnaList} showsVerticalScrollIndicator={false}>
+                            {qnaData.map((item) => (
+                                <TouchableOpacity
+                                    key={item.id}
+                                    style={[
+                                        styles.qnaItem,
+                                        { backgroundColor: colors.background },
+                                        expandedQna === item.id && styles.qnaItemExpanded
+                                    ]}
+                                    onPress={() => setExpandedQna(expandedQna === item.id ? null : item.id)}
+                                    activeOpacity={0.7}
+                                >
+                                    <View style={styles.qnaHeader}>
+                                        <View style={styles.qnaQuestion}>
+                                            <Text style={styles.qnaIcon}>Q</Text>
+                                            <Text style={[styles.qnaQuestionText, { color: colors.text }]}>
+                                                {item.question}
+                                            </Text>
+                                        </View>
+                                        <Feather
+                                            name={expandedQna === item.id ? "chevron-up" : "chevron-down"}
+                                            size={20}
+                                            color={colors.textSecondary}
+                                        />
+                                    </View>
+                                    {expandedQna === item.id && (
+                                        <View style={styles.qnaAnswer}>
+                                            <Text style={styles.qnaAnswerIcon}>A</Text>
+                                            <Text style={[styles.qnaAnswerText, { color: colors.textSecondary }]}>
+                                                {item.answer}
+                                            </Text>
+                                        </View>
+                                    )}
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
+
+                        <TouchableOpacity
+                            style={styles.closeQnaButton}
+                            onPress={() => setQnaModalVisible(false)}
+                        >
+                            <Text style={styles.closeQnaButtonText}>닫기</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+        </LinearGradient>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
+    header: {
+        paddingHorizontal: 24,
+        paddingTop: 16,
+        paddingBottom: 24,
+    },
+    title: {
+        fontSize: 28,
+        fontWeight: '700',
+        color: '#1F2937',
+        fontFamily: 'Inter_700Bold',
+    },
+    subtitle: {
+        fontSize: 14,
+        color: '#6B7280',
+        marginTop: 4,
+    },
+    sectionTitle: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: '#6B7280',
+        marginBottom: 12,
+        marginLeft: 4,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+    },
+
+    // 챗봇 시작 버튼
+    chatSection: {
+        paddingHorizontal: 16,
+        marginBottom: 16,
+    },
+    startChatButton: {
+        borderRadius: 20,
+        overflow: 'hidden',
+        shadowColor: '#6366F1',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 12,
+        elevation: 8,
+    },
+    startChatGradient: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 20,
+    },
+    chatIconContainer: {
+        width: 56,
+        height: 56,
+        borderRadius: 16,
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 16,
+    },
+    chatTextContainer: {
+        flex: 1,
+    },
+    chatButtonTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#FFFFFF',
+        marginBottom: 4,
+    },
+    chatButtonDesc: {
+        fontSize: 13,
+        color: 'rgba(255,255,255,0.8)',
+    },
+
+    // 메뉴
+    menuSection: {
+        paddingHorizontal: 16,
+    },
+    menuItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.06,
+        shadowRadius: 8,
+        elevation: 3,
+    },
+    menuIcon: {
+        width: 48,
+        height: 48,
+        borderRadius: 14,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 16,
+    },
+    menuContent: {
+        flex: 1,
+    },
+    menuTitle: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#1F2937',
+        marginBottom: 2,
+    },
+    menuDesc: {
+        fontSize: 13,
+        color: '#6B7280',
+    },
+    versionSection: {
+        alignItems: 'center',
+        paddingTop: 32,
+    },
+    versionText: {
+        fontSize: 12,
+        color: '#9CA3AF',
+    },
+
+    // 챗봇 화면
+    chatHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(0,0,0,0.05)',
+    },
+    backButton: {
+        padding: 8,
+        marginRight: 8,
+    },
+    chatHeaderInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    chatBotAvatar: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: '#E0E7FF',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
+    },
+    chatBotName: {
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    chatBotStatus: {
+        fontSize: 12,
+    },
+    messageList: {
+        flex: 1,
+        paddingHorizontal: 16,
+        paddingTop: 16,
+    },
+    messageBubble: {
+        maxWidth: '80%',
+        padding: 14,
+        borderRadius: 20,
+        marginBottom: 12,
+    },
+    userBubble: {
+        alignSelf: 'flex-end',
+        borderBottomRightRadius: 4,
+    },
+    botBubble: {
+        alignSelf: 'flex-start',
+        borderBottomLeftRadius: 4,
+    },
+    messageText: {
+        fontSize: 15,
+        lineHeight: 22,
+    },
+    messageTime: {
+        fontSize: 11,
+        marginTop: 6,
+        textAlign: 'right',
+    },
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(0,0,0,0.05)',
+    },
+    textInput: {
+        flex: 1,
+        height: 44,
+        borderRadius: 22,
+        paddingHorizontal: 16,
+        fontSize: 15,
+        marginRight: 12,
+    },
+    sendButton: {
+        borderRadius: 22,
+        overflow: 'hidden',
+    },
+    sendButtonGradient: {
+        width: 44,
+        height: 44,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    // 난이도 선택 UI 스타일
+    levelSelector: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(0,0,0,0.05)',
+    },
+    levelLabel: {
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    levelButtons: {
+        flexDirection: 'row',
+        gap: 8,
+    },
+    levelButton: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 16,
+        backgroundColor: '#F3F4F6',
+        borderWidth: 2,
+        borderColor: 'transparent',
+    },
+    levelButtonActive: {
+        backgroundColor: '#E0E7FF',
+        borderColor: '#6366F1',
+    },
+    levelButtonHigh: {
+        backgroundColor: '#FEE2E2',
+        borderColor: '#EF4444',
+    },
+    levelButtonLow: {
+        backgroundColor: '#D1FAE5',
+        borderColor: '#10B981',
+    },
+    levelButtonText: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#6B7280',
+    },
+    levelButtonTextActive: {
+        color: '#1F2937',
+    },
+
+    // 모달 공통 스타일
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'flex-end',
+    },
+    modalContent: {
+        backgroundColor: '#FFFFFF',
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        padding: 24,
+        maxHeight: '80%',
+    },
+    modalHandle: {
+        width: 40,
+        height: 4,
+        backgroundColor: '#E5E7EB',
+        borderRadius: 2,
+        alignSelf: 'center',
+        marginBottom: 20,
+    },
+    modalTitle: {
+        fontSize: 22,
+        fontWeight: '700',
+        color: '#1F2937',
+        marginBottom: 20,
+        textAlign: 'center',
+    },
+
+    // 예산 설정 모달 스타일
+    budgetSection: {
+        marginBottom: 20,
+    },
+    budgetLabel: {
+        fontSize: 16,
+        fontWeight: '600',
+        marginBottom: 10,
+    },
+    budgetInputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderRadius: 12,
+        padding: 16,
+        borderWidth: 2,
+        borderColor: '#8B5CF6',
+    },
+    budgetInput: {
+        flex: 1,
+        fontSize: 24,
+        fontWeight: '700',
+        padding: 0,
+    },
+    budgetUnit: {
+        fontSize: 18,
+        fontWeight: '600',
+        marginLeft: 8,
+    },
+    budgetSubtitle: {
+        fontSize: 14,
+        fontWeight: '600',
+        marginBottom: 12,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+    },
+    categoryBudgetList: {
+        maxHeight: 200,
+        marginBottom: 20,
+    },
+    categoryBudgetRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 12,
+    },
+    categoryName: {
+        fontSize: 15,
+        fontWeight: '500',
+        width: 60,
+    },
+    categoryInputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderRadius: 10,
+        padding: 10,
+        flex: 1,
+        marginLeft: 16,
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+    },
+    categoryInput: {
+        flex: 1,
+        fontSize: 16,
+        fontWeight: '600',
+        padding: 0,
+        textAlign: 'right',
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        gap: 12,
+    },
+    cancelButton: {
+        flex: 1,
+        padding: 8,
+        borderRadius: 12,
+        backgroundColor: '#F3F4F6',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    cancelButtonText: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: '#6B7280',
+    },
+    saveButton: {
+        flex: 1,
+        borderRadius: 12,
+        overflow: 'hidden',
+    },
+    saveButtonGradient: {
+        padding: 14,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    saveButtonText: {
+        fontSize: 15,
+        fontWeight: '700',
+        color: '#FFFFFF',
+    },
+    resetBudgetButton: {
+        padding: 12,
+        borderRadius: 10,
+        backgroundColor: '#FEF3C7',
+        alignItems: 'center',
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: '#FCD34D',
+    },
+    resetBudgetButtonText: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#D97706',
+    },
+
+    // Q&A 모달 스타일
+    qnaList: {
+        marginBottom: 20,
+    },
+    qnaItem: {
+        borderRadius: 12,
+        padding: 16,
+        marginBottom: 10,
+    },
+    qnaItemExpanded: {
+        borderWidth: 1,
+        borderColor: '#6366F1',
+    },
+    qnaHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    qnaQuestion: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        flex: 1,
+        marginRight: 10,
+    },
+    qnaIcon: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: '#FFFFFF',
+        backgroundColor: '#6366F1',
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        textAlign: 'center',
+        lineHeight: 24,
+        marginRight: 10,
+    },
+    qnaQuestionText: {
+        fontSize: 15,
+        fontWeight: '500',
+        flex: 1,
+        lineHeight: 22,
+    },
+    qnaAnswer: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        marginTop: 12,
+        paddingTop: 12,
+        borderTopWidth: 1,
+        borderTopColor: '#E5E7EB',
+    },
+    qnaAnswerIcon: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: '#FFFFFF',
+        backgroundColor: '#10B981',
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        textAlign: 'center',
+        lineHeight: 24,
+        marginRight: 10,
+    },
+    qnaAnswerText: {
+        fontSize: 14,
+        flex: 1,
+        lineHeight: 22,
+    },
+    closeQnaButton: {
+        padding: 16,
+        borderRadius: 12,
+        backgroundColor: '#6366F1',
+        alignItems: 'center',
+    },
+    closeQnaButtonText: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#FFFFFF',
+    },
+});

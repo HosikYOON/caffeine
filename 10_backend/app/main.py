@@ -83,9 +83,11 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 CLOUDFRONT_URL = "https://d26uyg5darllja.cloudfront.net"
 
 LOCAL_ORIGINS = [
+    # Localhost (Dev)
     "http://localhost:3000",
     "http://localhost:3001",
     "http://localhost:8001",
+    "http://localhost:8081",
     "http://localhost:8082",
     "http://localhost:8080",
     "http://localhost:19000",
@@ -100,7 +102,17 @@ LOCAL_ORIGINS = [
     "http://127.0.0.1:19006"
 ]
 
-allowed_origins = LOCAL_ORIGINS + [CLOUDFRONT_URL]
+CUSTOM_DOMAINS = [
+    "https://caffeineai.net",
+    "https://admin.caffeineai.net",
+    "https://api.caffeineai.net",
+    # Trailing slash versions for safety
+    "https://caffeineai.net/",
+    "https://admin.caffeineai.net/",
+    "https://api.caffeineai.net/",
+]
+
+allowed_origins = LOCAL_ORIGINS + [CLOUDFRONT_URL] + CUSTOM_DOMAINS
 
 app.add_middleware(
     CORSMiddleware,

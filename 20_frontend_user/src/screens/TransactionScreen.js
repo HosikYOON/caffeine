@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Modal, TextInput } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Feather } from '@expo/vector-icons';
 import { apiClient } from '../api/client';
 import { useTheme } from '../contexts/ThemeContext';
 import { useTransactions } from '../contexts/TransactionContext';
@@ -17,32 +19,95 @@ export default function TransactionScreen({ navigation }) {
     const [editedNote, setEditedNote] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const [prediction, setPrediction] = useState(null);
+    const [couponNotification, setCouponNotification] = useState(null); // 쿠폰 발급 알림
 
 
+
+    // 카테고리별 쿠폰 정보 매핑
+    const CATEGORY_COUPONS = {
+        '식료품': { merchant: '이마트', discount: 3000, description: '마트 할인 쿠폰' },
+        '주유': { merchant: 'SK에너지', discount: 3000, description: '주유 할인 쿠폰' },
+        '교통': { merchant: '카카오택시', discount: 2000, description: '택시비 할인 쿠폰' },
+        '식비': { merchant: '배달의민족', discount: 3000, description: '배달 할인 쿠폰' },
+        '외식': { merchant: '스타벅스', discount: 2000, description: '카페 할인 쿠폰' },
+        '쇼핑': { merchant: '쿠팡', discount: 5000, description: '쇼핑 할인 쿠폰' },
+        '편의점': { merchant: 'GS25', discount: 1000, description: '편의점 할인 쿠폰' },
+        '여가': { merchant: 'CGV', discount: 3000, description: '영화 할인 쿠폰' },
+        '문화': { merchant: '인터파크', discount: 5000, description: '공연 할인 쿠폰' },
+        '의료': { merchant: '약국', discount: 2000, description: '약국 할인 쿠폰' },
+        '기타': { merchant: '올리브영', discount: 2000, description: '뷰티 할인 쿠폰' },
+    };
 
     const fetchPrediction = async () => {
         try {
-            // 가장 최근 거래 데이터를 기반으로 다음 소비 패턴 예측 (시뮬레이션)
-            // 실제로는 사용자의 최근 소비 패턴 전체를 분석해야 함
-            const recentTransaction = transactions[0];
-            const requestData = {
-                날짜: recentTransaction.date.split(' ')[0],
-                시간: recentTransaction.date.split(' ')[1],
-                타입: '지출',
-                대분류: recentTransaction.category,
-                소분류: '기타', // 상세 분류가 없으므로 기타로 처리
-                내용: recentTransaction.merchant,
-                금액: String(-recentTransaction.amount),
-                화폐: 'KRW',
-                결제수단: recentTransaction.cardType + '카드',
-                메모: recentTransaction.notes || ''
+            if (!transactions || transactions.length < 5) {
+                alert('예측을 위해 최소 5건 이상의 거래 데이터가 필요합니다.');
+                return;
+            }
+
+            // 거래 데이터를 CSV 형식으로 변환
+            const csvHeader = '날짜,시간,타입,대분류,소분류,내용,금액,화폐,결제수단,메모\n';
+            const csvRows = transactions.map(t => {
+                const datetime = (t.date || '').split(' ');
+                const date = datetime[0] || new Date().toISOString().split('T')[0];
+                const time = datetime[1] || '12:00';
+                return [
+                    date,
+                    time,
+                    '지출',
+                    t.category || t.originalCategory || '외식',
+                    '기타',
+                    t.merchant || t.businessName || '알수없음',
+                    -Math.abs(t.amount),
+                    'KRW',
+                    t.cardType === '체크' ? '체크카드' : '신용카드',
+                    t.notes || ''
+                ].join(',');
+            }).join('\n');
+
+            const csvContent = csvHeader + csvRows;
+
+            // FormData로 CSV 전송
+            const formData = new FormData();
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            formData.append('file', blob, 'transactions.csv');
+
+
+            // predict-next API 호출 (전체 이력 기반)
+            const response = await apiClient.post('/ml/predict-next', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
+            const predictedCategory = response.data.predicted_category;
+            const confidence = response.data.confidence;
+            setPrediction(predictedCategory);
+
+
+            // 예측된 카테고리에 맞는 쿠폰 발급 알림
+            const couponInfo = CATEGORY_COUPONS[predictedCategory] || CATEGORY_COUPONS['기타'];
+
+            // 새 쿠폰 객체 생성
+            const newCoupon = {
+                id: Date.now(),
+                merchant: couponInfo.merchant,
+                discount: couponInfo.discount,
+                category: predictedCategory,
+                expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                status: 'available',
+                description: `AI 예측 기반 자동 발급 (신뢰도 ${(confidence * 100).toFixed(0)}%)`,
+                minPurchase: couponInfo.discount * 3,
+                daysLeft: 30
             };
 
-            // 백엔드 API 호출
-            const response = await apiClient.post('/ml/predict', {
-                features: requestData
+            // 쿠폰 발급 배너 표시 (confirm 대신)
+            setCouponNotification({
+                category: predictedCategory,
+                confidence: confidence,
+                coupon: newCoupon,
+                couponInfo: couponInfo,
+                txCount: transactions.length
             });
-            setPrediction(response.data.prediction);
+
         } catch (error) {
             console.error('Prediction failed:', error);
             alert('예측 실패: ' + (error.response?.data?.detail || error.message));
@@ -53,10 +118,10 @@ export default function TransactionScreen({ navigation }) {
         if (!searchQuery) return true;
         const query = searchQuery.toLowerCase();
         return (
-            t.merchant.toLowerCase().includes(query) ||
-            t.category.toLowerCase().includes(query) ||
+            t.merchant?.toLowerCase().includes(query) ||
+            t.category?.toLowerCase().includes(query) ||
             t.notes?.toLowerCase().includes(query) ||
-            t.businessName.toLowerCase().includes(query)
+            t.businessName?.toLowerCase().includes(query)
         );
     });
 
@@ -148,6 +213,7 @@ export default function TransactionScreen({ navigation }) {
         }, 300);
     };
 
+    // 메모 저장
     const handleSaveNote = async () => {
         if (selectedTransaction) {
             const result = await updateTransactionNote(selectedTransaction.id, editedNote);
@@ -162,6 +228,7 @@ export default function TransactionScreen({ navigation }) {
         }
     };
 
+    // 거래 내역 렌더링
     const renderItem = ({ item }) => (
         <TouchableOpacity style={styles(colors).transactionCard} onPress={() => handleTransactionClick(item)} activeOpacity={0.7}>
             <View style={styles(colors).transactionHeader}>
@@ -180,16 +247,23 @@ export default function TransactionScreen({ navigation }) {
         </TouchableOpacity>
     );
 
+    // 거래 내역 화면
     return (
-        <View style={styles(colors).container}>
+        <LinearGradient colors={colors.screenGradient} style={styles(colors).container}>
+            {/* Header */}
             <View style={styles(colors).header}>
-                <Text style={styles(colors).title}>거래내역</Text>
-                <Text style={styles(colors).subtitle}>
-                    {searchQuery ? `검색 결과 ${filteredTransactions.length}건` : `총 ${transactions.length}건`}
-                </Text>
+                <View>
+                    <Text style={styles(colors).title}>거래내역</Text>
+                    <Text style={styles(colors).subtitle}>
+                        {searchQuery ? `검색 결과 ${filteredTransactions.length}건` : `총 ${transactions.length}건`}
+                    </Text>
+                </View>
+                <View style={styles(colors).headerIcon}>
+                    <Feather name="file-text" size={24} color="#2563EB" />
+                </View>
             </View>
 
-            {/* AI Prediction Card - 거래가 있을 때만 표시 */}
+            {/* AI Prediction Card */}
             {transactions.length > 0 && (
                 <View style={styles(colors).predictionCard}>
                     <View style={styles(colors).predictionHeader}>
@@ -200,8 +274,8 @@ export default function TransactionScreen({ navigation }) {
                     {prediction !== null ? (
                         <Text style={styles(colors).predictionText}>
                             현재 소비 패턴 분석 결과, 다음 거래는
-                            <Text style={{ fontWeight: 'bold', color: colors.primary }}>
-                                {' '}{prediction}{' '}
+                            <Text style={{ fontWeight: '800', color: '#2563EB', fontSize: 18, backgroundColor: '#DBEAFE', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>
+                                {prediction}
                             </Text>
                             카테고리일 확률이 높습니다.
                         </Text>
@@ -218,6 +292,43 @@ export default function TransactionScreen({ navigation }) {
                         <Text style={styles(colors).predictionButtonText}>
                             {prediction !== null ? '다시 예측하기' : '다음 소비 예측하기'}
                         </Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+
+            {/* 쿠폰 발급 알림 배너 */}
+            {couponNotification && (
+                <View style={styles(colors).couponBannerTop}>
+                    <TouchableOpacity onPress={() => setCouponNotification(null)} style={styles(colors).couponBannerCloseTop}>
+                        <Text style={{ fontSize: 20, color: '#1E40AF' }}>✕</Text>
+                    </TouchableOpacity>
+                    <Text style={styles(colors).couponBannerTitleTop}>🎉 추천 쿠폰 도착!</Text>
+                    <View style={styles(colors).couponBannerCouponTop}>
+                        <Text style={styles(colors).couponBannerMerchant}>{couponNotification.couponInfo.merchant}</Text>
+                        <Text style={styles(colors).couponBannerDiscount}>{couponNotification.couponInfo.discount.toLocaleString()}원 할인</Text>
+                    </View>
+                    <View style={styles(colors).couponBannerInfoTop}>
+                        <Text style={styles(colors).couponBannerInfoText}>다음 소비 예측: <Text style={{ fontWeight: 'bold' }}>{couponNotification.category}</Text></Text>
+                        <Text style={styles(colors).couponBannerInfoText}>신뢰도: {(couponNotification.confidence * 100).toFixed(1)}%</Text>
+                    </View>
+                    <TouchableOpacity
+                        style={styles(colors).couponBannerButtonTop}
+                        onPress={async () => {
+                            try {
+                                // API로 쿠폰 발급
+                                const { issueCoupon } = await import('../api/coupons');
+                                await issueCoupon(
+                                    couponNotification.couponInfo.merchant,
+                                    couponNotification.couponInfo.discount
+                                );
+                            } catch (error) {
+                                // 중복 발급 등 에러는 무시하고 쿠폰함으로 이동
+                            }
+                            navigation.navigate('쿠폰함');
+                            setCouponNotification(null);
+                        }}
+                    >
+                        <Text style={styles(colors).couponBannerButtonTextTop}>쿠폰함에서 확인하기 →</Text>
                     </TouchableOpacity>
                 </View>
             )}
@@ -243,7 +354,7 @@ export default function TransactionScreen({ navigation }) {
                 <EmptyState
                     icon="📊"
                     title="연동된 거래내역이 없습니다"
-                    message="프로필 → 데이터 동기화로 CSV 파일을 업로드하세요"
+                    description="프로필 → 데이터 동기화로 CSV 파일을 업로드하세요"
                     actionText="동기화 하러 가기"
                     onAction={() => navigation.navigate('프로필')}
                 />
@@ -251,7 +362,7 @@ export default function TransactionScreen({ navigation }) {
                 <EmptyState
                     icon="🔍"
                     title="검색 결과 없음"
-                    message="검색 조건과 일치하는 거래가 없습니다"
+                    description="검색 조건과 일치하는 거래가 없습니다"
                     actionText="검색 초기화"
                     onAction={() => setSearchQuery('')}
                 />
@@ -432,35 +543,63 @@ export default function TransactionScreen({ navigation }) {
                     </View>
                 </View>
             </Modal>
-        </View>
+        </LinearGradient>
     );
 }
 
+// 스타일
 const styles = (colors) => StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.background },
-    header: { padding: 20, backgroundColor: colors.cardBackground, borderBottomWidth: 1, borderBottomColor: colors.border },
-    title: { fontSize: 24, fontWeight: 'bold', color: colors.text },
-    subtitle: { fontSize: 14, color: colors.textSecondary, marginTop: 4 },
-    list: { padding: 20 },
-    transactionCard: { backgroundColor: colors.cardBackground, borderRadius: 12, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: colors.border },
+    container: { flex: 1 },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 24,
+        paddingVertical: 20,
+    },
+    headerIcon: {
+        width: 48,
+        height: 48,
+        borderRadius: 16,
+        backgroundColor: '#DBEAFE',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1.5,
+        borderColor: '#93C5FD',
+    },
+    title: { fontSize: 28, fontWeight: '700', color: colors.text, fontFamily: 'Inter_700Bold' },
+    subtitle: { fontSize: 16, color: '#2563EB', marginTop: 6, fontWeight: '600' },
+    list: { padding: 16 },
+    transactionCard: {
+        backgroundColor: colors.cardBackground,
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.06,
+        shadowRadius: 8,
+        elevation: 3,
+    },
     transactionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
     merchantInfo: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     merchant: { fontSize: 16, fontWeight: 'bold', color: colors.text },
     cardTypeBadge: (type) => ({
         fontSize: 11,
-        color: type === '신용' ? colors.warning : colors.success,
-        backgroundColor: (type === '신용' ? colors.warning : colors.success) + '20',
+        color: type === '신용' ? '#2563EB' : '#059669',
+        backgroundColor: type === '신용' ? '#DBEAFE' : '#D1FAE5',
         paddingHorizontal: 8,
-        paddingVertical: 2,
+        paddingVertical: 3,
         borderRadius: 8,
-        fontWeight: 'bold',
+        fontWeight: '600',
+        overflow: 'hidden',
     }),
-    amount: { fontSize: 18, fontWeight: 'bold', color: colors.primary },
+    amount: { fontSize: 18, fontWeight: '700', color: '#2563EB' },
     transactionDetails: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
     category: { fontSize: 14, color: colors.textSecondary },
     date: { fontSize: 12, color: colors.textSecondary },
     notes: { fontSize: 12, color: colors.text, marginTop: 4, fontStyle: 'italic' },
-    clickHint: { fontSize: 11, color: colors.primary, marginTop: 8, opacity: 0.8 },
+    clickHint: { fontSize: 11, color: '#3B82F6', marginTop: 8, fontWeight: '500' },
 
     // Search styles
     searchContainer: { flexDirection: 'row', alignItems: 'center', padding: 16, backgroundColor: colors.cardBackground, borderBottomWidth: 1, borderBottomColor: colors.border },
@@ -603,52 +742,196 @@ const styles = (colors) => StyleSheet.create({
 
     // Prediction Card styles
     predictionCard: {
-        margin: 20,
-        marginBottom: 0,
-        padding: 16,
-        backgroundColor: colors.cardBackground,
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: colors.primary,
-        shadowColor: colors.primary,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
+        marginHorizontal: 16,
+        marginTop: 8,
+        marginBottom: 16,
+        padding: 20,
+        backgroundColor: '#DBEAFE',
+        borderRadius: 16,
+        borderWidth: 1.5,
+        borderColor: '#93C5FD',
+        shadowColor: '#2563EB',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+        elevation: 4,
     },
     predictionHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 8,
+        marginBottom: 12,
     },
     predictionIcon: {
-        fontSize: 20,
-        marginRight: 8,
+        fontSize: 24,
+        marginRight: 10,
     },
     predictionTitle: {
         fontSize: 16,
-        fontWeight: 'bold',
-        color: colors.primary,
+        fontWeight: '700',
+        color: '#1E40AF',
     },
     predictionText: {
         fontSize: 14,
-        color: colors.text,
-        lineHeight: 20,
-        marginBottom: 12,
+        color: '#1E3A8A',
+        lineHeight: 22,
+        marginBottom: 16,
     },
     predictionButton: {
-        backgroundColor: colors.primary,
-        padding: 12,
-        borderRadius: 8,
+        backgroundColor: '#2563EB',
+        padding: 14,
+        borderRadius: 12,
         alignItems: 'center',
     },
     predictionButtonDisabled: {
-        backgroundColor: colors.border,
+        backgroundColor: '#93C5FD',
         opacity: 0.5,
     },
     predictionButtonText: {
-        color: '#fff',
+        color: '#FFFFFF',
+        fontSize: 15,
+        fontWeight: '700',
+    },
+
+    // Coupon Banner styles
+    couponBanner: {
+        marginHorizontal: 16,
+        marginBottom: 12,
+        padding: 16,
+        backgroundColor: '#ECFDF5',
+        borderRadius: 16,
+        borderWidth: 2,
+        borderColor: '#10B981',
+        shadowColor: '#10B981',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    couponBannerHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    couponBannerIcon: {
+        fontSize: 24,
+        marginRight: 8,
+    },
+    couponBannerTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#059669',
+        flex: 1,
+    },
+    couponBannerClose: {
+        padding: 4,
+    },
+    couponBannerInfo: {
+        marginBottom: 12,
+        paddingBottom: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#A7F3D0',
+    },
+    couponBannerText: {
         fontSize: 14,
-        fontWeight: 'bold',
+        color: '#065F46',
+        marginBottom: 4,
+        lineHeight: 20,
+    },
+    couponBannerCoupon: {
+        backgroundColor: '#D1FAE5',
+        padding: 12,
+        borderRadius: 10,
+        marginBottom: 12,
+    },
+    couponBannerCouponText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#047857',
+        textAlign: 'center',
+    },
+    couponBannerButton: {
+        backgroundColor: '#10B981',
+        padding: 14,
+        borderRadius: 12,
+        alignItems: 'center',
+    },
+    couponBannerButtonText: {
+        color: '#FFFFFF',
+        fontSize: 15,
+        fontWeight: '700',
+    },
+
+    // Top Coupon Banner
+    couponBannerTop: {
+        marginHorizontal: 16,
+        marginTop: 8,
+        marginBottom: 16,
+        padding: 24,
+        backgroundColor: '#DBEAFE',
+        borderRadius: 20,
+        borderWidth: 2,
+        borderColor: '#93C5FD',
+        shadowColor: '#2563EB',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+        elevation: 4,
+        position: 'relative',
+    },
+    couponBannerCloseTop: {
+        position: 'absolute',
+        top: 12,
+        right: 12,
+        padding: 8,
+        zIndex: 10,
+    },
+    couponBannerTitleTop: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#1E40AF',
+        textAlign: 'center',
+        marginBottom: 16,
+    },
+    couponBannerCouponTop: {
+        backgroundColor: '#EFF6FF',
+        padding: 20,
+        borderRadius: 16,
+        marginBottom: 16,
+        alignItems: 'center',
+        borderWidth: 1.5,
+        borderColor: '#93C5FD',
+    },
+    couponBannerMerchant: {
+        fontSize: 22,
+        fontWeight: '700',
+        color: '#1E40AF',
+        marginBottom: 6,
+    },
+    couponBannerDiscount: {
+        fontSize: 28,
+        fontWeight: '800',
+        color: '#2563EB',
+    },
+    couponBannerInfoTop: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        marginBottom: 16,
+        paddingHorizontal: 8,
+    },
+    couponBannerInfoText: {
+        fontSize: 16,
+        color: '#1E3A8A',
+        fontWeight: '600',
+    },
+    couponBannerButtonTop: {
+        backgroundColor: '#2563EB',
+        padding: 16,
+        borderRadius: 12,
+        alignItems: 'center',
+    },
+    couponBannerButtonTextTop: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: '700',
     },
 });

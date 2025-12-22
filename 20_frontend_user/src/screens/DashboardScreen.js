@@ -1,36 +1,75 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, ScrollView, StyleSheet, Dimensions, RefreshControl, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { View, Text, ScrollView, StyleSheet, Dimensions, RefreshControl, TouchableOpacity, Modal, Platform, TextInput } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { LineChart } from 'react-native-chart-kit';
+import { Feather } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
 import { useTransactions } from '../contexts/TransactionContext';
+import { useFocusEffect } from '@react-navigation/native';
 import CountUpNumber from '../components/CountUpNumber';
 import FadeInView from '../components/FadeInView';
 import AnimatedButton from '../components/AnimatedButton';
 import EmptyState from '../components/EmptyState';
 import { SkeletonStats, SkeletonChart } from '../components/SkeletonCard';
+import AddTransactionModal from '../components/AddTransactionModal';
 import { formatCurrency } from '../utils/currency';
 import { CHART_COLORS, ANIMATION_DELAY } from '../constants';
 
-// ============================================================
-// 카테고리별 이모지 매핑
-// ============================================================
-const CATEGORY_EMOJI = {
-    '쇼핑': '🛍️',
-    '식비': '🍔',
-    '공과금': '💡',
-    '여가': '🎮',
-    '교통': '🚗',
-    '기타': '📦',
-    '카페': '☕',
-    '편의점': '🏪',
-    '마트': '🛒',
-    '의료': '🏥',
+// 카테고리별 아이콘 매핑
+const CATEGORY_ICON = {
+    // 식사
+    '외식': { icon: 'coffee', color: '#F97316' },
+    '식비': { icon: 'coffee', color: '#F59E0B' },
+    '식료품': { icon: 'shopping-bag', color: '#84CC16' },
+    '카페': { icon: 'coffee', color: '#92400E' },
+
+    // 생활 
+    '생활': { icon: 'home', color: '#8B5CF6' },
+    '주유': { icon: 'droplet', color: '#06B6D4' },
+    '교통': { icon: 'truck', color: '#3B82F6' },
+    '공과금': { icon: 'zap', color: '#6366F1' },
+
+    // 쇼핑 
+    '쇼핑': { icon: 'shopping-bag', color: '#EC4899' },
+    '마트': { icon: 'shopping-cart', color: '#EF4444' },
+    '편의점': { icon: 'package', color: '#10B981' },
+
+    // 여가/기타
+    '여가': { icon: 'music', color: '#14B8A6' },
+    '의료': { icon: 'heart', color: '#F43F5E' },
+    '문화': { icon: 'film', color: '#A855F7' },
+    '교육': { icon: 'book', color: '#0EA5E9' },
+    '통신': { icon: 'smartphone', color: '#6B7280' },
+    '기타': { icon: 'box', color: '#9CA3AF' },
 };
 
+// 이모지 폴백 (아이콘 없을 때)
+const CATEGORY_EMOJI = {
+    '외식': '🍽️',
+    '식비': '🍔',
+    '식료품': '🥗',
+    '카페': '☕',
+    '생활': '🏠',
+    '주유': '⛽',
+    '교통': '🚗',
+    '공과금': '💡',
+    '쇼핑': '🛍️',
+    '마트': '🛒',
+    '편의점': '🏪',
+    '여가': '🎮',
+    '의료': '🏥',
+    '문화': '🎬',
+    '교육': '📚',
+    '통신': '📱',
+    '기타': '📦',
+};
+
+// 대쉬보드 화면
 export default function DashboardScreen({ navigation }) {
     const { colors } = useTheme();
-    const { transactions, loading: transactionLoading, refresh } = useTransactions();
+    const { user } = useAuth();
+    const { transactions, loading: transactionLoading, refresh, loadTransactionsFromServer } = useTransactions();
     const [refreshing, setRefreshing] = useState(false);
     const [summary, setSummary] = useState(null);
     const [monthlyData, setMonthlyData] = useState([]);
@@ -39,7 +78,32 @@ export default function DashboardScreen({ navigation }) {
     const [predictedTransaction, setPredictedTransaction] = useState(null);
     const [couponReceived, setCouponReceived] = useState(false);
 
+    // 생년월일 모달 state (카카오 로그인 사용자)
+    const [showBirthModal, setShowBirthModal] = useState(false);
+    const [birthDateInput, setBirthDateInput] = useState('');  // 6자리 YYMMDD
+
     const scrollViewRef = useRef(null);
+
+    // 로그인 후 거래 데이터 자동 로드
+    useEffect(() => {
+        if (user?.id && (!transactions || transactions.length === 0) && !transactionLoading) {
+            loadTransactionsFromServer(user.id);
+        }
+    }, [user?.id]);
+
+    // 대시보드 화면 포커스 시 생년월일 체크 (카카오 사용자)
+    useFocusEffect(
+        useCallback(() => {
+            // 데이터가 로드되고, 카카오 사용자이고, 생년월일이 없으면 모달 표시
+            if (transactions && transactions.length > 0 && !transactionLoading) {
+                if (user?.provider === 'kakao' && !user?.birth_date) {
+                    // 약간의 지연으로 화면 전환 후 모달 표시
+                    const timer = setTimeout(() => setShowBirthModal(true), 500);
+                    return () => clearTimeout(timer);
+                }
+            }
+        }, [transactions, transactionLoading, user])
+    );
 
     // 거래 데이터로부터 대시보드 요약 계산
     const calculateSummary = (txns) => {
@@ -47,7 +111,7 @@ export default function DashboardScreen({ navigation }) {
 
         const totalSpending = txns.reduce((sum, t) => sum + Math.abs(t.amount), 0);
         const avgTransaction = totalSpending / txns.length;
-        
+
         // 카테고리별 집계
         const categoryMap = {};
         txns.forEach(t => {
@@ -59,12 +123,34 @@ export default function DashboardScreen({ navigation }) {
         const sortedCategories = Object.entries(categoryMap)
             .sort((a, b) => b[1] - a[1]);
         const mostUsedCategory = sortedCategories[0]?.[0] || '기타';
+        const mostUsedCategoryAmount = sortedCategories[0]?.[1] || 0;
+        const mostUsedCategoryPercent = Math.round((mostUsedCategoryAmount / totalSpending) * 100);
+
+        // 가장 비싼 거래 찾기
+        const maxTransaction = txns.reduce((max, t) =>
+            Math.abs(t.amount) > Math.abs(max.amount) ? t : max, txns[0]);
+
+        // 자주 가는 가맹점 찾기
+        const merchantMap = {};
+        txns.forEach(t => {
+            const merchant = t.merchant || t.description || '알 수 없음';
+            if (!merchantMap[merchant]) merchantMap[merchant] = 0;
+            merchantMap[merchant]++;
+        });
+        const sortedMerchants = Object.entries(merchantMap)
+            .sort((a, b) => b[1] - a[1]);
+        const frequentMerchant = sortedMerchants[0]?.[0] || '알 수 없음';
+        const frequentMerchantCount = sortedMerchants[0]?.[1] || 0;
 
         return {
             total_spending: totalSpending,
             total_transactions: txns.length,
             average_transaction: Math.round(avgTransaction),
             most_used_category: mostUsedCategory,
+            most_used_category_percent: mostUsedCategoryPercent,
+            max_transaction: maxTransaction,
+            frequent_merchant: frequentMerchant,
+            frequent_merchant_count: frequentMerchantCount,
             monthly_trend: '증가',
             anomaly_count: 0
         };
@@ -76,7 +162,7 @@ export default function DashboardScreen({ navigation }) {
 
         const categoryMap = {};
         let total = 0;
-        
+
         txns.forEach(t => {
             const cat = t.category || '기타';
             if (!categoryMap[cat]) categoryMap[cat] = 0;
@@ -102,10 +188,10 @@ export default function DashboardScreen({ navigation }) {
         const monthlyMap = {};
         txns.forEach(t => {
             let date = t.date?.split(' ')[0] || t.date || '';
-            
+
             // 다양한 날짜 형식 처리
             let month = null;
-            
+
             // YYYY-MM-DD 형식
             if (date.match(/^\d{4}-\d{2}/)) {
                 month = date.substring(0, 7);
@@ -124,33 +210,58 @@ export default function DashboardScreen({ navigation }) {
                     }
                 }
             }
-            
+
             if (month && month.length >= 7) {
                 if (!monthlyMap[month]) monthlyMap[month] = 0;
                 monthlyMap[month] += Math.abs(t.amount);
             }
         });
 
+        // 월별 데이터 정렬
         const sortedData = Object.entries(monthlyMap)
             .sort((a, b) => a[0].localeCompare(b[0]))
             .slice(-6)
             .map(([month, amount]) => ({ month, total_amount: amount }));
 
-        // 데이터가 없으면 현재 월 기본값 반환
-        if (sortedData.length === 0) {
+        // 최소 3개월 데이터 보장 (그래프 가독성 향상)
+        if (sortedData.length < 3) {
             const now = new Date();
-            const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-            return [{ month: currentMonth, total_amount: 0 }];
+            const months = [];
+
+            // 최근 6개월 생성
+            for (let i = 5; i >= 0; i--) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const monthStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                months.push(monthStr);
+            }
+
+            // 기존 데이터를 맵으로 변환
+            const existingMap = {};
+            sortedData.forEach(item => {
+                existingMap[item.month] = item.total_amount;
+            });
+
+            // 6개월 데이터 생성 (없으면 0)
+            return months.map(month => ({
+                month,
+                total_amount: existingMap[month] || 0
+            }));
         }
 
         return sortedData;
     };
 
+    // 데이터 계산
     useEffect(() => {
         if (transactions && transactions.length > 0) {
             setSummary(calculateSummary(transactions));
             setCategoryData(calculateCategoryData(transactions));
             setMonthlyData(calculateMonthlyData(transactions));
+        } else {
+            // 거래 데이터가 없을 때는 명시적으로 초기화
+            setSummary(null);
+            setCategoryData([]);
+            setMonthlyData([]);
         }
     }, [transactions]);
 
@@ -160,19 +271,71 @@ export default function DashboardScreen({ navigation }) {
         setRefreshing(false);
     };
 
-    const handleGetCoupon = () => {
+    // 쿠폰 받기
+    const handleGetCoupon = async () => {
         if (couponReceived) {
             alert('이미 쿠폰을 받으셨습니다!');
             return;
         }
-        setCouponReceived(true);
-        alert(`쿠폰 발급 완료!\n\n${predictedTransaction?.merchant}에서 사용 가능한\n${formatCurrency(predictedTransaction?.couponDiscount)} 할인 쿠폰이 발급되었습니다!`);
+
+        try {
+            // API 호출하여 쿠폰 발급
+            const { issueCoupon } = await import('../api/coupons');
+            const result = await issueCoupon(
+                predictedTransaction?.merchant,
+                predictedTransaction?.couponDiscount
+            );
+
+            if (result.success) {
+                setCouponReceived(true);
+                alert(`쿠폰 발급 완료!\n\n${predictedTransaction?.merchant}에서 사용 가능한\n${formatCurrency(predictedTransaction?.couponDiscount)} 할인 쿠폰이 발급되었습니다!`);
+            }
+        } catch (error) {
+            console.error('쿠폰 발급 오류:', error);
+            // 중복 발급 등 에러 처리
+            const message = error.response?.data?.detail || '쿠폰 발급에 실패했습니다.';
+            alert(message);
+        }
+    };
+
+    // 생년월일 저장 (카카오 로그인 사용자)
+    const handleSaveBirthDate = async () => {
+        if (!birthDateInput || birthDateInput.length !== 6) {
+            alert('생년월일 6자리를 입력해주세요. (예: 000212)');
+            return;
+        }
+
+        // YYMMDD -> YYYY-MM-DD 변환
+        const yy = birthDateInput.substring(0, 2);
+        const mm = birthDateInput.substring(2, 4);
+        const dd = birthDateInput.substring(4, 6);
+        const year = parseInt(yy) > 50 ? `19${yy}` : `20${yy}`;  // 50 이상이면 1900년대
+        const birthDate = `${year}-${mm}-${dd}`;
+
+        try {
+            const { updateUserProfile } = await import('../api/users');
+            await updateUserProfile({ birth_date: birthDate });
+
+            // AsyncStorage의 user 객체도 업데이트
+            const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
+            const storedUser = await AsyncStorage.getItem('user');
+            if (storedUser) {
+                const updatedUser = { ...JSON.parse(storedUser), birth_date: birthDate };
+                await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
+            }
+
+            setShowBirthModal(false);
+            alert('생년월일이 저장되었습니다!');
+        } catch (error) {
+            console.error('생년월일 저장 오류:', error);
+            alert('저장에 실패했습니다. 다시 시도해주세요.');
+        }
     };
 
     // 로딩 중
     if (transactionLoading) {
         return (
-            <LinearGradient colors={['#DBEAFE', '#EFF6FF', '#F8FAFC']} style={styles.gradientContainer}>
+            <LinearGradient colors={colors.screenGradient} style={styles.gradientContainer}>
                 <ScrollView style={styles.container}>
                     <View style={styles.summarySection}>
                         <SkeletonStats />
@@ -198,7 +361,7 @@ export default function DashboardScreen({ navigation }) {
     }
 
     const screenWidth = Dimensions.get('window').width;
-    const chartWidth = screenWidth - 48;
+    const chartWidth = screenWidth - 72;
 
     // 월별 라벨 안전하게 생성
     const getMonthLabel = (monthStr) => {
@@ -222,24 +385,41 @@ export default function DashboardScreen({ navigation }) {
 
     return (
         <LinearGradient
-            colors={['#DBEAFE', '#EFF6FF', '#F8FAFC']}
+            colors={colors.screenGradient}
             style={styles.gradientContainer}
         >
-            <ScrollView 
-                ref={scrollViewRef} 
+            <ScrollView
+                ref={scrollViewRef}
                 style={styles.container}
                 showsVerticalScrollIndicator={false}
-                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2563EB" />}
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.tabBarActive} />}
             >
                 {/* Header */}
                 <FadeInView style={styles.header} delay={0}>
                     <View>
-                        <Text style={styles.greeting}>안녕하세요 👋</Text>
-                        <Text style={styles.userName}>사용자님의 소비현황</Text>
+                        <Text style={[styles.userName, { color: colors.text }]}>{user?.name || '사용자'}님의 소비현황</Text>
                     </View>
-                    <TouchableOpacity style={styles.profileButton}>
-                        <Text style={styles.profileEmoji}>👤</Text>
-                    </TouchableOpacity>
+                    <View style={styles.headerButtons}>
+                        <TouchableOpacity
+                            style={styles.profileButton}
+                            onPress={() => navigation?.navigate('프로필')}
+                        >
+                            <LinearGradient
+                                colors={['#3B82F6', '#2563EB']}
+                                style={styles.profileButtonGradient}
+                            >
+                                <Feather name="user" size={20} color="#FFFFFF" />
+                            </LinearGradient>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.settingsButton}
+                            onPress={() => navigation?.navigate('설정')}
+                        >
+                            <View style={styles.settingsButtonInner}>
+                                <Feather name="settings" size={20} color="#3B82F6" />
+                            </View>
+                        </TouchableOpacity>
+                    </View>
                 </FadeInView>
 
                 {/* Main Balance Card */}
@@ -264,31 +444,68 @@ export default function DashboardScreen({ navigation }) {
                             style={styles.mainCardAmount}
                             duration={1200}
                         />
-                        <View style={styles.mainCardStats}>
+                        <View style={styles.statsRow}>
                             <View style={styles.statItem}>
                                 <Text style={styles.statLabel}>거래 건수</Text>
-                                <Text style={styles.statValue}>{summary?.total_transactions}건</Text>
+                                <Text style={styles.statValue}>{summary?.total_transactions || 0}건</Text>
                             </View>
                             <View style={styles.statDivider} />
                             <View style={styles.statItem}>
                                 <Text style={styles.statLabel}>평균 거래액</Text>
-                                <Text style={styles.statValue}>{formatCurrency(summary?.average_transaction)}</Text>
+                                <Text style={styles.statValue}>{formatCurrency(summary?.average_transaction || 0)}</Text>
                             </View>
                         </View>
                     </LinearGradient>
                 </FadeInView>
 
+                {/* AI Insights*/}
+                <FadeInView style={styles.section} delay={150}>
+                    <View style={styles.sectionHeader}>
+                        <Text style={[styles.sectionTitle, { color: colors.text }]}>AI 인사이트</Text>
+                    </View>
+                    <View style={[styles.insightCard, { backgroundColor: colors.cardBackground }]}>
+                        <View style={styles.insightRow}>
+                            <View style={[styles.insightIconContainer, { backgroundColor: '#FEF3C7' }]}>
+                                <Feather name="zap" size={18} color="#F59E0B" />
+                            </View>
+                            <Text style={[styles.insightText, { color: colors.text }]}>
+                                이번 달 <Text style={styles.insightHighlight}>{summary?.most_used_category}</Text>에 가장 많이 지출했어요 ({summary?.most_used_category_percent || 0}%)
+                            </Text>
+                        </View>
+                    </View>
+                    <View style={[styles.insightCard, { backgroundColor: colors.cardBackground }]}>
+                        <View style={styles.insightRow}>
+                            <View style={[styles.insightIconContainer, { backgroundColor: '#DBEAFE' }]}>
+                                <Feather name="map-pin" size={18} color="#2563EB" />
+                            </View>
+                            <Text style={[styles.insightText, { color: colors.text }]}>
+                                <Text style={styles.insightHighlight}>{summary?.frequent_merchant}</Text>에 {summary?.frequent_merchant_count || 0}번 방문했어요
+                            </Text>
+                        </View>
+                    </View>
+                    <View style={[styles.insightCard, { backgroundColor: colors.cardBackground }]}>
+                        <View style={styles.insightRow}>
+                            <View style={[styles.insightIconContainer, { backgroundColor: '#FCE7F3' }]}>
+                                <Feather name="credit-card" size={18} color="#DB2777" />
+                            </View>
+                            <Text style={[styles.insightText, { color: colors.text }]}>
+                                가장 큰 지출은 <Text style={styles.insightHighlight}>{summary?.max_transaction?.merchant || '알 수 없음'}</Text>에서 {formatCurrency(Math.abs(summary?.max_transaction?.amount || 0))}
+                            </Text>
+                        </View>
+                    </View>
+                </FadeInView>
+
                 {/* AI Prediction Banner */}
                 {predictedTransaction && (
                     <FadeInView style={styles.predictionBanner} delay={200}>
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={styles.predictionCard}
-                            activeOpacity={0.9}
+                            activeOpacity={0.8}
                             onPress={handleGetCoupon}
                         >
                             <View style={styles.predictionLeft}>
                                 <View style={styles.aiIcon}>
-                                    <Text style={styles.aiIconText}>🤖</Text>
+                                    <Feather name="cpu" size={20} color="#6366F1" />
                                 </View>
                                 <View style={styles.predictionInfo}>
                                     <Text style={styles.predictionTitle}>AI 예측 쿠폰</Text>
@@ -306,63 +523,71 @@ export default function DashboardScreen({ navigation }) {
 
                 {/* Quick Actions */}
                 <FadeInView style={styles.quickActions} delay={300}>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={styles.quickActionItem}
                         onPress={() => navigation?.navigate('거래내역')}
                     >
                         <View style={[styles.quickActionIcon, { backgroundColor: '#DBEAFE' }]}>
-                            <Text style={styles.quickActionEmoji}>📋</Text>
+                            <Feather name="file-text" size={24} color="#2563EB" />
                         </View>
-                        <Text style={styles.quickActionLabel}>거래내역</Text>
+                        <Text style={[styles.quickActionLabel, { color: colors.text }]}>거래내역</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={styles.quickActionItem}
                         onPress={() => navigation?.navigate('쿠폰함')}
                     >
                         <View style={[styles.quickActionIcon, { backgroundColor: '#FEF3C7' }]}>
-                            <Text style={styles.quickActionEmoji}>🎫</Text>
+                            <Feather name="gift" size={24} color="#D97706" />
                         </View>
-                        <Text style={styles.quickActionLabel}>쿠폰함</Text>
+                        <Text style={[styles.quickActionLabel, { color: colors.text }]}>쿠폰함</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.quickActionItem}>
+                    <TouchableOpacity
+                        style={styles.quickActionItem}
+                        onPress={() => navigation?.navigate('분석')}
+                    >
                         <View style={[styles.quickActionIcon, { backgroundColor: '#D1FAE5' }]}>
-                            <Text style={styles.quickActionEmoji}>📊</Text>
+                            <Feather name="bar-chart-2" size={24} color="#059669" />
                         </View>
-                        <Text style={styles.quickActionLabel}>분석</Text>
+                        <Text style={[styles.quickActionLabel, { color: colors.text }]}>분석</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.quickActionItem}>
-                        <View style={[styles.quickActionIcon, { backgroundColor: '#FCE7F3' }]}>
-                            <Text style={styles.quickActionEmoji}>⚙️</Text>
+                    <TouchableOpacity
+                        style={styles.quickActionItem}
+                        onPress={() => navigation?.navigate('더보기', { openChat: true })}
+                    >
+                        <View style={[styles.quickActionIcon, { backgroundColor: '#E0E7FF' }]}>
+                            <Feather name="message-circle" size={24} color="#6366F1" />
                         </View>
-                        <Text style={styles.quickActionLabel}>설정</Text>
+                        <Text style={[styles.quickActionLabel, { color: colors.text }]}>잠깐만</Text>
                     </TouchableOpacity>
                 </FadeInView>
 
                 {/* Anomaly Alert */}
-                {summary?.anomaly_count > 0 && (
-                    <FadeInView style={styles.alertContainer} delay={350}>
-                        <TouchableOpacity style={styles.alertCard}>
-                            <View style={styles.alertIconContainer}>
-                                <Text style={styles.alertEmoji}>⚠️</Text>
-                            </View>
-                            <View style={styles.alertContent}>
-                                <Text style={styles.alertTitle}>의심 거래 {summary.anomaly_count}건 감지</Text>
-                                <Text style={styles.alertDesc}>탭하여 확인하기</Text>
-                            </View>
-                            <Text style={styles.alertArrow}>›</Text>
-                        </TouchableOpacity>
-                    </FadeInView>
-                )}
+                <FadeInView style={styles.alertContainer} delay={350}>
+                    <TouchableOpacity
+                        style={styles.alertCard}
+                        onPress={() => navigation?.navigate('거래내역')}
+                        activeOpacity={0.8}
+                    >
+                        <View style={styles.alertIconContainer}>
+                            <Feather name="alert-circle" size={22} color="#FFFFFF" />
+                        </View>
+                        <View style={styles.alertContent}>
+                            <Text style={styles.alertTitle}>의심스러운 거래 발견</Text>
+                            <Text style={styles.alertDesc}>{summary?.anomaly_count || 3}건의 이상 거래가 감지되었습니다.</Text>
+                        </View>
+                        <Feather name="chevron-right" size={20} color="#EF4444" />
+                    </TouchableOpacity>
+                </FadeInView>
 
                 {/* Monthly Chart Section */}
                 <FadeInView style={styles.section} delay={400}>
                     <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>월별 지출 추이</Text>
-                        <TouchableOpacity>
+                        <Text style={[styles.sectionTitle, { color: colors.text }]}>월별 지출 추이</Text>
+                        <TouchableOpacity onPress={() => navigation?.navigate('분석')}>
                             <Text style={styles.sectionMore}>더보기</Text>
                         </TouchableOpacity>
                     </View>
-                    <View style={styles.chartCard}>
+                    <View style={[styles.chartCard, { backgroundColor: colors.cardBackground }]}>
                         {lineChartData ? (
                             <>
                                 <LineChart
@@ -370,12 +595,12 @@ export default function DashboardScreen({ navigation }) {
                                     width={chartWidth}
                                     height={200}
                                     chartConfig={{
-                                        backgroundColor: '#FFFFFF',
-                                        backgroundGradientFrom: '#FFFFFF',
-                                        backgroundGradientTo: '#FFFFFF',
+                                        backgroundColor: colors.cardBackground,
+                                        backgroundGradientFrom: colors.cardBackground,
+                                        backgroundGradientTo: colors.cardBackground,
                                         decimalPlaces: 0,
                                         color: (opacity = 1) => `rgba(37, 99, 235, ${opacity})`,
-                                        labelColor: (opacity = 1) => `rgba(107, 114, 128, ${opacity})`,
+                                        labelColor: (opacity = 1) => colors.textSecondary,
                                         style: { borderRadius: 16 },
                                         propsForDots: { r: '5', strokeWidth: '2', stroke: '#2563EB' },
                                         propsForBackgroundLines: {
@@ -410,63 +635,89 @@ export default function DashboardScreen({ navigation }) {
                             </>
                         ) : (
                             <View style={{ height: 200, justifyContent: 'center', alignItems: 'center' }}>
-                                <Text style={{ color: '#6B7280', fontSize: 14 }}>차트 데이터 준비 중...</Text>
+                                <Text style={{ color: colors.textSecondary, fontSize: 14 }}>차트 데이터 준비 중...</Text>
                             </View>
                         )}
-                        <Text style={styles.chartCaption}>단위: 만원</Text>
+                        <Text style={[styles.chartCaption, { color: colors.textSecondary }]}>단위: 만원</Text>
                     </View>
                 </FadeInView>
 
                 {/* Category Section */}
                 <FadeInView style={styles.section} delay={500}>
                     <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>카테고리별 소비</Text>
-                        <TouchableOpacity>
+                        <Text style={[styles.sectionTitle, { color: colors.text }]}>카테고리별 소비</Text>
+                        <TouchableOpacity onPress={() => navigation?.navigate('분석')}>
                             <Text style={styles.sectionMore}>더보기</Text>
                         </TouchableOpacity>
                     </View>
                     <View style={styles.categoryGrid}>
-                        {categoryData.slice(0, 4).map((item, index) => (
-                            <TouchableOpacity key={index} style={styles.categoryCard}>
-                                <View style={[styles.categoryIconContainer, { backgroundColor: CHART_COLORS[index] + '20' }]}>
-                                    <Text style={styles.categoryEmoji}>{item.emoji}</Text>
-                                </View>
-                                <Text style={styles.categoryName}>{item.category}</Text>
-                                <Text style={styles.categoryAmount}>{formatCurrency(item.total_amount)}</Text>
-                                <View style={styles.categoryProgress}>
-                                    <View style={[styles.categoryProgressBar, { width: `${item.percentage}%`, backgroundColor: CHART_COLORS[index] }]} />
-                                </View>
-                                <Text style={styles.categoryPercent}>{item.percentage}%</Text>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-                </FadeInView>
-
-                {/* AI Insights */}
-                <FadeInView style={styles.section} delay={600}>
-                    <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>AI 인사이트</Text>
-                    </View>
-                    <View style={styles.insightCard}>
-                        <View style={styles.insightRow}>
-                            <Text style={styles.insightEmoji}>💡</Text>
-                            <Text style={styles.insightText}>
-                                이번 달 <Text style={styles.insightHighlight}>{summary?.most_used_category}</Text>에 가장 많이 지출했어요
-                            </Text>
-                        </View>
-                    </View>
-                    <View style={styles.insightCard}>
-                        <View style={styles.insightRow}>
-                            <Text style={styles.insightEmoji}>📈</Text>
-                            <Text style={styles.insightText}>
-                                평균 거래액이 지난달 대비 <Text style={styles.insightHighlight}>12%</Text> 증가했어요
-                            </Text>
-                        </View>
+                        {categoryData.slice(0, 4).map((item, index) => {
+                            const iconData = CATEGORY_ICON[item.category] || { icon: 'box', color: CHART_COLORS[index] };
+                            return (
+                                <TouchableOpacity key={index} style={[styles.categoryCard, { backgroundColor: colors.cardBackground }]}>
+                                    <View style={[styles.categoryIconContainer, { backgroundColor: iconData.color + '15' }]}>
+                                        <Feather name={iconData.icon} size={22} color={iconData.color} />
+                                    </View>
+                                    <Text style={[styles.categoryName, { color: colors.text }]}>{item.category}</Text>
+                                    <Text style={[styles.categoryAmount, { color: colors.text }]}>{formatCurrency(item.total_amount)}</Text>
+                                    <View style={[styles.categoryProgress, { backgroundColor: colors.border }]}>
+                                        <View style={[styles.categoryProgressBar, { width: `${item.percentage}%`, backgroundColor: iconData.color }]} />
+                                    </View>
+                                    <Text style={[styles.categoryPercent, { color: colors.textSecondary }]}>{item.percentage}%</Text>
+                                </TouchableOpacity>
+                            );
+                        })}
                     </View>
                 </FadeInView>
 
                 <View style={{ height: 100 }} />
             </ScrollView>
+
+            {/* 생년월일 입력 모달 (카카오 로그인 사용자) */}
+            <Modal
+                visible={showBirthModal}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setShowBirthModal(false)}>
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+                        <Text style={[styles.modalTitle, { color: colors.text }]}>생년월일 입력</Text>
+                        <Text style={[styles.modalDesc, { color: colors.textSecondary }]}>
+                            연령대별 소비 분석을 위해{'\n'}생년월일을 입력해주세요
+                        </Text>
+
+                        <View style={styles.birthInputContainer}>
+                            <TextInput
+                                style={styles.birthInput}
+                                placeholder="000212"
+                                placeholderTextColor="#9CA3AF"
+                                value={birthDateInput}
+                                onChangeText={(text) => {
+                                    // 숫자만 허용, 6자리로 제한
+                                    const numOnly = text.replace(/[^0-9]/g, '').slice(0, 6);
+                                    setBirthDateInput(numOnly);
+                                }}
+                                keyboardType="number-pad"
+                                maxLength={6}
+                            />
+                            <Text style={styles.birthHint}>예: 000212 (2000년 2월 12일)</Text>
+                        </View>
+
+                        <View style={styles.modalBtnRow}>
+                            <TouchableOpacity
+                                style={[styles.modalBtn, styles.modalBtnSecondary]}
+                                onPress={() => setShowBirthModal(false)}>
+                                <Text style={styles.modalBtnTextSecondary}>나중에</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.modalBtn, styles.modalBtnPrimary]}
+                                onPress={handleSaveBirthDate}>
+                                <Text style={styles.modalBtnTextPrimary}>저장</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </LinearGradient>
     );
 }
@@ -478,7 +729,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    
+
     // Header
     header: {
         flexDirection: 'row',
@@ -500,21 +751,64 @@ const styles = StyleSheet.create({
         fontFamily: 'Inter_700Bold',
         marginTop: 4,
     },
-    profileButton: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
+    headerButtons: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    moreButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 12,
         backgroundColor: '#FFFFFF',
         justifyContent: 'center',
         alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
+        shadowOpacity: 0.08,
         shadowRadius: 4,
         elevation: 3,
     },
+    profileButton: {
+        width: 48,
+        height: 48,
+        borderRadius: 16,
+        overflow: 'hidden',
+        shadowColor: '#2563EB',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 6,
+    },
+    profileButtonGradient: {
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     profileEmoji: {
-        fontSize: 24,
+        fontSize: 22,
+    },
+    headerButtons: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    settingsButton: {
+        width: 44,
+        height: 44,
+        borderRadius: 14,
+        overflow: 'hidden',
+    },
+    settingsButtonInner: {
+        width: '100%',
+        height: '100%',
+        backgroundColor: '#DBEAFE',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 14,
+        borderWidth: 1.5,
+        borderColor: '#93C5FD',
     },
 
     // Main Card
@@ -538,20 +832,22 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     mainCardLabel: {
-        fontSize: 14,
-        color: 'rgba(255, 255, 255, 0.8)',
-        fontFamily: 'Inter_400Regular',
+        fontSize: 16,
+        color: '#FFFFFF',
+        fontFamily: 'Inter_600SemiBold',
+        fontWeight: '600',
     },
     trendBadge: {
-        backgroundColor: 'rgba(255, 255, 255, 0.2)',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
+        backgroundColor: 'rgba(255, 255, 255, 0.25)',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
         borderRadius: 12,
     },
     trendBadgeText: {
-        fontSize: 12,
+        fontSize: 14,
         color: '#FFFFFF',
-        fontWeight: '600',
+        fontWeight: '700',
+        fontFamily: 'Inter_700Bold',
     },
     mainCardAmount: {
         fontSize: 36,
@@ -560,25 +856,29 @@ const styles = StyleSheet.create({
         fontFamily: 'Inter_700Bold',
         marginBottom: 20,
     },
-    mainCardStats: {
+    statsRow: {
         flexDirection: 'row',
-        backgroundColor: 'rgba(255, 255, 255, 0.15)',
+        backgroundColor: 'rgba(255, 255, 255, 0.18)',
         borderRadius: 16,
-        padding: 16,
+        padding: 18,
+        justifyContent: 'space-between',
     },
     statItem: {
         flex: 1,
         alignItems: 'center',
     },
     statLabel: {
-        fontSize: 12,
-        color: 'rgba(255, 255, 255, 0.7)',
-        marginBottom: 4,
+        fontSize: 14,
+        color: 'rgba(255, 255, 255, 0.9)',
+        marginBottom: 6,
+        fontFamily: 'Inter_600SemiBold',
+        fontWeight: '600',
     },
     statValue: {
-        fontSize: 16,
-        fontWeight: '700',
+        fontSize: 20,
+        fontWeight: '800',
         color: '#FFFFFF',
+        fontFamily: 'Inter_700Bold',
     },
     statDivider: {
         width: 1,
@@ -655,22 +955,29 @@ const styles = StyleSheet.create({
     },
     quickActionItem: {
         alignItems: 'center',
+        flex: 1,
     },
     quickActionIcon: {
         width: 56,
         height: 56,
-        borderRadius: 16,
+        borderRadius: 18,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 8,
+        marginBottom: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.1,
+        shadowRadius: 6,
+        elevation: 4,
     },
     quickActionEmoji: {
-        fontSize: 24,
+        fontSize: 26,
     },
     quickActionLabel: {
         fontSize: 12,
-        color: '#4B5563',
-        fontWeight: '500',
+        color: '#374151',
+        fontWeight: '600',
+        fontFamily: 'Inter_600SemiBold',
     },
 
     // Alert
@@ -681,13 +988,22 @@ const styles = StyleSheet.create({
     alertCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#FEF3C7',
+        backgroundColor: '#FEE2E2',
         borderRadius: 16,
         padding: 16,
-        borderWidth: 1,
-        borderColor: '#FCD34D',
+        shadowColor: '#EF4444',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 3,
     },
     alertIconContainer: {
+        width: 40,
+        height: 40,
+        borderRadius: 12,
+        backgroundColor: '#EF4444',
+        justifyContent: 'center',
+        alignItems: 'center',
         marginRight: 12,
     },
     alertEmoji: {
@@ -697,18 +1013,18 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     alertTitle: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#92400E',
+        fontSize: 15,
+        fontWeight: '700',
+        color: '#991B1B',
         marginBottom: 2,
     },
     alertDesc: {
-        fontSize: 12,
-        color: '#B45309',
+        fontSize: 13,
+        color: '#DC2626',
     },
     alertArrow: {
         fontSize: 24,
-        color: '#B45309',
+        color: '#EF4444',
     },
 
     // Section
@@ -852,8 +1168,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
     },
-    insightEmoji: {
-        fontSize: 24,
+    insightIconContainer: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        backgroundColor: '#F3F4F6',
+        justifyContent: 'center',
+        alignItems: 'center',
         marginRight: 12,
     },
     insightText: {
@@ -865,5 +1186,104 @@ const styles = StyleSheet.create({
     insightHighlight: {
         fontWeight: '700',
         color: '#2563EB',
+    },
+
+    // 생년월일 모달 스타일
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalContent: {
+        width: '85%',
+        maxWidth: 360,
+        borderRadius: 20,
+        padding: 24,
+        alignItems: 'center',
+        backgroundColor: 'white',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 10,
+        elevation: 10,
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: '700',
+        marginBottom: 8,
+    },
+    modalDesc: {
+        fontSize: 14,
+        textAlign: 'center',
+        marginBottom: 24,
+        lineHeight: 20,
+    },
+    birthDateRow: {
+        flexDirection: 'row',
+        gap: 10,
+        marginBottom: 24,
+        width: '100%',
+    },
+    birthBtn: {
+        flex: 1,
+        borderWidth: 1,
+        borderRadius: 10,
+        paddingVertical: 14,
+        alignItems: 'center',
+    },
+    birthBtnText: {
+        fontSize: 15,
+        fontWeight: '500',
+    },
+    modalBtnRow: {
+        flexDirection: 'row',
+        gap: 12,
+        width: '100%',
+    },
+    modalBtn: {
+        flex: 1,
+        paddingVertical: 14,
+        borderRadius: 12,
+        alignItems: 'center',
+    },
+    modalBtnSecondary: {
+        backgroundColor: '#E5E7EB',
+    },
+    modalBtnPrimary: {
+        backgroundColor: '#2563EB',
+    },
+    modalBtnTextSecondary: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: '#4B5563',
+    },
+    modalBtnTextPrimary: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: 'white',
+    },
+    birthInputContainer: {
+        width: '100%',
+        marginBottom: 24,
+    },
+    birthInput: {
+        width: '100%',
+        borderWidth: 1,
+        borderColor: '#D1D5DB',
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        fontSize: 24,
+        fontWeight: '600',
+        textAlign: 'center',
+        letterSpacing: 4,
+        color: '#1F2937',
+    },
+    birthHint: {
+        marginTop: 8,
+        fontSize: 12,
+        color: '#9CA3AF',
+        textAlign: 'center',
     },
 });

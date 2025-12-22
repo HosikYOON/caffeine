@@ -2686,3 +2686,1717 @@ TypeError: unsupported operand type(s) for /: 'decimal.Decimal' and 'float'
 2025-12-17 18:35:37,198 - audit - INFO - Response: 200 | Duration: 0.059s
 2025-12-17 18:35:40,429 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
 2025-12-17 18:35:40,501 - audit - INFO - Response: 200 | Duration: 0.072s
+2025-12-22 14:35:45,806 - app.main - INFO - ============================================================
+2025-12-22 14:35:45,806 - app.main - INFO - Caffeine API started
+2025-12-22 14:35:45,807 - app.main - INFO - Environment: development
+2025-12-22 14:35:45,807 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8081', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-22 14:35:45,807 - app.main - INFO - ============================================================
+2025-12-22 14:35:45,808 - app.main - INFO - Caffeine API started
+2025-12-22 14:35:45,808 - app.main - INFO - Environment: development
+2025-12-22 14:35:45,808 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8081', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-22 14:35:45,809 - app.main - INFO - ============================================================
+2025-12-22 14:35:45,809 - app.main - INFO - Caffeine API started
+2025-12-22 14:35:45,809 - app.main - INFO - Environment: development
+2025-12-22 14:35:45,809 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8081', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-22 14:35:45,810 - app.main - INFO - ============================================================
+2025-12-22 14:35:45,810 - app.main - INFO - Caffeine API started
+2025-12-22 14:35:45,810 - app.main - INFO - Environment: development
+2025-12-22 14:35:45,810 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8081', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-22 14:35:45,815 - app.main - INFO - ============================================================
+2025-12-22 14:35:45,815 - app.main - INFO - Caffeine API started
+2025-12-22 14:35:45,815 - app.main - INFO - Environment: development
+2025-12-22 14:35:45,815 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8081', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-22 14:35:46,382 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:35:46,382 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:35:46,382 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:35:46,382 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:35:46,382 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:35:46,382 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:35:46,382 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:35:46,384 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:35:46,384 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:35:46,385 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:35:46,385 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:35:46,385 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:35:46,385 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:35:46,385 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:35:46,385 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:35:46,385 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:35:46,385 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:35:46,385 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:35:46,385 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:35:46,385 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:35:46,385 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:35:46,385 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:35:46,386 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:35:46,386 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:35:46,386 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:35:46,386 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:35:46,386 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:35:46,386 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:35:46,386 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:35:46,386 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:35:46,386 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:35:46,386 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:35:46,386 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:35:46,386 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:35:46,386 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:38:20,109 - app.main - INFO - ============================================================
+2025-12-22 14:38:20,109 - app.main - INFO - Caffeine API started
+2025-12-22 14:38:20,109 - app.main - INFO - Environment: development
+2025-12-22 14:38:20,110 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8081', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-22 14:38:20,458 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:38:20,459 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:38:20,459 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:38:20,460 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:38:20,460 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:38:20,460 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:38:20,460 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:38:20,461 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:38:20,461 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:38:20,461 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:39:44,301 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:39:44,301 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:39:44,302 - app.main - INFO - Caffeine API stopped
+2025-12-22 14:39:44,302 - app.main - INFO - Caffeine API stopped
+2025-12-22 14:39:44,302 - app.main - INFO - ============================================================
+2025-12-22 14:39:44,302 - app.main - INFO - ============================================================
+2025-12-22 14:39:44,302 - app.main - INFO - ============================================================
+2025-12-22 14:39:44,302 - app.main - INFO - ============================================================
+2025-12-22 14:39:44,302 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:39:44,303 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:39:44,303 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:39:44,378 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:39:44,378 - app.main - INFO - Caffeine API stopped
+2025-12-22 14:39:44,378 - app.main - INFO - ============================================================
+2025-12-22 14:39:44,379 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:39:52,391 - app.main - INFO - ============================================================
+2025-12-22 14:39:52,391 - app.main - INFO - Caffeine API started
+2025-12-22 14:39:52,391 - app.main - INFO - Environment: development
+2025-12-22 14:39:52,392 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8081', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-22 14:39:52,400 - app.main - INFO - ============================================================
+2025-12-22 14:39:52,401 - app.main - INFO - Caffeine API started
+2025-12-22 14:39:52,401 - app.main - INFO - Environment: development
+2025-12-22 14:39:52,401 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8081', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-22 14:39:52,401 - app.main - INFO - ============================================================
+2025-12-22 14:39:52,402 - app.main - INFO - Caffeine API started
+2025-12-22 14:39:52,402 - app.main - INFO - Environment: development
+2025-12-22 14:39:52,402 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8081', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-22 14:39:52,404 - app.main - INFO - ============================================================
+2025-12-22 14:39:52,404 - app.main - INFO - Caffeine API started
+2025-12-22 14:39:52,404 - app.main - INFO - Environment: development
+2025-12-22 14:39:52,404 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8081', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-22 14:39:52,406 - app.main - INFO - ============================================================
+2025-12-22 14:39:52,406 - app.main - INFO - ============================================================
+2025-12-22 14:39:52,407 - app.main - INFO - Caffeine API started
+2025-12-22 14:39:52,407 - app.main - INFO - Environment: development
+2025-12-22 14:39:52,407 - app.main - INFO - Environment: development
+2025-12-22 14:39:52,407 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8081', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-22 14:39:52,407 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8081', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-22 14:39:53,118 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:39:53,132 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:39:53,455 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:39:53,458 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:39:53,458 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:39:53,458 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:39:53,458 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:39:53,458 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:39:53,458 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:39:53,459 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:39:53,459 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:39:53,459 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:39:53,459 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:39:53,459 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:39:53,459 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:39:53,459 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:39:53,459 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:39:53,459 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:39:53,459 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:39:53,459 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:39:53,459 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:39:53,460 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:39:53,460 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:39:53,461 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:39:53,461 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:39:53,461 - app.main - INFO - Caffeine API stopped
+2025-12-22 14:39:53,461 - app.main - INFO - Caffeine API stopped
+2025-12-22 14:39:53,462 - app.main - INFO - ============================================================
+2025-12-22 14:39:53,462 - app.main - INFO - ============================================================
+2025-12-22 14:39:53,462 - app.main - INFO - ============================================================
+2025-12-22 14:39:53,833 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:39:53,834 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:39:53,836 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:39:53,836 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:39:53,836 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:39:53,837 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:39:53,837 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:39:53,837 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:39:53,837 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:39:53,837 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:39:53,839 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:39:53,839 - app.main - INFO - Caffeine API stopped
+2025-12-22 14:39:53,839 - app.main - INFO - ============================================================
+2025-12-22 14:39:53,843 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:39:53,843 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:39:53,845 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:39:53,845 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:39:53,845 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:39:53,845 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:39:53,845 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:39:53,846 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:39:53,846 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:39:53,846 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:39:53,846 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:39:53,847 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:39:53,847 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:39:53,848 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:39:53,848 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:39:53,848 - app.main - INFO - Caffeine API stopped
+2025-12-22 14:39:53,848 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:39:53,848 - app.main - INFO - ============================================================
+2025-12-22 14:39:53,848 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:39:53,848 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:39:53,849 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:39:53,849 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:39:53,849 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:39:53,850 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:39:53,850 - app.main - INFO - Caffeine API stopped
+2025-12-22 14:39:53,851 - app.main - INFO - ============================================================
+2025-12-22 14:39:54,241 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:39:54,242 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:39:54,242 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:39:54,243 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:39:54,243 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:40:01,997 - app.main - INFO - ============================================================
+2025-12-22 14:40:01,997 - app.main - INFO - Caffeine API started
+2025-12-22 14:40:01,997 - app.main - INFO - Environment: development
+2025-12-22 14:40:01,998 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8081', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-22 14:40:02,015 - app.main - INFO - ============================================================
+2025-12-22 14:40:02,015 - app.main - INFO - Caffeine API started
+2025-12-22 14:40:02,016 - app.main - INFO - Environment: development
+2025-12-22 14:40:02,016 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8081', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-22 14:40:02,020 - app.main - INFO - ============================================================
+2025-12-22 14:40:02,020 - app.main - INFO - Caffeine API started
+2025-12-22 14:40:02,021 - app.main - INFO - Environment: development
+2025-12-22 14:40:02,021 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8081', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-22 14:40:02,021 - app.main - INFO - ============================================================
+2025-12-22 14:40:02,022 - app.main - INFO - Caffeine API started
+2025-12-22 14:40:02,022 - app.main - INFO - Environment: development
+2025-12-22 14:40:02,022 - app.main - INFO - ============================================================
+2025-12-22 14:40:02,022 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8081', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-22 14:40:02,022 - app.main - INFO - Caffeine API started
+2025-12-22 14:40:02,022 - app.main - INFO - Environment: development
+2025-12-22 14:40:02,023 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8081', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-22 14:40:02,026 - app.main - INFO - ============================================================
+2025-12-22 14:40:02,026 - app.main - INFO - Caffeine API started
+2025-12-22 14:40:02,026 - app.main - INFO - Environment: development
+2025-12-22 14:40:02,026 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8081', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-22 14:40:03,092 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:03,092 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:03,093 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:03,095 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:40:03,096 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:40:03,096 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:03,096 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:40:03,096 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:40:03,096 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:40:03,096 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:03,096 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:40:03,096 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:03,097 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:03,097 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:40:03,097 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:40:03,097 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:40:03,097 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:40:03,097 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:40:03,097 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:40:03,097 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:03,098 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:03,099 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:40:03,099 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:40:03,100 - app.main - INFO - Caffeine API stopped
+2025-12-22 14:40:03,100 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:40:03,100 - app.main - INFO - ============================================================
+2025-12-22 14:40:03,100 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:40:03,100 - app.main - INFO - ============================================================
+2025-12-22 14:40:03,100 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:03,100 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:40:03,101 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:40:03,101 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:40:03,101 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:03,102 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:40:03,102 - app.main - INFO - Caffeine API stopped
+2025-12-22 14:40:03,102 - app.main - INFO - ============================================================
+2025-12-22 14:40:03,107 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:03,108 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:03,110 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:40:03,110 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:40:03,110 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:40:03,111 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:03,111 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:40:03,111 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:40:03,111 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:40:03,111 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:03,113 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:40:03,113 - app.main - INFO - Caffeine API stopped
+2025-12-22 14:40:03,113 - app.main - INFO - ============================================================
+2025-12-22 14:40:03,114 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:40:03,114 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:40:03,116 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:40:03,123 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:03,124 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:03,125 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:03,125 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:03,127 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:40:03,127 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:40:03,128 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:40:03,128 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:40:03,128 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:03,128 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:40:03,128 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:40:03,128 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:40:03,129 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:40:03,129 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:03,129 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:03,129 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:40:03,130 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:40:03,130 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:40:03,130 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:03,131 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:40:03,132 - app.main - INFO - Caffeine API stopped
+2025-12-22 14:40:03,132 - app.main - INFO - ============================================================
+2025-12-22 14:40:03,132 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:40:03,133 - app.main - INFO - Caffeine API stopped
+2025-12-22 14:40:03,133 - app.main - INFO - ============================================================
+2025-12-22 14:40:03,147 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:40:03,148 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:40:11,013 - app.main - INFO - ============================================================
+2025-12-22 14:40:11,013 - app.main - INFO - Caffeine API started
+2025-12-22 14:40:11,013 - app.main - INFO - Environment: development
+2025-12-22 14:40:11,014 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8081', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-22 14:40:11,016 - app.main - INFO - ============================================================
+2025-12-22 14:40:11,016 - app.main - INFO - Caffeine API started
+2025-12-22 14:40:11,017 - app.main - INFO - Environment: development
+2025-12-22 14:40:11,017 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8081', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-22 14:40:11,030 - app.main - INFO - ============================================================
+2025-12-22 14:40:11,030 - app.main - INFO - Caffeine API started
+2025-12-22 14:40:11,030 - app.main - INFO - Environment: development
+2025-12-22 14:40:11,030 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8081', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-22 14:40:11,032 - app.main - INFO - ============================================================
+2025-12-22 14:40:11,032 - app.main - INFO - Caffeine API started
+2025-12-22 14:40:11,033 - app.main - INFO - Environment: development
+2025-12-22 14:40:11,033 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8081', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-22 14:40:11,039 - app.main - INFO - ============================================================
+2025-12-22 14:40:11,040 - app.main - INFO - Caffeine API started
+2025-12-22 14:40:11,040 - app.main - INFO - ============================================================
+2025-12-22 14:40:11,040 - app.main - INFO - Environment: development
+2025-12-22 14:40:11,040 - app.main - INFO - Caffeine API started
+2025-12-22 14:40:11,040 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8081', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-22 14:40:11,040 - app.main - INFO - Environment: development
+2025-12-22 14:40:11,040 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8081', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net']
+2025-12-22 14:40:11,735 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:11,737 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:11,737 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:11,739 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:40:11,740 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:40:11,740 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:40:11,740 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:40:11,741 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:40:11,741 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:40:11,741 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:11,741 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:11,741 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:40:11,741 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:40:11,741 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:40:11,742 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:40:11,742 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:40:11,742 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:11,742 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:11,743 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:40:11,743 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:40:11,743 - app.main - INFO - Caffeine API stopped
+2025-12-22 14:40:11,743 - app.main - INFO - Caffeine API stopped
+2025-12-22 14:40:11,743 - app.main - INFO - ============================================================
+2025-12-22 14:40:11,744 - app.main - INFO - ============================================================
+2025-12-22 14:40:11,749 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:11,750 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:11,752 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:11,752 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:40:11,752 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:11,753 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:40:11,753 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:40:11,753 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:11,753 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:40:11,754 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:40:11,754 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:40:11,754 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:11,755 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:40:11,755 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:40:11,756 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:40:11,756 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:40:11,756 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:11,756 - app.main - INFO - Caffeine API stopped
+2025-12-22 14:40:11,757 - app.services.scheduler - INFO - Scheduler started
+===========================
+2025-12-22 14:40:11,757 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:40:11,757 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:40:11,757 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:11,758 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:40:11,758 - app.main - INFO - Caffeine API stopped
+2025-12-22 14:40:11,759 - app.main - INFO - ============================================================
+2025-12-22 14:40:11,761 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:40:11,762 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:40:11,763 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:11,763 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:11,764 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:11,766 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:11,767 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:40:11,767 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:40:11,768 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:40:11,768 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:11,768 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:40:11,769 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:40:11,769 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:40:11,769 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:40:11,769 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:11,769 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:40:11,770 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:40:11,770 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:11,771 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:40:11,771 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:40:11,771 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:40:11,771 - app.main - INFO - Caffeine API stopped
+2025-12-22 14:40:11,771 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:40:11,772 - app.main - INFO - ============================================================
+2025-12-22 14:40:11,772 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:11,774 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:40:11,774 - app.main - INFO - Caffeine API stopped
+2025-12-22 14:40:11,775 - app.main - INFO - ============================================================
+2025-12-22 14:40:11,777 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:40:11,778 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:40:11,789 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:40:11,795 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:40:19,349 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:40:19,349 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:40:19,349 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:40:19,481 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:40:19,481 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:40:19,482 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:40:19,490 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:40:19,490 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:40:19,490 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:40:19,510 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:40:19,511 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:40:19,512 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:40:19,519 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:40:19,520 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:40:19,520 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:40:19,520 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:40:19,520 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:40:19,521 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:40:19,993 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:19,993 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:19,995 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:40:19,996 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:40:19,996 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:40:19,996 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:19,996 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:40:19,997 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:40:19,997 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:40:19,997 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:19,997 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:40:19,997 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:40:20,226 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:20,226 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:20,227 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:20,227 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:20,229 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:40:20,229 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:40:20,229 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:20,229 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:40:20,230 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:20,230 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:40:20,230 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:40:20,231 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:20,231 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:40:20,231 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:40:20,231 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:40:20,231 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:20,231 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:40:20,231 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:40:20,232 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:40:20,232 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:20,232 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+t"
+2025-12-22 14:40:20,233 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:40:20,233 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:20,234 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:40:20,234 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:40:20,234 - apscheduler.scheduler - INFO - Scheduler started
+mplete.
+2025-12-22 14:40:20,234 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:20,234 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:40:20,235 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:40:20,235 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:40:20,235 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:40:20,235 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:20,236 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:40:20,236 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:40:20,238 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:20,239 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:20,240 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:40:20,241 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:40:20,241 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:40:20,242 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:20,242 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:40:20,242 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:40:20,242 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:40:20,243 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:20,243 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:40:20,243 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:20,244 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:20,246 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:40:20,247 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:40:20,247 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:40:20,247 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:20,247 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:40:20,247 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:40:20,248 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:40:20,248 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:20,248 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:40:20,248 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:40:29,106 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:40:29,106 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:40:29,106 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:40:29,462 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:29,462 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:40:29,463 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:40:29,464 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:40:29,464 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:40:29,464 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:29,464 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:40:29,464 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:40:29,465 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:40:29,465 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:40:29,465 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:40:29,465 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:42:48,260 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:42:48,260 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:42:48,261 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:42:48,601 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:42:48,601 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:42:48,603 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:42:48,603 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:42:48,603 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:42:48,603 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:42:48,604 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:42:48,604 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:42:48,604 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:42:48,604 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:42:48,605 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:42:48,605 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:44:56,790 - audit - INFO - Request: GET /api/health | Client: 127.0.0.1
+2025-12-22 14:44:56,790 - audit - INFO - Response: 404 | Duration: 0.000s
+2025-12-22 14:45:04,052 - audit - INFO - Request: GET /health | Client: 127.0.0.1
+2025-12-22 14:45:04,055 - audit - INFO - Response: 200 | Duration: 0.002s
+2025-12-22 14:46:07,243 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:46:07,243 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:46:07,243 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:46:07,243 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:46:07,243 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:46:07,243 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:46:07,243 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:07,243 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:07,244 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:46:07,244 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:46:07,258 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:46:07,258 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:46:07,259 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:46:07,259 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:46:07,259 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:46:07,259 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:46:07,259 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:07,259 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:07,260 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:46:07,260 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:46:07,334 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:46:07,334 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:46:07,334 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:46:07,335 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:46:07,335 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:46:07,335 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:07,335 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:07,335 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:46:07,561 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:46:07,562 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:46:07,562 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:46:07,562 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:07,563 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:46:07,576 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:46:07,576 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:46:07,576 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:46:07,577 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:07,577 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:46:12,193 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:12,194 - app.core.lifespan - INFO - Caffeine API starting...
+==================================
+2025-12-22 14:46:12,194 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:46:12,194 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:46:12,222 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:12,223 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:46:12,223 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:46:12,223 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:12,223 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:46:12,224 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:46:12,228 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:12,229 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:46:12,229 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:46:12,334 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:12,335 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:46:12,335 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:46:12,430 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:12,431 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:46:12,431 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:46:12,453 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:12,453 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:46:12,453 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:46:12,737 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:12,737 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:12,739 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:46:12,739 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:46:12,739 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:46:12,739 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:12,740 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:46:12,740 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:46:12,740 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:46:12,740 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:12,740 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:46:12,740 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:12,740 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:12,740 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:12,741 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:46:12,742 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:46:12,742 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:46:12,742 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:12,742 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:46:12,743 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:46:12,743 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:46:12,743 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:12,743 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:46:12,743 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:12,768 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:12,768 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:12,768 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:12,769 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:12,769 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:12,769 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:12,769 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:46:12,770 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:46:12,770 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:46:12,770 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:46:12,770 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:46:12,770 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:46:12,770 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:46:12,770 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:46:12,770 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:12,770 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:12,770 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:46:12,770 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:46:12,770 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:46:12,771 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:46:12,771 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:46:12,771 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:12,771 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:46:12,771 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:46:12,771 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:12,771 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:46:12,771 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:46:12,771 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:46:12,771 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:46:12,771 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:12,771 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:12,771 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:12,772 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:46:12,772 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:12,786 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:12,787 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:12,788 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:46:12,788 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:46:12,788 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:46:12,788 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:12,788 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:46:12,789 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:46:12,789 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:46:12,789 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:12,790 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:46:12,790 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:12,837 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:12,838 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:12,839 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:46:12,839 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:46:12,839 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:46:12,839 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:12,840 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:46:12,840 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:46:12,840 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:46:12,840 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:12,840 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:46:12,840 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:12,849 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:12,850 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:12,852 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:46:12,852 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:46:12,852 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:46:12,852 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:12,852 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:46:12,852 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:46:12,853 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:46:12,853 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:12,853 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:46:12,853 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:41,764 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:46:41,765 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:46:41,765 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:46:41,765 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:41,765 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:46:41,810 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:46:41,811 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:46:41,811 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:46:41,811 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:41,811 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:46:41,840 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:46:41,840 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:46:41,841 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:46:41,841 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:46:41,841 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:46:41,841 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:46:41,841 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:41,841 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:41,841 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:41,842 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:46:41,842 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:46:41,842 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:46:41,916 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:46:41,916 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:46:41,917 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:46:41,917 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:46:41,917 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:46:41,917 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:46:41,917 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:41,917 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:41,918 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:46:41,918 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:46:46,865 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:46,865 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:46:46,865 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:46:46,869 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:46,869 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:46:46,869 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:46:46,896 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:46,897 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:46:46,897 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:46:46,908 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:46,908 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:46:46,908 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:46:46,928 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:46,928 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:46:46,929 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:46:46,938 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:46,938 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:46:46,938 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:46:46,996 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:46,996 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:46:46,996 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:46:47,056 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:47,057 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:46:47,057 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:46:47,415 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:47,416 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:47,417 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:46:47,417 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:46:47,417 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:46:47,418 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:47,418 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:46:47,418 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:46:47,419 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:46:47,419 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:47,419 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:46:47,420 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:47,430 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:47,430 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:47,431 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:46:47,431 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:46:47,432 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:46:47,432 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:47,432 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:46:47,432 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:46:47,432 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:46:47,432 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:47,433 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:46:47,433 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:47,435 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:47,436 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:47,437 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:46:47,437 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:46:47,437 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:46:47,438 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:47,438 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:46:47,438 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:46:47,438 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:46:47,438 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:47,439 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:46:47,439 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:47,449 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:47,449 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:47,449 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:47,450 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:47,450 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:46:47,450 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:46:47,450 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:47,451 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:46:47,451 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:47,451 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:47,451 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:46:47,451 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:46:47,451 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:46:47,451 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:46:47,452 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:46:47,452 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:46:47,452 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:47,452 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:46:47,452 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:47,452 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:46:47,452 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:46:47,452 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:46:47,452 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:47,452 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:46:47,452 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:46:47,453 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:46:47,453 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:47,453 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:47,453 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:46:47,453 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:46:47,453 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:46:47,453 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:47,453 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:46:47,453 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:47,453 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:46:47,454 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:47,457 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:47,458 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:47,459 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:46:47,459 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:46:47,459 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:46:47,460 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:47,460 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:46:47,460 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:46:47,460 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:46:47,460 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:47,461 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:46:47,461 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:46:47,501 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:47,501 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:46:47,502 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:46:47,502 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:46:47,502 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:46:47,502 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:47,503 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:46:47,503 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:46:47,503 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:46:47,503 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:46:47,503 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:46:47,503 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:08,245 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:47:08,245 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:47:08,246 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:08,246 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:08,246 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:08,246 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:08,246 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:08,246 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:08,246 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:08,246 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:08,246 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:08,246 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:08,246 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:08,246 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:08,246 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:08,246 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:08,291 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:47:08,292 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:08,292 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:08,292 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:08,293 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:08,321 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:47:08,322 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:08,322 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:08,322 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:08,322 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:08,322 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:08,322 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:08,323 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:08,323 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:08,339 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:47:08,340 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:08,341 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:08,341 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:08,341 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:13,745 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:13,745 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:13,745 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:13,758 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:13,758 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:13,759 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:13,839 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:13,839 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:13,839 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:13,852 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:13,852 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:13,853 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:13,993 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:13,994 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:13,994 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:14,011 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:14,011 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:14,011 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:14,020 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:14,020 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:14,021 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:14,021 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:14,021 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:14,224 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:14,224 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:14,225 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:14,225 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:14,225 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:14,226 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:14,226 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:14,226 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:14,226 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:14,226 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:14,226 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:14,226 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:14,247 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:14,247 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:14,248 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:14,249 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:14,249 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:14,249 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:14,249 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:14,249 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:14,249 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:14,249 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:14,249 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:14,250 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:14,298 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:14,298 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:14,299 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:14,299 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:14,299 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:14,300 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:14,300 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:14,300 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:14,300 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:14,301 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:14,301 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:14,301 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:14,309 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:14,309 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:14,310 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:14,310 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:14,311 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:14,311 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:14,311 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:14,311 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:14,311 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:14,311 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:14,311 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:14,312 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:14,434 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:14,434 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:14,435 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:14,435 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:14,436 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:14,436 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:14,436 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:14,436 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:14,436 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:14,436 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:14,436 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:14,437 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:14,437 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:14,437 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:14,437 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:14,437 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+nth 09:00
+2025-12-22 14:47:14,437 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:14,437 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:14,437 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:14,438 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:14,438 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:14,438 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:14,438 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:14,441 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:14,442 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:14,443 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:14,443 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:14,443 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:14,443 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:14,444 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:14,444 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:14,444 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:14,444 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:14,444 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:14,444 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:14,445 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:14,445 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:14,446 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:14,446 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:14,446 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:14,446 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:14,446 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:14,447 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:14,447 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:14,447 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:14,447 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:14,448 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:21,091 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:47:21,092 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:21,092 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:21,092 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:21,093 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:21,136 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:47:21,136 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:47:21,137 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:21,137 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:21,137 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:21,137 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:21,137 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:21,137 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:21,137 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:21,137 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:21,137 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:21,137 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:21,137 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:21,137 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:21,137 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:21,138 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:21,138 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:21,138 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:21,138 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:21,138 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:21,258 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:47:21,258 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:21,259 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:21,259 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:21,259 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:21,319 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:47:21,319 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:21,319 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:21,320 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:21,320 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:26,217 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:26,217 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:26,217 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:26,221 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:26,221 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:26,222 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:26,224 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:26,225 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:26,225 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:26,243 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:26,244 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:26,244 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:26,249 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:26,249 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:26,250 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:26,253 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:26,254 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:26,254 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:26,255 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:26,255 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:26,255 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:26,365 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:26,366 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:26,366 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:26,696 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:26,697 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:26,698 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:26,698 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:26,698 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:26,698 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:26,699 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:26,699 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:26,699 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:26,699 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:26,699 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:26,700 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:26,708 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:26,708 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:26,708 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:26,709 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:26,710 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:26,710 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:26,710 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:26,710 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:26,710 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:26,710 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:26,710 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:26,710 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:26,711 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:26,711 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:26,711 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:26,711 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+nth 09:00
+2025-12-22 14:47:26,711 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:26,711 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:26,711 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:26,711 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:26,712 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:26,712 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:26,712 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:26,716 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:26,717 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:26,718 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:26,718 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:26,719 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:26,719 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:26,719 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:26,719 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:26,719 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:26,719 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:26,719 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:26,719 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:26,722 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:26,722 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:26,723 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:26,723 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:26,723 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:26,724 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:26,724 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:26,724 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:26,724 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:26,724 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:26,724 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:26,725 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:26,729 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:26,730 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:26,730 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:26,731 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:26,731 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:26,731 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:26,731 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:26,731 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:26,731 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:26,731 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:26,732 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:26,732 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:26,736 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:26,737 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:26,738 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:26,738 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:26,738 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:26,738 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:26,738 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:26,739 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:26,739 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:26,739 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:26,739 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:26,739 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:26,797 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:26,798 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:26,799 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:26,806 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:26,808 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:26,808 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:26,808 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:26,808 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:26,809 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:26,809 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:26,809 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:26,809 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:39,873 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:47:39,873 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:47:39,873 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:39,873 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:39,873 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:39,873 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:39,873 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:39,873 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:39,873 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:39,873 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:39,873 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:39,873 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:39,874 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:39,874 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:39,874 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:39,874 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:39,889 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:47:39,889 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:39,890 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:39,890 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:39,890 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:39,890 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:39,890 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:39,890 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:39,904 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:47:39,904 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:39,904 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:39,905 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:39,905 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:39,905 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:39,905 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:39,905 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:39,905 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:44,666 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:44,667 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:44,667 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:44,767 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:44,767 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:44,768 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:44,797 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:44,797 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:44,797 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:44,807 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:44,808 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:44,808 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:44,868 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:44,868 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:44,868 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:44,876 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:44,876 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:44,877 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:44,941 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:44,941 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:44,941 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:44,948 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:44,948 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:44,949 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:45,128 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:45,128 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:45,129 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:45,130 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:45,130 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:45,130 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:45,130 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:45,131 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:45,131 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:45,131 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:45,131 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:45,131 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:45,281 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:45,282 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:45,283 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:45,283 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:45,283 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:45,283 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:45,283 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:45,284 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:45,284 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:45,284 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:45,284 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:45,284 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:45,285 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:45,286 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:45,286 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:45,287 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:45,287 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:45,287 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:45,287 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:45,287 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:45,287 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:45,288 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:45,288 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:45,288 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:45,289 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:45,290 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:45,291 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:45,291 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:45,291 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:45,291 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:45,291 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:45,291 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:45,292 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:45,292 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:45,292 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:45,292 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:45,340 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:45,340 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:45,342 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:45,342 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:45,342 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:45,342 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:45,343 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:45,343 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:45,343 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:45,343 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:45,344 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:45,344 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:45,355 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:45,356 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:45,356 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:45,357 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:45,357 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:45,357 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:45,357 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:45,357 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:45,358 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:45,358 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:45,358 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:45,358 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:45,358 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:45,358 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:45,358 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:45,358 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:45,358 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:45,359 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:45,359 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:45,359 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:45,359 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:45,359 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:45,359 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:45,359 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:45,373 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:45,374 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:45,375 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:45,375 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:45,375 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:45,375 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:45,375 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:45,376 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:45,376 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:45,376 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:45,376 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:45,376 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:46,452 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:47:46,453 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:46,453 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:46,453 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:46,454 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:46,513 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:47:46,514 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:46,514 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:46,514 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:46,515 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:46,620 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:47:46,620 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:46,621 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:46,621 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:46,621 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:46,636 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:47:46,636 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:46,636 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:46,636 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:46,637 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:46,637 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:46,637 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:46,637 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:46,650 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:47:46,651 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:46,651 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:46,651 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:46,652 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:46,666 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:47:46,666 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:46,666 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:46,666 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:46,667 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:46,667 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:46,667 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:46,667 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:51,273 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:51,273 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:51,274 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:51,388 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:51,389 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:51,389 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:51,462 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:51,462 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:51,462 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:51,473 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:51,473 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:51,473 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:51,563 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:51,563 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:51,563 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:51,585 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:51,585 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:51,585 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:51,628 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:51,629 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:51,629 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:51,664 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:51,664 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:51,664 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:51,863 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:51,864 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:51,864 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:51,865 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:51,865 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:51,865 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:51,865 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:51,865 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:51,865 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:51,866 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:51,866 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:51,866 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:51,897 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:51,897 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:51,898 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:51,898 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:51,899 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:51,899 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:51,899 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:51,899 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:51,899 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:51,899 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:51,899 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:51,899 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:51,948 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:51,948 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:51,949 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:51,950 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:51,950 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:51,950 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:51,950 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:51,950 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:51,950 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:51,951 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:51,951 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:51,951 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:51,976 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:51,977 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:51,978 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:51,978 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:51,978 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:51,979 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:51,979 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:51,979 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:51,979 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:51,979 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:51,979 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:51,979 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:52,050 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:52,051 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:52,052 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:52,053 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:52,053 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:52,053 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:52,053 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:52,053 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:52,053 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:52,053 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:52,054 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:52,054 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:52,055 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:52,056 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:52,057 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:52,057 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:52,058 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:52,058 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:52,058 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:52,058 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:52,059 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:52,059 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:52,059 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:52,059 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:52,085 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:52,086 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:52,087 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:52,087 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:52,088 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:52,088 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:52,088 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:52,088 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:52,089 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:52,089 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:52,089 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:52,089 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:52,107 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:52,108 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:52,110 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:52,110 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:52,110 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:52,111 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:52,111 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:52,111 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:52,111 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:52,112 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:52,112 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:52,112 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:56,587 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:56,587 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:56,587 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:56,600 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:56,600 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:56,600 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:56,607 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:56,608 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:56,608 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:56,640 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:56,640 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:56,640 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:56,835 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:56,835 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:56,835 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:56,856 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:56,856 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:56,856 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:56,859 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:56,860 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:56,860 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:56,883 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:56,883 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:47:56,883 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:47:57,048 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:57,048 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:57,050 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:57,050 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:57,050 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:57,051 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:57,051 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:57,051 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:57,051 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:57,051 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:57,052 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:57,052 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:57,086 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:57,087 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:57,088 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:57,088 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:57,089 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:57,089 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:57,089 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:57,089 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:57,089 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:57,090 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:57,090 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:57,090 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:57,116 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:57,116 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:57,116 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:57,116 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:57,116 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:57,116 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:57,117 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:57,117 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:57,117 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:57,117 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:57,117 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:57,117 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:57,117 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:57,117 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:57,117 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:57,117 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:57,118 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:57,118 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:57,118 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:57,118 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:57,118 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:57,118 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:57,118 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:57,296 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:57,297 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:57,298 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:57,299 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:57,299 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:57,299 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:57,299 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:57,300 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:57,300 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:57,300 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:57,300 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:57,300 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:57,333 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:57,334 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:57,334 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:57,334 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:57,336 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:57,336 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:57,336 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:57,336 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:57,336 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:57,336 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:57,337 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:57,337 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:57,337 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:57,337 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:57,337 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:57,337 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:57,337 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:57,337 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:57,337 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:57,338 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:57,338 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:57,338 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:57,338 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:57,338 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:57,341 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:57,341 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:47:57,342 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:47:57,342 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:47:57,343 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:47:57,343 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:57,343 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:47:57,343 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:47:57,343 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:47:57,343 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:47:57,343 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:47:57,344 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:58,293 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:47:58,293 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:58,293 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:58,293 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:58,293 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:58,323 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:47:58,323 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:58,323 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:58,324 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:58,324 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:58,368 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:47:58,369 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:58,369 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:58,369 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:58,369 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:58,400 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:47:58,400 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:58,400 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:58,401 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:58,401 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:58,581 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:47:58,581 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:58,582 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:58,582 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:58,582 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:58,612 - app.core.lifespan - INFO - Caffeine API shutting down...
+2025-12-22 14:47:58,612 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:58,612 - app.services.scheduler - INFO - Scheduler stopped
+2025-12-22 14:47:58,612 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:58,612 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:58,612 - app.core.lifespan - INFO - Caffeine API stopped.
+2025-12-22 14:47:58,612 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:58,612 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:58,613 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:47:58,613 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:58,613 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:47:58,613 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2025-12-22 14:48:02,896 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:48:02,896 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:48:02,896 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:48:03,141 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:48:03,141 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:48:03,142 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:48:03,174 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:48:03,174 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:48:03,175 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:48:03,213 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:48:03,213 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:48:03,214 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:48:03,460 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:48:03,460 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:48:03,461 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:48:03,462 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:48:03,462 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:48:03,462 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:48:03,462 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:48:03,462 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:48:03,463 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:48:03,463 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:48:03,463 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:48:03,463 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:48:03,479 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:48:03,479 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:48:03,479 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:48:03,561 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:48:03,561 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:48:03,561 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:48:03,568 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:48:03,569 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:48:03,569 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:48:03,570 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:48:03,570 - app.core.lifespan - INFO - Caffeine API starting...
+2025-12-22 14:48:03,570 - app.core.lifespan - INFO - Environment: development
+2025-12-22 14:48:03,688 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:48:03,688 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:48:03,689 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:48:03,690 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:48:03,690 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:48:03,690 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:48:03,690 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:48:03,690 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:48:03,690 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:48:03,690 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:48:03,691 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:48:03,691 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:48:03,693 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:48:03,694 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:48:03,695 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:48:03,696 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:48:03,696 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:48:03,696 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:48:03,696 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:48:03,696 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:48:03,697 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:48:03,697 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:48:03,697 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:48:03,697 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:48:03,729 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:48:03,729 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:48:03,730 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:48:03,730 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:48:03,731 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:48:03,731 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:48:03,731 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:48:03,731 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:48:03,731 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:48:03,731 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:48:03,731 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:48:03,732 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:48:03,882 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:48:03,883 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:48:03,884 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:48:03,884 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:48:03,884 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:48:03,884 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:48:03,885 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:48:03,885 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:48:03,886 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:48:03,886 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:48:03,886 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:48:03,886 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:48:03,954 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:48:03,954 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:48:03,955 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:48:03,955 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:48:03,955 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:48:03,956 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:48:03,956 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:48:03,956 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:48:03,956 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:48:03,956 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:48:03,956 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:48:03,957 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:48:03,961 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:48:03,961 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:48:03,961 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:48:03,961 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-22 14:48:03,962 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:48:03,962 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-22 14:48:03,962 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:48:03,962 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:48:03,962 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-22 14:48:03,963 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-22 14:48:03,963 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:48:03,963 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:48:03,963 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:48:03,963 - app.services.scheduler - INFO - Scheduler started
+2025-12-22 14:48:03,963 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:48:03,963 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-22 14:48:03,963 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:48:03,963 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-22 14:48:03,963 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:48:03,963 - app.services.scheduler - INFO - ============================================================
+2025-12-22 14:48:03,963 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:48:03,963 - app.core.lifespan - INFO - Caffeine API startup complete.
+2025-12-22 14:48:03,964 - app.core.lifespan - INFO - ============================================================
+2025-12-22 14:48:03,964 - app.core.lifespan - INFO - ============================================================

@@ -66,22 +66,37 @@ async def login_for_user(
     db: AsyncSession = Depends(get_db),
     user_agent: str | None = Header(default=None),
 ):
-    email = user.username
-    result = await login_user(
-        db,
-        email=email,
-        password=user.password,
-        user_agent=user_agent,
-    )
-
-    if not result:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
+    try:
+        email = user.username
+        result = await login_user(
+            db,
+            email=email,
+            password=user.password,
+            user_agent=user_agent,
         )
 
-    return {"access_token": result["access_token"], "refresh_token": result["refresh_token"], "token_type": "bearer"}
+        if not result:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect email or password",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        return {"access_token": result["access_token"], "refresh_token": result["refresh_token"], "token_type": "bearer"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        print(f"\n\n=== LOGIN ERROR ===")
+        print(f"Error type: {type(e).__name__}")
+        print(f"Error: {str(e)}")
+        print(f"Traceback:")
+        traceback.print_exc()
+        print(f"===================\n\n")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Internal server error: {str(e)}"
+        )
 
 
 #유저 생성
@@ -135,3 +150,55 @@ async def upd_user(
         user_data,
     )
     return mod_user
+
+
+# 푸시 토큰 등록
+@router.post("/push-token", status_code=status.HTTP_200_OK)
+async def register_push_token(
+    db: DB_Dependency,
+    current_user: Auth_Dependency,
+    push_token: str = None,
+):
+    """
+    사용자의 Expo Push Token을 등록합니다.
+    
+    모바일 앱에서 로그인 후 호출하여 푸시 알림을 받을 수 있도록 합니다.
+    """
+    from pydantic import BaseModel
+    
+    # Request body로 받기 위한 처리
+    pass
+
+
+from pydantic import BaseModel
+
+class PushTokenRequest(BaseModel):
+    push_token: str
+
+
+@router.post("/register-push-token", status_code=status.HTTP_200_OK)
+async def register_push_token_v2(
+    payload: PushTokenRequest,
+    db: DB_Dependency,
+    current_user: Auth_Dependency,
+):
+    """
+    사용자의 Expo Push Token을 등록합니다.
+    
+    모바일 앱에서 로그인 후 호출하여 푸시 알림을 받을 수 있도록 합니다.
+    """
+    try:
+        current_user.push_token = payload.push_token
+        await db.commit()
+        await db.refresh(current_user)
+        
+        return {
+            "message": "Push token registered successfully",
+            "push_token": payload.push_token[:30] + "..." if len(payload.push_token) > 30 else payload.push_token
+        }
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to register push token: {str(e)}"
+        )
