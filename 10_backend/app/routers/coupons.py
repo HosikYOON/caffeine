@@ -23,7 +23,7 @@ from app.core.jwt import verify_access_token
 # 로거 설정
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/coupons", tags=["쿠폰"])
+router = APIRouter(prefix="/coupons", tags=["쿠폰"])
 
 # DB 세션 의존성
 DB_Dependency = Annotated[AsyncSession, Depends(get_db)]

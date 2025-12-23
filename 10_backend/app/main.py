@@ -151,7 +151,7 @@ app.include_router(reports.router, prefix="/api")
 app.include_router(anomalies.router, prefix="/api")
 
 # 챗봇 API (/api/chat/*)
-app.include_router(chatbot_router)
+app.include_router(chatbot_router, prefix="/api")
 
 # CORS 설정을 가장 마지막에 추가하여 outermost 레이어로 만듦
 app.add_middleware(

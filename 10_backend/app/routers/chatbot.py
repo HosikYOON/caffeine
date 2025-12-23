@@ -14,7 +14,7 @@ from app.db.model.transaction import Transaction, Category
 from app.db.model.user import User
 
 router = APIRouter(
-    prefix="/api/chat",
+    prefix="/chat",
     tags=["chatbot"],
     responses={404: {"description": "Not found"}},
 )

@@ -16,6 +16,7 @@ services:
       GMAIL_ADDRESS: ${GMAIL_ADDRESS}
       GMAIL_APP_PASSWORD: ${GMAIL_APP_PASSWORD}
       DEVELOPMENT_MODE: ${DEVELOPMENT_MODE}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
     ports:
       - "8001:8000"
     volumes:
@@ -30,7 +31,7 @@ services:
     ports:
       - "3001:3000"
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost
+      NEXT_PUBLIC_API_URL: http://localhost:8001/api
     depends_on:
       - backend
 
@@ -54,7 +55,5 @@ services:
     container_name: caf_llm_analysis
     ports:
       - "9102:9102"
-    env_file:
-      - .env
     environment:
       GEMINI_API_KEY: ${GEMINI_API_KEY}

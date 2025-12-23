@@ -10,7 +10,7 @@ import { apiClient } from './client';
  */
 export const sendChatMessage = async ({ message, naggingLevel = '중', history = [], type = 'chat' }) => {
     try {
-        const response = await apiClient.post('/api/chat', {
+        const response = await apiClient.post('/chat', {
             message,
             naggingLevel,
             history,

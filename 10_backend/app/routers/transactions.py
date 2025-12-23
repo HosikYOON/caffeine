@@ -36,7 +36,7 @@ async def get_current_user_id(token: Optional[str] = Depends(oauth2_scheme)) -> 
 
 # 라우터 설정
 router = APIRouter(
-    prefix="/api/transactions",
+    prefix="/transactions",
     tags=["transactions"],
     responses={404: {"description": "Not found"}},
 )

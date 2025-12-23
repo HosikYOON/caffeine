@@ -51,7 +51,7 @@ export const useChatbot = ({ transactions = [], budget = 1000000 } = {}) => {
                 if (cached) {
                     const history = JSON.parse(cached);
                     setMessages(history);
-                    setChatStarted(true);
+                    // setChatStarted(true);
                     // ID 카운터 업데이트
                     const maxId = Math.max(...history.map(m => m.id || 0));
                     messageIdRef.current = maxId + 1;
