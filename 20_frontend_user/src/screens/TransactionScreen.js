@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Modal, TextInput } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
-import { apiClient, getAnomalies } from '../api';
+import { apiClient, getAnomalies, reportAnomaly, ignoreAnomaly } from '../api';
 import { useTheme } from '../contexts/ThemeContext';
 import { useTransactions } from '../contexts/TransactionContext';
 import EmptyState from '../components/EmptyState';
@@ -37,6 +37,7 @@ export default function TransactionScreen({ navigation, route }) {
                         date: a.date,
                         cardType: a.riskLevel === 'high' ? '위험' : '주의',
                         notes: a.reason,
+                        status: a.status,
                         isAnomaly: true
                     }));
                     setDisplayTransactions(mapped);
@@ -367,7 +368,7 @@ export default function TransactionScreen({ navigation, route }) {
                 </View>
             </Modal>
 
-            {/* Anomaly Category Selection Modal */}
+            {/* Anomaly Action Modal (Report / Ignore) */}
             <Modal
                 animationType="fade"
                 transparent={true}
@@ -375,7 +376,7 @@ export default function TransactionScreen({ navigation, route }) {
                 onRequestClose={() => setAnomalyCategoryModalVisible(false)}>
                 <View style={styles(colors).modalOverlay}>
                     <View style={styles(colors).categoryModalContent}>
-                        <Text style={styles(colors).modalTitle}>⚠️ 이상거래 분류</Text>
+                        <Text style={styles(colors).modalTitle}>⚠️ 이상거래 확인</Text>
 
                         {selectedTransaction && (
                             <View style={styles(colors).categoryTransactionInfo}>
@@ -388,54 +389,76 @@ export default function TransactionScreen({ navigation, route }) {
                             </View>
                         )}
 
-                        <View style={styles(colors).categoryOptions}>
-                            <TouchableOpacity
-                                style={[styles(colors).categoryOption, styles(colors).categoryOptionSafe]}
-                                onPress={() => handleCategorySelect('safe')}>
-                                <Text style={styles(colors).categoryOptionIcon}>🟢</Text>
-                                <View style={styles(colors).categoryOptionContent}>
-                                    <Text style={styles(colors).categoryOptionTitle}>안전</Text>
-                                    <Text style={styles(colors).categoryOptionDesc}>
-                                        본인이 직접 사용한 거래입니다
-                                    </Text>
-                                </View>
-                            </TouchableOpacity>
+                        <Text style={styles(colors).modalText}>
+                            본인이 사용하지 않은 거래인가요?
+                        </Text>
 
-                            <TouchableOpacity
-                                style={[styles(colors).categoryOption, styles(colors).categoryOptionSuspicious]}
-                                onPress={() => handleCategorySelect('suspicious')}>
-                                <Text style={styles(colors).categoryOptionIcon}>🟡</Text>
-                                <View style={styles(colors).categoryOptionContent}>
-                                    <Text style={styles(colors).categoryOptionTitle}>의심</Text>
-                                    <Text style={styles(colors).categoryOptionDesc}>
-                                        확실하지 않지만 의심스러운 거래입니다
-                                    </Text>
+                        <View style={styles(colors).actionButtons}>
+                            {/* 조건부 렌더링: 이미 신고/무시된 경우 메시지 표시 */}
+                            {(selectedTransaction?.notes === 'User Reported' || selectedTransaction?.status === 'reported') ? (
+                                <View style={styles(colors).reportButton}>
+                                    <Text style={styles(colors).reportButtonText}>🚨 이미 신고가 접수되었습니다.</Text>
+                                    <Text style={{ ...styles(colors).actionButtonSubText, marginTop: 4 }}>관리자 확인 대기 중</Text>
                                 </View>
-                            </TouchableOpacity>
+                            ) : (selectedTransaction?.status === 'ignored' || selectedTransaction?.notes === 'User Ignored') ? (
+                                <View style={{ ...styles(colors).actionButtonIgnore, backgroundColor: colors.success }}>
+                                    <Text style={styles(colors).actionButtonText}>✅ 이미 무시한 알림입니다.</Text>
+                                    <Text style={styles(colors).actionButtonSubText}>더 이상 알림이 뜨지 않습니다.</Text>
+                                </View>
+                            ) : (
+                                <>
+                                    {/* 신고하기 버튼 */}
+                                    <TouchableOpacity
+                                        style={styles(colors).actionButtonReport}
+                                        onPress={async () => {
+                                            try {
+                                                await reportAnomaly(selectedTransaction.id);
 
-                            <TouchableOpacity
-                                style={[styles(colors).categoryOption, styles(colors).categoryOptionDangerous]}
-                                onPress={() => handleCategorySelect('dangerous')}>
-                                <Text style={styles(colors).categoryOptionIcon}>🔴</Text>
-                                <View style={styles(colors).categoryOptionContent}>
-                                    <Text style={styles(colors).categoryOptionTitle}>위험</Text>
-                                    <Text style={styles(colors).categoryOptionDesc}>
-                                        명백한 사기 또는 도용 거래입니다
-                                    </Text>
-                                </View>
-                            </TouchableOpacity>
+                                                // 즉시 상태 반영
+                                                setSelectedTransaction(prev => ({ ...prev, notes: 'User Reported', status: 'pending' }));
+                                                setDisplayTransactions(prev => prev.map(t =>
+                                                    t.id === selectedTransaction.id ? { ...t, notes: 'User Reported', status: 'pending' } : t
+                                                ));
+
+                                                setTimeout(() => {
+                                                    alert('🚨 신고가 접수되었습니다.\n관리자 확인 후 조치됩니다.');
+                                                    setAnomalyCategoryModalVisible(false);
+                                                }, 300);
+                                            } catch (e) {
+                                                alert('신고 처리 중 오류가 발생했습니다.');
+                                            }
+                                        }}>
+                                        <Text style={styles(colors).actionButtonText}>🚨 신고하기</Text>
+                                        <Text style={styles(colors).actionButtonSubText}>관리자에게 알림</Text>
+                                    </TouchableOpacity>
+
+                                    {/* 무시하기 버튼 */}
+                                    <TouchableOpacity
+                                        style={styles(colors).actionButtonIgnore}
+                                        onPress={async () => {
+                                            try {
+                                                await ignoreAnomaly(selectedTransaction.id);
+
+                                                // 즉시 상태 반영
+                                                setSelectedTransaction(prev => ({ ...prev, notes: 'User Ignored', status: 'ignored' }));
+                                                setDisplayTransactions(prev => prev.map(t =>
+                                                    t.id === selectedTransaction.id ? { ...t, notes: 'User Ignored', status: 'ignored' } : t
+                                                ));
+
+                                                setTimeout(() => {
+                                                    alert('✅ 확인되었습니다.\n더 이상 알림이 뜨지 않습니다.');
+                                                    setAnomalyCategoryModalVisible(false);
+                                                }, 300);
+                                            } catch (e) {
+                                                alert('처리 중 오류가 발생했습니다.');
+                                            }
+                                        }}>
+                                        <Text style={styles(colors).actionButtonText}>👌 내가 쓴 거 맞아요</Text>
+                                        <Text style={styles(colors).actionButtonSubText}>알림 무시하기</Text>
+                                    </TouchableOpacity>
+                                </>
+                            )}
                         </View>
-
-                        <TouchableOpacity
-                            style={styles(colors).reportButton}
-                            onPress={() => {
-                                setAnomalyCategoryModalVisible(false);
-                                setTimeout(() => {
-                                    alert('신고 접수 완료\n\n고객센터에서 24시간 내 연락드리겠습니다.\n필요시 카드 정지 조치가 진행됩니다.');
-                                }, 300);
-                            }}>
-                            <Text style={styles(colors).reportButtonText}>고객센터에 신고하기</Text>
-                        </TouchableOpacity>
 
                         <TouchableOpacity
                             style={styles(colors).categoryModalCancel}
@@ -608,6 +631,44 @@ const styles = (colors) => StyleSheet.create({
         fontSize: 13,
         color: colors.textSecondary,
         lineHeight: 18,
+    },
+    actionButtons: {
+        flexDirection: 'column',
+        gap: 12,
+        marginBottom: 20,
+        width: '100%',
+    },
+    actionButtonReport: {
+        backgroundColor: '#EF4444',
+        padding: 16,
+        borderRadius: 12,
+        alignItems: 'center',
+        shadowColor: '#EF4444',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    actionButtonIgnore: {
+        backgroundColor: '#3B82F6',
+        padding: 16,
+        borderRadius: 12,
+        alignItems: 'center',
+        shadowColor: '#3B82F6',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    actionButtonText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 2,
+    },
+    actionButtonSubText: {
+        color: 'rgba(255, 255, 255, 0.8)',
+        fontSize: 12,
     },
     reportButton: {
         backgroundColor: colors.error,

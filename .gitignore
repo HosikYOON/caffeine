@@ -116,3 +116,7 @@ audit.log
 caffeine/
 caffeine
 forcodex/
+
+# Custom Scripts Folder
+cyj_scripts/
+forAntigravity/

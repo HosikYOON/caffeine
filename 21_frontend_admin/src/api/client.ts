@@ -80,7 +80,7 @@ export async function getFullAnalysis(year?: number, month?: number) {
     if (year) params.append('year', year.toString());
     if (month) params.append('month', month.toString());
     const queryString = params.toString();
-    return apiClient.get(`/api/analysis/full${queryString ? '?' + queryString : ''}`);
+    return apiClient.get(`/api/analysis/admin/full${queryString ? '?' + queryString : ''}`);
 }
 
 export async function getDashboardStats() {
@@ -146,5 +146,22 @@ export async function approveAnomaly(anomalyId: number) {
 
 export async function rejectAnomaly(anomalyId: number) {
     return apiClient.post(`/api/anomalies/${anomalyId}/reject`, {});
+}
+
+// User Analytics API
+export async function getAllUsers() {
+    return apiClient.get('/api/admin/users');
+}
+
+export async function getNewSignups(days: number = 30) {
+    return apiClient.get(`/api/admin/users/new-signups?days=${days}`);
+}
+
+export async function getChurnedUsers(days: number = 30) {
+    return apiClient.get(`/api/admin/users/churned?days=${days}`);
+}
+
+export async function getChurnMetrics(churnDays: number = 30, signupDays: number = 30) {
+    return apiClient.get(`/api/admin/users/stats/churn-rate?churn_days=${churnDays}&signup_days=${signupDays}`);
 }
 

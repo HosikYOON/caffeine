@@ -6,7 +6,7 @@ import { apiClient } from './client';
  */
 export const getAnomalies = async (userId = null) => {
     try {
-        const response = await apiClient.get('/api/anomalies');
+        const response = await apiClient.get('/anomalies');
         return response.data;
     } catch (error) {
         console.error('이상 거래 조회 실패:', error);

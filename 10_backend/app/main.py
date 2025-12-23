@@ -8,8 +8,12 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 
-# 환경 변수 로드
-load_dotenv()
+from pathlib import Path
+
+# 환경 변수 로드 (프로젝트 루트의 .env.local 및 백엔드 폴더의 .env 모두 로드)
+project_root = Path(__file__).resolve().parent.parent.parent  # /home/jj/proct
+load_dotenv(project_root / ".env.local")  # 프로젝트 루트의 .env.local
+load_dotenv()  # 현재 디렉토리 또는 상위의 .env (override=False가 기본값)
 
 # 로거 설정 (라이트 Audit 로그)
 logging.basicConfig(
@@ -72,6 +76,15 @@ LOCAL_ORIGINS = [
 
 allowed_origins = LOCAL_ORIGINS + [CLOUDFRONT_URL] + CUSTOM_DOMAINS
 
+# CORS 설정 (가장 먼저 추가하여 OPTIONS preflight 요청 처리)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # 보안 헤더 미들웨어
 @app.middleware("http")
@@ -129,31 +142,26 @@ async def health(request: Request):
     }
 
 # 라우터 등록
-from app.routers import ml, analysis, transactions, user, auth, coupons, settings, reports, anomalies, user_analytics, analytics_demographics
+from app.routers import ml, analysis, transactions, user, auth, coupons, settings, reports, anomalies, user_analytics, analytics_demographics, chatbot
 
-# 라우터 포함 (모든 라우터에 /api 접두사 추가)
-app.include_router(ml.router, prefix="/api")
-app.include_router(analysis.router, prefix="/api")
+# 라우터 포함
+# 1. /api prefix 추가 그룹: 내부 prefix가 제거된 라우터들 (/admin/...) 또는 원래 없는 라우터들 (/users)
 app.include_router(transactions.router, prefix="/api")
-app.include_router(user.router, prefix="/api")
-app.include_router(auth.router, prefix="/api")
-app.include_router(coupons.router, prefix="/api")
-
-# 관리자/분석 라우터 추가
+app.include_router(analysis.router, prefix="/api")
+app.include_router(anomalies.router, prefix="/api")
 app.include_router(user_analytics.router, prefix="/api")
 app.include_router(analytics_demographics.router, prefix="/api")
 app.include_router(settings.router, prefix="/api")
 app.include_router(reports.router, prefix="/api")
-app.include_router(anomalies.router, prefix="/api")
+app.include_router(ml.router, prefix="/api")
+app.include_router(user.router, prefix="/api")
+app.include_router(coupons.router, prefix="/api")
 
-# CORS 설정을 가장 마지막에 추가하여 outermost 레이어로 만듦
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# 2. Auth 라우터 (/auth prefix 가짐 -> /api/auth)
+app.include_router(auth.router, prefix="/api")
+
+# 3. Chatbot 라우터 (이미 /api/chat prefix 가짐)
+app.include_router(chatbot.router)
 
 
 # 시작 / 종료 이벤트

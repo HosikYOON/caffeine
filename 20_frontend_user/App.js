@@ -108,7 +108,17 @@ function MainTabs() {
         },
       })}>
       <Tab.Screen name="대시보드" component={DashboardScreen} />
-      <Tab.Screen name="거래내역" component={TransactionScreen} />
+      <Tab.Screen
+        name="거래내역"
+        component={TransactionScreen}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            // 탭 클릭 시 파라미터 초기화 (이상거래 필터 해제)
+            e.preventDefault();
+            navigation.navigate('거래내역', { filter: null });
+          },
+        })}
+      />
       <Tab.Screen name="쿠폰함" component={CouponScreen} />
       {/* 프로필 탭 제거 → 더보기에서 접근 */}
       <Tab.Screen name="더보기" component={MoreScreen} />
@@ -143,12 +153,12 @@ function AppContent() {
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get('code');
       const pathname = window.location.pathname;
-      
+
       // code가 있고 로그인되지 않은 경우
       if (code && !user) {
         // URL에서 code 파라미터 제거
         window.history.replaceState({}, document.title, '/');
-        
+
         // 회원가입 콜백인지 로그인 콜백인지 경로로 구분
         if (pathname.includes('/signup')) {
           // 카카오 회원가입 처리

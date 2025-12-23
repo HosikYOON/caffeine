@@ -426,7 +426,7 @@ export default function DashboardScreen({ navigation }) {
                 <FadeInView style={styles.quickActions} delay={300}>
                     <TouchableOpacity
                         style={styles.quickActionItem}
-                        onPress={() => navigation?.navigate('거래내역')}
+                        onPress={() => navigation?.navigate('거래내역', { filter: null })}
                     >
                         <View style={[styles.quickActionIcon, { backgroundColor: '#DBEAFE' }]}>
                             <Feather name="file-text" size={24} color="#2563EB" />
