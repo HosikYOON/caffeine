@@ -65,8 +65,10 @@ def calculate_features(tx: Transaction, avg_amt: float, user_txs: List[Transacti
     # 1. Amount Z-Score-like (Simple Ratio)
     # Fix TypeError: Decimal vs Float
     amt_val = float(tx.amount)
-    avg_val = float(avg_amt) if avg_amt > 0 else 1.0
-    features['amt_ratio'] = amt_val / avg_val
+    # If avg_amt is 0 (first time in category), ratio is 1.0 (Normal)
+    # This prevents marking the FIRST huge purchase in a category as fraud just because of "ratio".
+    # (Absolute amount check will still catch > 1M)
+    features['amt_ratio'] = (amt_val / avg_amt) if avg_amt > 0 else 1.0
     
     # 2. Time Features
     hour = tx.transaction_time.hour
@@ -98,11 +100,11 @@ def apply_heuristics(tx: Transaction, features: dict) -> tuple[str, str]:
     reasons = []
     score = 0
     
-    # Rule 1: High Amount Ratio
-    if features['amt_ratio'] >= 5.0:
+    # Rule 1: High Amount Ratio (Relaxed for category-based variance)
+    if features['amt_ratio'] >= 10.0:
         score += 3
         reasons.append(f"평균액의 {features['amt_ratio']:.1f}배")
-    elif features['amt_ratio'] >= 3.0:
+    elif features['amt_ratio'] >= 5.0:
         score += 2
         reasons.append(f"평균액의 {features['amt_ratio']:.1f}배")
         
@@ -158,25 +160,34 @@ async def get_anomalies(
         result = await db.execute(query)
         transactions = result.scalars().all()
         
-        # 2. Calculate Avg per User
+    # 2. Calculate Avg per User & Category
         user_ids = list(set(tx.user_id for tx in transactions))
-        avg_map = {}
+        user_category_avg_map = {} # {user_id: {category_id: avg_amount}}
         
         if user_ids:
+            # Group by User AND Category
             avg_query = (
-                select(Transaction.user_id, func.avg(Transaction.amount))
+                select(Transaction.user_id, Transaction.category_id, func.avg(Transaction.amount))
                 .where(Transaction.user_id.in_(user_ids))
-                .group_by(Transaction.user_id)
+                .group_by(Transaction.user_id, Transaction.category_id)
             )
             avg_res = await db.execute(avg_query)
-            for uid, avg in avg_res.fetchall():
-                avg_map[uid] = float(avg) if avg else 0.0
+            for uid, cat_id, avg in avg_res.fetchall():
+                if uid not in user_category_avg_map:
+                    user_category_avg_map[uid] = {}
+                user_category_avg_map[uid][cat_id] = float(avg) if avg else 0.0
 
         anomalies = []
         
         # 3. Analyze
         for tx in transactions:
-            avg_amt = avg_map.get(tx.user_id, 0.0)
+            # Get Avg for this specific category
+            # If no category history (or cat_id None), fallback to logic or 0.0
+            cat_id = tx.category_id
+            user_avgs = user_category_avg_map.get(tx.user_id, {})
+            # Fallback: if category not found, use a "very loose" check or ignore ratio
+            # For 'Rougher' ranges, we only check ratio if we have history.
+            avg_amt = user_avgs.get(cat_id, 0.0)
             
             # Simple features calculation (in-memory for now)
             features = calculate_features(tx, avg_amt, [t for t in transactions if t.user_id == tx.user_id])
