@@ -46,6 +46,11 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # CORS 설정 (Cross-Origin Resource Sharing)
 CLOUDFRONT_URL = "https://d26uyg5darllja.cloudfront.net"
+CUSTOM_DOMAINS = [
+    "https://caffeineai.net",
+    "https://admin.caffeineai.net",
+    "https://api.caffeineai.net",
+]
 
 LOCAL_ORIGINS = [
     "http://localhost:3000",
@@ -69,7 +74,7 @@ LOCAL_ORIGINS = [
     "http://127.0.0.1:19006"
 ]
 
-allowed_origins = LOCAL_ORIGINS + [CLOUDFRONT_URL]
+allowed_origins = LOCAL_ORIGINS + [CLOUDFRONT_URL] + CUSTOM_DOMAINS
 
 # CORS 설정 (가장 먼저 추가하여 OPTIONS preflight 요청 처리)
 app.add_middleware(

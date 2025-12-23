@@ -38,7 +38,10 @@ export default function LoginScreen({ navigation }) {
 
     // 구글 로그인 버튼
     const GOOGLE_CLIENT_ID = '26373490884-huo98c2cgja8r265nmchqkj85sl0j22u.apps.googleusercontent.com';
-    const GOOGLE_REDIRECT_URI = 'http://localhost:8081/auth/google/callback';
+    // 현재 도메인 기반으로 Redirect URI 설정 (로컬/배포 모두 지원)
+    const GOOGLE_REDIRECT_URI = typeof window !== 'undefined' 
+        ? `${window.location.origin}/auth/google/callback`
+        : 'http://localhost:8081/auth/google/callback';
     
     const handleGoogleLogin = async () => {
         try {
@@ -63,7 +66,10 @@ export default function LoginScreen({ navigation }) {
 
     // 카카오 로그인 버튼
     const KAKAO_REST_API_KEY = 'fa925a6646f9491a77eb9c8fd6537a21';
-    const REDIRECT_URI = 'http://localhost:8081/auth/kakao/callback';
+    // 현재 도메인 기반으로 Redirect URI 설정 (로컬/배포 모두 지원)
+    const REDIRECT_URI = typeof window !== 'undefined' 
+        ? `${window.location.origin}/auth/kakao/callback`
+        : 'http://localhost:8081/auth/kakao/callback';
     
     const handleKakaoLogin = async () => {
         try {

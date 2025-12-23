@@ -60,3 +60,5 @@ services:
       - "9102:9102"
     environment:
       GEMINI_API_KEY: ${GEMINI_API_KEY}
+      MAX_DAILY_CALLS: 100    # 일일 최대 API 호출 수
+      MAX_RPM: 10             # 분당 최대 API 요청 수
