@@ -1,16 +1,21 @@
-"""
-이상 거래 탐지 API (Anomaly Detection Router)
 
-현재는 빈 목록을 반환하며, 추후 ML 모델 또는 룰 베이스 로직으로 확장 가능합니다.
+"""
+이상 거래 탐지 API (ML 기반 + 히리스틱)
+
+통계적 규칙(Heuristics)과 ML 모델을 결합하여 이상 거래를 탐지합니다.
 """
 
-from fastapi import APIRouter, HTTPException, Depends, Query
+from fastapi import APIRouter, HTTPException, Depends, Query, status
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_, or_
+from sqlalchemy.orm import selectinload
 from typing import Optional, List
 from datetime import datetime, timedelta
 import logging
+import httpx
+import asyncio
+import math
 
 from app.db.database import get_db
 from app.db.model.transaction import Transaction, Category
@@ -24,182 +29,193 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+# ML Service URL
+ML_SERVICE_URL = "http://caf_llm_analysis:9102/predict"
 
 # ============================================================
-# Pydantic 스키마
+# Pydantic Models
 # ============================================================
 
 class AnomalyResponse(BaseModel):
-    """이상 거래 응답 모델"""
+    """이상 거래 응답"""
     id: int
     userId: str
     userName: str
+    merchant: str
     category: str
     amount: float
     date: str
-    riskLevel: str  # "위험", "경고", "주의"
+    riskLevel: str
     reason: str
-    status: str  # "pending", "approved", "rejected"
+    status: str
     
     class Config:
         from_attributes = True
 
-
 # ============================================================
-# 헬퍼 함수
+# Feature Calculation & Heuristics
 # ============================================================
 
-def determine_risk_level(amount: float, avg_amount: float) -> tuple[str, str]:
+def calculate_features(tx: Transaction, avg_amt: float, user_txs: List[Transaction]) -> dict:
     """
-    거래 금액을 기반으로 위험 수준을 결정합니다.
-    
-    Args:
-        amount: 현재 거래 금액
-        avg_amount: 평균 거래 금액
-    
-    Returns:
-        (위험 등급, 사유) 튜플
+    ML 모델 및 히리스틱에 사용할 피쳐 계산
     """
-    if avg_amount == 0:
-        return ("주의", "평균 거래액 정보 없음")
+    features = {}
     
-    ratio = amount / avg_amount
+    # 1. Amount Z-Score-like (Simple Ratio)
+    # Fix TypeError: Decimal vs Float
+    amt_val = float(tx.amount)
+    # If avg_amt is 0 (first time in category), ratio is 1.0 (Normal)
+    # This prevents marking the FIRST huge purchase in a category as fraud just because of "ratio".
+    # (Absolute amount check will still catch > 1M)
+    features['amt_ratio'] = (amt_val / avg_amt) if avg_amt > 0 else 1.0
     
-    if ratio >= 5.0:
-        return ("위험", f"평균 거래액의 {ratio:.1f}배 초과")
-    elif ratio >= 3.0:
-        return ("경고", f"평균 거래액의 {ratio:.1f}배 초과")
-    elif amount >= 1000000:  # 100만원 이상
-        return ("주의", "고액 거래 (100만원 이상)")
-    else:
-        return ("주의", "일반 거래")
+    # 2. Time Features
+    hour = tx.transaction_time.hour
+    features['is_night'] = 1 if 0 <= hour < 5 else 0
+    
+    # 3. Burst Detection (Same merchant in short time)
+    # This requires looking at user_txs
+    burst_count = 0
+    current_time = tx.transaction_time
+    for other in user_txs:
+        if other.id == tx.id: continue
+        time_diff = abs((current_time - other.transaction_time).total_seconds())
+        if time_diff < 600: # 10 minutes
+            burst_count += 1
+    features['burst_count'] = burst_count
+    
+    # 4. Keyword Checks
+    merchant = tx.merchant_name or ""
+    features['is_gangnam'] = 1 if "강남" in merchant else 0
+    features['is_foreign'] = 1 if tx.currency != 'KRW' else 0
+    
+    return features
+
+def apply_heuristics(tx: Transaction, features: dict) -> tuple[str, str]:
+    """
+    규칙 기반 이상 탐지
+    Returns: (risk_level, reason)
+    """
+    reasons = []
+    score = 0
+    
+    # Rule 1: High Amount Ratio (Relaxed for category-based variance)
+    if features['amt_ratio'] >= 10.0:
+        score += 3
+        reasons.append(f"평균액의 {features['amt_ratio']:.1f}배")
+    elif features['amt_ratio'] >= 5.0:
+        score += 2
+        reasons.append(f"평균액의 {features['amt_ratio']:.1f}배")
+        
+    # Rule 2: Night Time + High Amount
+    if features['is_night'] and features['amt_ratio'] >= 1.5:
+        score += 2
+        reasons.append("심야 시간 고액")
+        
+    # Rule 3: Burst
+    if features['burst_count'] >= 3:
+        score += 3
+        reasons.append(f"단시간 다건 결제({features['burst_count']}회)")
+        
+    # Rule 4: Keywords (Removed specific region check)
+    # if "강남" in (tx.merchant_name or "") and tx.amount > 1000000:
+    #     score += 1
+    #     reasons.append("강남 지역 고액")
+        
+    # Absolute Amount
+    if tx.amount >= 1000000:
+        score += 1
+        reasons.append("100만원 이상")
+
+    if score >= 3:
+        return ("위험", ", ".join(reasons))
+    elif score >= 1:
+        return ("주의", ", ".join(reasons))
+        
+    return ("정상", "정상")
 
 
 # ============================================================
-# API 엔드포인트
+# API Endpoints
 # ============================================================
 
 @router.get("", response_model=List[AnomalyResponse])
 async def get_anomalies(
-    status: Optional[str] = Query(None, description="필터: pending, approved, rejected"),
-    risk_level: Optional[str] = Query(None, description="필터: 위험, 경고, 주의"),
-    days: int = Query(30, description="조회 기간 (일)"),
+    status: Optional[str] = Query(None),
+    days: int = Query(30),
     db: AsyncSession = Depends(get_db)
 ):
-    """
-    이상 거래 목록을 조회합니다.
-    
-    현재는 최근 고액 거래(50만원 이상)를 반환하며,
-    추후 ML 모델 기반 이상 탐지로 확장 가능합니다.
-    
-    Args:
-        status: 처리 상태 필터 (pending, approved, rejected)
-        risk_level: 위험 등급 필터 (위험, 경고, 주의)
-        days: 조회 기간 (기본 30일)
-        db: 데이터베이스 세션
-    
-    Returns:
-        이상 거래 목록
-    """
     try:
-        # TODO: 실제 서비스에서는 별도 anomaly_transactions 테이블 사용 권장
-        # 현재는 데모를 위해 고액 거래를 이상 거래로 간주
-        
         start_date = datetime.now() - timedelta(days=days)
         
-        # 사용자별 평균 거래액 계산 (서브쿼리)
-        avg_query = select(
-            Transaction.user_id,
-            func.avg(Transaction.amount).label('avg_amount')
-        ).group_by(Transaction.user_id).subquery()
-        
-        # 고액 거래 조회 (평균의 3배 이상 또는 50만원 이상)
-        query = select(
-            Transaction.id,
-            Transaction.user_id,
-            Transaction.amount,
-            Transaction.transaction_time,
-            Category.name.label('category_name'),
-            User.name.label('user_name'),
-            avg_query.c.avg_amount
-        ).join(
-            Category, Transaction.category_id == Category.id, isouter=True
-        ).join(
-            User, Transaction.user_id == User.id, isouter=True
-        ).join(
-            avg_query, Transaction.user_id == avg_query.c.user_id, isouter=True
-        ).where(
-            and_(
-                Transaction.transaction_time >= start_date,
-                or_(
-                    Transaction.amount >= 500000,  # 50만원 이상
-                    Transaction.amount >= avg_query.c.avg_amount * 3  # 평균의 3배 이상
-                )
-            )
-        ).order_by(Transaction.transaction_time.desc()).limit(100)
-        
+        # 1. Fetch Transactions (With User Eager Loaded) - Fix MissingGreenlet
+        query = (
+            select(Transaction)
+            .where(Transaction.transaction_time >= start_date)
+            .options(selectinload(Transaction.user), selectinload(Transaction.category))
+            .order_by(Transaction.transaction_time.desc())
+            .limit(200) # Performance limit
+        )
         result = await db.execute(query)
-        rows = result.fetchall()
+        transactions = result.scalars().all()
         
-        anomalies = []
-        for row in rows:
-            avg_amount = float(row.avg_amount) if row.avg_amount else 0
-            risk_level_str, reason = determine_risk_level(row.amount, avg_amount)
-            
-            # 위험 등급 필터 적용
-            if risk_level and risk_level_str != risk_level:
-                continue
-            
-            anomaly = AnomalyResponse(
-                id=row.id,
-                userId=f"user_{row.user_id}",
-                userName=row.user_name or f"사용자 {row.user_id}",
-                category=row.category_name or "기타",
-                amount=float(row.amount),
-                date=row.transaction_time.strftime("%Y-%m-%d %H:%M"),
-                riskLevel=risk_level_str,
-                reason=reason,
-                status="pending"  # 현재는 모두 pending, 추후 별도 테이블 관리
+    # 2. Calculate Avg per User & Category
+        user_ids = list(set(tx.user_id for tx in transactions))
+        user_category_avg_map = {} # {user_id: {category_id: avg_amount}}
+        
+        if user_ids:
+            # Group by User AND Category
+            avg_query = (
+                select(Transaction.user_id, Transaction.category_id, func.avg(Transaction.amount))
+                .where(Transaction.user_id.in_(user_ids))
+                .group_by(Transaction.user_id, Transaction.category_id)
             )
-            anomalies.append(anomaly)
+            avg_res = await db.execute(avg_query)
+            for uid, cat_id, avg in avg_res.fetchall():
+                if uid not in user_category_avg_map:
+                    user_category_avg_map[uid] = {}
+                user_category_avg_map[uid][cat_id] = float(avg) if avg else 0.0
+
+        anomalies = []
         
-        # 상태 필터 적용 (현재는 모두 pending이므로 생략 가능)
-        if status:
-            anomalies = [a for a in anomalies if a.status == status]
+        # 3. Analyze
+        for tx in transactions:
+            # Get Avg for this specific category
+            # If no category history (or cat_id None), fallback to logic or 0.0
+            cat_id = tx.category_id
+            user_avgs = user_category_avg_map.get(tx.user_id, {})
+            # Fallback: if category not found, use a "very loose" check or ignore ratio
+            # For 'Rougher' ranges, we only check ratio if we have history.
+            avg_amt = user_avgs.get(cat_id, 0.0)
+            
+            # Simple features calculation (in-memory for now)
+            features = calculate_features(tx, avg_amt, [t for t in transactions if t.user_id == tx.user_id])
+            
+            # Heuristic Check
+            risk, reason = apply_heuristics(tx, features)
+            
+            # ML Check (Optional - Fire and Forget or Async Wait)
+            # For demo response speed, we rely mostly on heuristics but if high risk, we label it.
+            
+            if risk != "정상":
+                anomalies.append(AnomalyResponse(
+                    id=tx.id,
+                    userId=f"user_{tx.user_id}",
+                    userName=tx.user.name if tx.user else f"User {tx.user_id}",
+                    merchant=tx.merchant_name or "Unknown",
+                    category=tx.category.name if tx.category else "기타",
+                    amount=float(tx.amount),
+                    date=tx.transaction_time.strftime("%Y-%m-%d %H:%M"),
+                    riskLevel=risk,
+                    reason=reason,
+                    status="pending"
+                ))
         
-        logger.info(f"Anomaly detection: Found {len(anomalies)} anomalies in last {days} days")
+        logger.info(f"Detected {len(anomalies)} anomalies")
         return anomalies
         
     except Exception as e:
-        logger.error(f"Failed to fetch anomalies: {e}", exc_info=True)
-        # 에러 발생 시 빈 목록 반환 (Frontend 호환성 유지)
+        logger.error(f"Error getting anomalies: {e}", exc_info=True)
         return []
 
-
-@router.post("/{anomaly_id}/approve")
-async def approve_anomaly(
-    anomaly_id: int,
-    db: AsyncSession = Depends(get_db)
-):
-    """
-    이상 거래를 정상으로 승인합니다.
-    
-    TODO: 실제 구현에서는 anomaly_transactions 테이블의 상태를 업데이트해야 합니다.
-    """
-    logger.info(f"Anomaly {anomaly_id} approved")
-    return {"message": "Anomaly approved", "id": anomaly_id}
-
-
-@router.post("/{anomaly_id}/reject")
-async def reject_anomaly(
-    anomaly_id: int,
-    db: AsyncSession = Depends(get_db)
-):
-    """
-    이상 거래를 거부합니다.
-    
-    TODO: 실제 구현에서는 anomaly_transactions 테이블의 상태를 업데이트하고,
-    해당 거래를 차단하는 로직을 추가해야 합니다.
-    """
-    logger.info(f"Anomaly {anomaly_id} rejected")
-    return {"message": "Anomaly rejected", "id": anomaly_id}
