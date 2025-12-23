@@ -43,6 +43,7 @@ export const useChatbot = ({ transactions = [], budget = 1000000 } = {}) => {
 
     /**
      * 캐시에서 대화 내역 불러오기
+     * 주의: chatStarted는 자동으로 설정하지 않음 (사용자가 명시적으로 시작해야 함)
      */
     useEffect(() => {
         const loadHistory = async () => {
@@ -51,7 +52,8 @@ export const useChatbot = ({ transactions = [], budget = 1000000 } = {}) => {
                 if (cached) {
                     const history = JSON.parse(cached);
                     setMessages(history);
-                    setChatStarted(true);
+                    // chatStarted는 startChat() 호출 시에만 true로 설정
+                    // setChatStarted(true); // ← 제거: 자동 시작 방지
                     // ID 카운터 업데이트
                     const maxId = Math.max(...history.map(m => m.id || 0));
                     messageIdRef.current = maxId + 1;

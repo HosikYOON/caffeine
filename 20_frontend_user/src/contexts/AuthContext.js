@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }) => {
             params.append('username', email);
             params.append('password', password);
 
-            const response = await apiClient.post('/users/login', params, {
+            const response = await apiClient.post('/api/users/login', params, {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 }
@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }) => {
                 await AsyncStorage.setItem('refreshToken', refresh_token);
                 await AsyncStorage.setItem('authToken', access_token);
 
-                const userResponse = await apiClient.get('/users/me', {
+                const userResponse = await apiClient.get('/api/users/me', {
                     headers: { 'Authorization': `Bearer ${access_token}` },
                 });
 
@@ -101,7 +101,7 @@ export const AuthProvider = ({ children }) => {
     const signup = async (name, email, password, birthDate) => {
         try {
             // 실제 백엔드 API 호출
-            const response = await apiClient.post('/users/signup', {
+            const response = await apiClient.post('/api/users/signup', {
                 name: name,
                 email: email,
                 password: password,

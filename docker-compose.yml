@@ -19,6 +19,8 @@ services:
       # Gmail SMTP
       GMAIL_ADDRESS: ${GMAIL_ADDRESS}
       GMAIL_APP_PASSWORD: ${GMAIL_APP_PASSWORD}
+      # Gemini API for chatbot
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
     ports:
       - "8001:8000"
     volumes:

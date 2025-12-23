@@ -31,11 +31,14 @@ export default function MoreScreen({ navigation, route }) {
 
     // 대시보드에서 "잠깐만" 버튼 누르면 바로 챗봇 시작
     useEffect(() => {
-        if (route?.params?.openChat) {
+        if (route?.params?.openChat === true) {
             startChat();
-            navigation?.setParams({ openChat: false });
+            // 파라미터 즉시 초기화하여 재진입 시 자동 시작 방지
+            if (navigation?.setParams) {
+                navigation.setParams({ openChat: undefined });
+            }
         }
-    }, [route?.params?.openChat, startChat, navigation]);
+    }, [route?.params?.openChat]);
 
     // 메시지 전송 핸들러
     const handleSendMessage = async () => {
@@ -174,7 +177,7 @@ export default function MoreScreen({ navigation, route }) {
             <LinearGradient colors={colors.screenGradient} style={styles.container}>
                 {/* 챗봇 헤더 */}
                 <View style={[styles.chatHeader, { backgroundColor: colors.cardBackground }]}>
-                    <TouchableOpacity onPress={() => setChatStarted(false)} style={styles.backButton}>
+                    <TouchableOpacity onPress={endChat} style={styles.backButton}>
                         <Feather name="arrow-left" size={24} color={colors.text} />
                     </TouchableOpacity>
                     <View style={styles.chatHeaderInfo}>

@@ -15,6 +15,15 @@ export const TransactionProvider = ({ children }) => {
     const [lastSyncTime, setLastSyncTime] = useState(null);
     const { showToast } = useToast();  // Toast 알림 함수
 
+    // 거래 내역 시간순 정렬 함수 (최신순)
+    const sortTransactionsByDate = (txList) => {
+        return [...txList].sort((a, b) => {
+            const dateA = new Date(a.date);
+            const dateB = new Date(b.date);
+            return dateB - dateA; // 최신순 (내림차순)
+        });
+    };
+
     // 앱 시작 시 캐시 로드 (캐시 있으면 서버 호출 생략)
     useEffect(() => {
         const initTransactions = async () => {
@@ -49,7 +58,8 @@ export const TransactionProvider = ({ children }) => {
 
             if (cached) {
                 const parsedCache = JSON.parse(cached);
-                setTransactions(parsedCache);
+                const sorted = sortTransactionsByDate(parsedCache);
+                setTransactions(sorted);
                 setLastSyncTime(syncTime);
                 return parsedCache.length > 0;  // 캐시 있음
             }
@@ -84,8 +94,9 @@ export const TransactionProvider = ({ children }) => {
                     status: t.status,
                 }));
 
-                await saveTransactionsToCache(formattedTransactions, userId);
-                setTransactions(formattedTransactions);
+                const sorted = sortTransactionsByDate(formattedTransactions);
+                await saveTransactionsToCache(sorted, userId);
+                setTransactions(sorted);
 
                 const now = new Date().toISOString();
                 const syncKey = `last_sync_time_${userId}`;
@@ -175,7 +186,8 @@ export const TransactionProvider = ({ children }) => {
 
             // 로컬 상태 업데이트 (최신 거래가 위로 오도록)
             const updated = [formattedTx, ...transactions];
-            setTransactions(updated);
+            const sorted = sortTransactionsByDate(updated);
+            setTransactions(sorted);
             await saveTransactionsToCache(updated);
 
             // 즉시 성공 반환 (모달을 빠르게 닫기 위해)
@@ -228,7 +240,8 @@ export const TransactionProvider = ({ children }) => {
         try {
             // 먼저 로컬 상태 업데이트 (UI 반응성 향상)
             const updated = transactions.filter(t => String(t.id) !== String(id));
-            setTransactions(updated);
+            const sorted = sortTransactionsByDate(updated);
+            setTransactions(sorted);
             await saveTransactionsToCache(updated);
 
             // 백엔드 API 호출 시도 (실패해도 로컬에서는 이미 삭제됨)
@@ -261,8 +274,8 @@ export const TransactionProvider = ({ children }) => {
                     ? { ...t, notes: note }
                     : t
             );
-
-            setTransactions(updated);
+            const sorted = sortTransactionsByDate(updated);
+            setTransactions(sorted);
             await saveTransactionsToCache(updated);
 
             return { success: true };

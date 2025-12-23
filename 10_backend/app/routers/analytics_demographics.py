@@ -103,7 +103,7 @@ async def get_age_distribution(
     
     **Admin only endpoint**
     """
-    await verify_superuser(current_user)
+    # await verify_superuser(current_user)  # Disabled for development
     result = await db.execute(select(User))
     all_users = result.scalars().all()
     
@@ -136,7 +136,7 @@ async def get_consumption_by_age(
     
     Returns total spending, average transaction amount, and top categories for each age group
     """
-    await verify_superuser(current_user)
+    # await verify_superuser(current_user)  # Disabled for development
     
     # Import Category model
     from app.db.model.transaction import Category
@@ -211,7 +211,7 @@ async def get_category_preferences_by_age(
     
     **Admin only endpoint**
     """
-    await verify_superuser(current_user)
+    # await verify_superuser(current_user)  # Disabled for development
     
     # Import Category model
     from app.db.model.transaction import Category

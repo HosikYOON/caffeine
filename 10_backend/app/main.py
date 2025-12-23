@@ -135,20 +135,20 @@ from app.routers import (
 )
 from app.routers.chatbot import router as chatbot_router
 
-# 라우터 포함 (모든 라우터에 /api 접두사 추가)
-app.include_router(ml.router, prefix="/api")
-app.include_router(analysis.router, prefix="/api")
-app.include_router(transactions.router, prefix="/api")
-app.include_router(user.router, prefix="/api")
-app.include_router(auth.router, prefix="/api")
-app.include_router(coupons.router, prefix="/api")
+# 라우터 포함 (라우터 자체에 이미 prefix가 있는 것은 prefix 추가 안함)
+app.include_router(ml.router)  # ml.py에 이미 /ml prefix 있음
+app.include_router(analysis.router)  # analysis.py에 이미 /api/analysis prefix 있음
+app.include_router(transactions.router)  # transactions.py에 이미 /api/transactions prefix 있음
+app.include_router(user.router, prefix="/api")  # user.py에는 /users prefix만 있음
+app.include_router(auth.router, prefix="/api")  # auth.py에는 /auth prefix만 있음
+app.include_router(coupons.router)  # coupons.py에 이미 /api/coupons prefix 있음
 
 # 관리자/분석 라우터 추가
-app.include_router(user_analytics.router, prefix="/api")
-app.include_router(analytics_demographics.router, prefix="/api")
-app.include_router(settings.router, prefix="/api")
+app.include_router(user_analytics.router)  # 이미 /api/admin/users prefix 있음
+app.include_router(analytics_demographics.router)  # 이미 /api/analytics/demographics prefix 있음
+app.include_router(settings.router)  # settings.py에 이미 /api/admin/settings prefix 있음
 app.include_router(reports.router, prefix="/api")
-app.include_router(anomalies.router, prefix="/api")
+app.include_router(anomalies.router)  # anomalies.py에 이미 /api/anomalies prefix 있음
 
 # 챗봇 API (/api/chat/*)
 app.include_router(chatbot_router)
