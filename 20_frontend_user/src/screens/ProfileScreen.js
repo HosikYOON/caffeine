@@ -67,7 +67,7 @@ export default function ProfileScreen({ navigation }) {
                 date: values[0]?.trim() + ' ' + (values[1]?.trim() || '00:00'),
                 category: values[3]?.trim() || '기타',
                 merchant: values[5]?.trim() || '알 수 없음',
-                amount: Math.abs(parseFloat(values[6]?.trim()) || 0),
+                amount: Math.abs(parseFloat(values[6]?.trim().replace(/,/g, '')) || 0),
                 cardType: values[8]?.includes('체크') ? '체크' : '신용',
                 notes: values[9]?.trim() || '',
             };
