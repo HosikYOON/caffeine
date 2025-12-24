@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Modal, TextInput, Alert, Platform, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
-import { apiClient, getAnomalies, reportAnomaly, ignoreAnomaly } from '../api';
+import { apiClient } from '../api/client';
 import { useTheme } from '../contexts/ThemeContext';
 import { useTransactions } from '../contexts/TransactionContext';
 import EmptyState from '../components/EmptyState';
@@ -24,10 +24,9 @@ const mapCategory = (category) => {
 import { formatCurrency } from '../utils/currency';
 import { EMPTY_MESSAGES } from '../constants';
 
-export default function TransactionScreen({ navigation, route }) {
+export default function TransactionScreen({ navigation }) {
     const { colors } = useTheme();
     const { transactions, updateTransactionNote, addTransaction, removeTransaction } = useTransactions();
-    const [displayTransactions, setDisplayTransactions] = useState([]);
     const [selectedTransaction, setSelectedTransaction] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [addModalVisible, setAddModalVisible] = useState(false);
@@ -36,94 +35,109 @@ export default function TransactionScreen({ navigation, route }) {
     const [editedNote, setEditedNote] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const [prediction, setPrediction] = useState(null);
-    const [isAnomalyMode, setIsAnomalyMode] = useState(false);
+    const [couponNotification, setCouponNotification] = useState(null); // 쿠폰 발급 알림
 
-    useEffect(() => {
-        const loadData = async () => {
-            if (route.params?.filter === 'suspicious') {
-                setIsAnomalyMode(true);
-                try {
-                    const anomalies = await getAnomalies();
-                    const mapped = anomalies.map(a => ({
-                        id: a.id,
-                        merchant: a.merchant || a.userName,
-                        businessName: "이상 거래 감지",
-                        amount: a.amount,
-                        category: a.category,
-                        date: a.date,
-                        cardType: a.riskLevel === 'high' ? '위험' : '주의',
-                        notes: a.reason,
-                        status: a.status,
-                        isAnomaly: true
-                    }));
-                    setDisplayTransactions(mapped);
-                } catch (error) {
-                    console.error("Failed to load anomalies", error);
-                    setDisplayTransactions([]);
-                }
-            } else {
-                setIsAnomalyMode(false);
-                setDisplayTransactions(transactions);
-            }
-        };
-        loadData();
-    }, [transactions, route.params?.filter]);
+
+
+    // 카테고리별 쿠폰 정보 매핑
+    const CATEGORY_COUPONS = {
+        '식료품': { merchant: '이마트', discount: 3000, description: '마트 할인 쿠폰' },
+        '주유': { merchant: 'SK에너지', discount: 3000, description: '주유 할인 쿠폰' },
+        '교통': { merchant: '카카오택시', discount: 2000, description: '택시비 할인 쿠폰' },
+        '식비': { merchant: '배달의민족', discount: 3000, description: '배달 할인 쿠폰' },
+        '외식': { merchant: '스타벅스', discount: 2000, description: '카페 할인 쿠폰' },
+        '쇼핑': { merchant: '쿠팡', discount: 5000, description: '쇼핑 할인 쿠폰' },
+        '편의점': { merchant: 'GS25', discount: 1000, description: '편의점 할인 쿠폰' },
+        '여가': { merchant: 'CGV', discount: 3000, description: '영화 할인 쿠폰' },
+        '문화': { merchant: '인터파크', discount: 5000, description: '공연 할인 쿠폰' },
+        '의료': { merchant: '약국', discount: 2000, description: '약국 할인 쿠폰' },
+        '기타': { merchant: '올리브영', discount: 2000, description: '뷰티 할인 쿠폰' },
+    };
 
     const fetchPrediction = async () => {
         try {
-            const recentTransaction = transactions[0];
-            if (!recentTransaction) return;
+            if (!transactions || transactions.length < 5) {
+                alert('예측을 위해 최소 5건 이상의 거래 데이터가 필요합니다.');
+                return;
+            }
 
-            const requestData = {
-                날짜: recentTransaction.date.split(' ')[0],
-                시간: recentTransaction.date.split(' ')[1] || '00:00',
-                타입: '지출',
-                대분류: recentTransaction.category,
-                소분류: '기타',
-                내용: recentTransaction.merchant,
-                금액: String(-recentTransaction.amount),
-                화폐: 'KRW',
-                결제수단: (recentTransaction.cardType || '신용') + '카드',
-                메모: recentTransaction.notes || ''
-            };
+            // 거래 데이터를 CSV 형식으로 변환
+            const csvHeader = '날짜,시간,타입,대분류,소분류,내용,금액,화폐,결제수단,메모\n';
+            const csvRows = transactions.map(t => {
+                const datetime = (t.date || '').split(' ');
+                const date = datetime[0] || new Date().toISOString().split('T')[0];
+                const time = datetime[1] || '12:00';
+                return [
+                    date,
+                    time,
+                    '지출',
+                    t.category || t.originalCategory || '외식',
+                    '기타',
+                    t.merchant || t.businessName || '알수없음',
+                    -Math.abs(t.amount),
+                    'KRW',
+                    t.cardType === '체크' ? '체크카드' : '신용카드',
+                    t.notes || ''
+                ].join(',');
+            }).join('\n');
 
-            const response = await apiClient.post('/ml/predict', {
-                features: requestData
+            const csvContent = csvHeader + csvRows;
+
+            // FormData로 CSV 전송
+            const formData = new FormData();
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            formData.append('file', blob, 'transactions.csv');
+
+
+            // predict-next API 호출 (전체 이력 기반)
+            const response = await apiClient.post('/ml/predict-next', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
-            const predictedCategory = response.data.prediction;
+
+            const predictedCategory = response.data.predicted_category;
+            const confidence = response.data.confidence;
             setPrediction(predictedCategory);
 
-            try {
-                const couponResponse = await apiClient.post('/api/coupons/generate-from-prediction', {
-                    predicted_category: predictedCategory,
-                    confidence: response.data.confidence || 0.8
-                });
 
-                alert(
-                    `🎉 다음 소비 예측: ${predictedCategory}\n\n` +
-                    `🎁 쿠폰 발급 완료!\n` +
-                    `${couponResponse.data.merchant_name}에서 사용 가능한\n` +
-                    `${formatCurrency(couponResponse.data.discount_amount)} 할인 쿠폰이 발급되었습니다!\n\n` +
-                    `만료일: ${couponResponse.data.expiry_date}`
-                );
-            } catch (couponError) {
-                console.error('Coupon generation failed:', couponError);
-                alert(`다음 소비 예측: ${predictedCategory}\n\n쿠폰 발급 중 오류가 발생했습니다.`);
-            }
+            // 예측된 카테고리에 맞는 쿠폰 발급 알림
+            const couponInfo = CATEGORY_COUPONS[predictedCategory] || CATEGORY_COUPONS['기타'];
+
+            // 새 쿠폰 객체 생성
+            const newCoupon = {
+                id: Date.now(),
+                merchant: couponInfo.merchant,
+                discount: couponInfo.discount,
+                category: predictedCategory,
+                expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                status: 'available',
+                description: `AI 예측 기반 자동 발급 (신뢰도 ${(confidence * 100).toFixed(0)}%)`,
+                minPurchase: couponInfo.discount * 3,
+                daysLeft: 30
+            };
+
+            // 쿠폰 발급 배너 표시 (confirm 대신)
+            setCouponNotification({
+                category: predictedCategory,
+                confidence: confidence,
+                coupon: newCoupon,
+                couponInfo: couponInfo,
+                txCount: transactions.length
+            });
+
         } catch (error) {
             console.error('Prediction failed:', error);
             Alert.alert('오류', '예측 실패: ' + (error.response?.data?.detail || error.message));
         }
     };
 
-    const filteredTransactions = displayTransactions.filter(t => {
+    const filteredTransactions = transactions.filter(t => {
         if (!searchQuery) return true;
         const query = searchQuery.toLowerCase();
         return (
-            (t.merchant?.toLowerCase() || '').includes(query) ||
-            (t.category?.toLowerCase() || '').includes(query) ||
-            (t.notes?.toLowerCase() || '').includes(query) ||
-            (t.businessName?.toLowerCase() || '').includes(query)
+            t.merchant?.toLowerCase().includes(query) ||
+            t.category?.toLowerCase().includes(query) ||
+            t.notes?.toLowerCase().includes(query) ||
+            t.businessName?.toLowerCase().includes(query)
         );
     });
 
@@ -141,15 +155,11 @@ export default function TransactionScreen({ navigation, route }) {
         }, 300);
     };
 
-
+    // 이상거래 카테고리 선택
     const handleCategorySelect = (category) => {
         if (!selectedTransaction) return;
 
         setAnomalyCategoryModalVisible(false);
-        // Only update local state if showing standard transactions
-        if (!isAnomalyMode) {
-            // In a real app, we would update this via API
-        }
 
         const messages = {
             safe: '✅ 안전한 거래로 표시되었습니다.',
@@ -160,21 +170,18 @@ export default function TransactionScreen({ navigation, route }) {
         setTimeout(() => {
             alert(messages[category]);
             if (category === 'suspicious' || category === 'dangerous') {
-                // Already there or similar
+                navigation?.navigate('이상탐지');
             }
         }, 300);
     };
 
+    // 메모 저장
     const handleSaveNote = async () => {
         if (selectedTransaction) {
             const result = await updateTransactionNote(selectedTransaction.id, editedNote);
 
             if (result.success) {
                 setSelectedTransaction({ ...selectedTransaction, notes: editedNote });
-                // Also update display list locally to reflect change immediately
-                setDisplayTransactions(prev => prev.map(t =>
-                    t.id === selectedTransaction.id ? { ...t, notes: editedNote } : t
-                ));
                 setIsEditingNote(false);
             } else {
                 alert('메모 저장 실패: ' + (result.error?.message || '알 수 없는 오류'));
@@ -242,53 +249,9 @@ export default function TransactionScreen({ navigation, route }) {
         </TouchableOpacity >
     );
 
+    // 거래 내역 화면
     return (
         <LinearGradient colors={colors.screenGradient} style={styles(colors).container}>
-            {/* Header */}
-            <View style={styles(colors).header}>
-                <View>
-                    <Text style={styles(colors).title}>{isAnomalyMode ? '이상 거래 탐지' : '거래내역'}</Text>
-                    <Text style={styles(colors).subtitle}>
-                        {searchQuery ? `검색 결과 ${filteredTransactions.length}건` : `총 ${displayTransactions.length}건`}
-                    </Text>
-                </View>
-                <View style={styles(colors).headerIcon}>
-                    <Feather name={isAnomalyMode ? "alert-triangle" : "file-text"} size={24} color={isAnomalyMode ? "#EF4444" : "#2563EB"} />
-                </View>
-            </View>
-
-            {/* AI Prediction Card - Only show in normal mode and if transactions exist */}
-            {!isAnomalyMode && transactions.length > 0 && (
-                <View style={styles(colors).predictionCard}>
-                    <View style={styles(colors).predictionHeader}>
-                        <Text style={styles(colors).predictionIcon}>🤖</Text>
-                        <Text style={styles(colors).predictionTitle}>AI 다음 소비 예측</Text>
-                    </View>
-
-                    {prediction !== null ? (
-                        <Text style={styles(colors).predictionText}>
-                            현재 소비 패턴 분석 결과, 다음 거래는
-                            <Text style={{ fontWeight: 'bold', color: colors.primary }}>
-                                {' '}{prediction}{' '}
-                            </Text>
-                            카테고리일 확률이 높습니다.
-                        </Text>
-                    ) : (
-                        <Text style={styles(colors).predictionText}>
-                            최근 거래 데이터를 분석하여 다음 소비 패턴을 예측합니다.
-                        </Text>
-                    )}
-
-                    <TouchableOpacity
-                        style={styles(colors).predictionButton}
-                        onPress={fetchPrediction}
-                    >
-                        <Text style={styles(colors).predictionButtonText}>
-                            {prediction !== null ? '다시 예측하기' : '다음 소비 예측하기'}
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-            )}
             {/* Search Bar */}
             <View style={[s.searchContainer, { backgroundColor: colors.cardBackground, borderBottomColor: colors.border }]}>
                 <Feather name="search" size={20} color={colors.textSecondary} style={s.searchIcon} />
@@ -306,32 +269,103 @@ export default function TransactionScreen({ navigation, route }) {
                 )}
             </View>
 
-            {
-                displayTransactions.length === 0 ? (
-                    <EmptyState
-                        icon="📊"
-                        title={isAnomalyMode ? "이상 거래가 없습니다" : "연동된 거래내역이 없습니다"}
-                        description={isAnomalyMode ? "안전하게 거래하고 계시네요!" : "프로필 → 데이터 동기화로 CSV 파일을 업로드하세요"}
-                        actionText={isAnomalyMode ? "돌아가기" : "동기화 하러 가기"}
-                        onAction={() => isAnomalyMode ? navigation.goBack() : navigation.navigate('프로필')}
-                    />
-                ) : filteredTransactions.length === 0 ? (
-                    <EmptyState
-                        icon="🔍"
-                        title="검색 결과 없음"
-                        description="검색 조건과 일치하는 거래가 없습니다"
-                        actionText="검색 초기화"
-                        onAction={() => setSearchQuery('')}
-                    />
-                ) : (
-                    <FlatList
-                        data={filteredTransactions}
-                        renderItem={renderItem}
-                        keyExtractor={item => item.id.toString()}
-                        contentContainerStyle={styles(colors).list}
-                    />
-                )
-            }
+            <View style={{ padding: 16, paddingBottom: 0 }}>
+                <Text style={[s.subtitle, { color: colors.textSecondary }]}>
+                    {searchQuery ? `검색 결과 ${filteredTransactions.length}건` : `총 ${transactions.length}건`}
+                </Text>
+            </View>
+
+            <ScrollView style={{ flex: 1 }}>
+                {/* AI Prediction Card */}
+                {transactions.length > 0 && (
+                    <View style={styles(colors).predictionCard}>
+                        <View style={styles(colors).predictionHeader}>
+                            <Text style={styles(colors).predictionIcon}>🤖</Text>
+                            <Text style={styles(colors).predictionTitle}>AI 다음 소비 예측</Text>
+                        </View>
+
+                        {prediction !== null ? (
+                            <Text style={styles(colors).predictionText}>
+                                현재 소비 패턴 분석 결과, 다음 거래는
+                                <Text style={{ fontWeight: '800', color: '#2563EB', fontSize: 18, backgroundColor: '#DBEAFE', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>
+                                    {prediction}
+                                </Text>
+                                카테고리일 확률이 높습니다.
+                            </Text>
+                        ) : (
+                            <Text style={styles(colors).predictionText}>
+                                최근 거래 데이터를 분석하여 다음 소비 패턴을 예측합니다.
+                            </Text>
+                        )}
+
+                        <TouchableOpacity
+                            style={styles(colors).predictionButton}
+                            onPress={fetchPrediction}
+                        >
+                            <Text style={styles(colors).predictionButtonText}>
+                                {prediction !== null ? '다시 예측하기' : '다음 소비 예측하기'}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
+
+                {/* 쿠폰 발급 알림 배너 */}
+                {couponNotification && (
+                    <View style={styles(colors).couponBannerTop}>
+                        <TouchableOpacity onPress={() => setCouponNotification(null)} style={styles(colors).couponBannerCloseTop}>
+                            <Text style={{ fontSize: 20, color: '#1E40AF' }}>✕</Text>
+                        </TouchableOpacity>
+                        <Text style={styles(colors).couponBannerTitleTop}>🎉 추천 쿠폰 도착!</Text>
+                        <View style={styles(colors).couponBannerCouponTop}>
+                            <Text style={styles(colors).couponBannerMerchant}>{couponNotification.couponInfo.merchant}</Text>
+                            <Text style={styles(colors).couponBannerDiscount}>{couponNotification.couponInfo.discount.toLocaleString()}원 할인</Text>
+                        </View>
+                        <View style={styles(colors).couponBannerInfoTop}>
+                            <Text style={styles(colors).couponBannerInfoText}>다음 소비 예측: <Text style={{ fontWeight: 'bold' }}>{couponNotification.category}</Text></Text>
+                            <Text style={styles(colors).couponBannerInfoText}>신뢰도: {(couponNotification.confidence * 100).toFixed(1)}%</Text>
+                        </View>
+                        <TouchableOpacity
+                            style={styles(colors).couponBannerButtonTop}
+                            onPress={async () => {
+                                try {
+                                    // API로 쿠폰 발급
+                                    const { issueCoupon } = await import('../api/coupons');
+                                    await issueCoupon(
+                                        couponNotification.couponInfo.merchant,
+                                        couponNotification.couponInfo.discount
+                                    );
+                                    alert('쿠폰이 발급되었습니다!');
+                                } catch (error) {
+                                    // 중복 발급 등 에러 메시지 표시
+                                    const message = error.response?.data?.detail || '쿠폰 발급에 실패했습니다.';
+                                    alert(message);
+                                }
+                                navigation.navigate('쿠폰함');
+                                setCouponNotification(null);
+                            }}
+                        >
+                            <Text style={styles(colors).couponBannerButtonTextTop}>쿠폰함에서 확인하기 →</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
+
+                {/* Transaction List - Nested approach or ScrollView wrap depends on platform, but FlatList should be outside or scrollEnabled={false} if inside ScrollView */}
+                <FlatList
+                    data={filteredTransactions}
+                    renderItem={renderItem}
+                    keyExtractor={item => item.id}
+                    contentContainerStyle={s.listContainer}
+                    ListEmptyComponent={
+                        <EmptyState 
+                            title="연동된 거래내역이 없습니다"
+                            description={"프로필에서 데이터를 동기화하여\n소비 분석을 시작하세요"}
+                            actionText="동기화 하러 가기"
+                            onAction={() => navigation.navigate('프로필')}
+                        />
+                    }
+                    scrollEnabled={false}
+                />
+            </ScrollView>
 
             {/* Floating Action Button for Add Transaction */}
             <TouchableOpacity
@@ -373,24 +407,8 @@ export default function TransactionScreen({ navigation, route }) {
                                         <Text style={[s.detailLabel, { color: colors.textSecondary }]}>일시</Text>
                                         <Text style={[s.detailValue, { color: colors.text }]}>{selectedTransaction.date}</Text>
                                     </View>
-                                    <View style={styles(colors).detailRow}>
-                                        <Text style={styles(colors).detailLabel}>거래금액</Text>
-                                        <Text style={styles(colors).detailValueAmount}>-{formatCurrency(selectedTransaction.amount, false)} 원</Text>
-                                    </View>
-                                    {!isAnomalyMode && (
-                                        <View style={styles(colors).detailRow}>
-                                            <Text style={styles(colors).detailLabel}>
-                                                {selectedTransaction.cardType === '체크' ? '거래후잔액' : '결제액누계'}
-                                            </Text>
-                                            <Text style={styles(colors).detailValueBalance}>
-                                                {selectedTransaction.cardType === '체크'
-                                                    ? formatCurrency(selectedTransaction.balance || 0, false)
-                                                    : formatCurrency(selectedTransaction.accumulated || 0, false)} 원
-                                            </Text>
-                                        </View>
-                                    )}
-                                    <View style={styles(colors).detailRow}>
-                                        <Text style={styles(colors).detailLabel}>추가메모</Text>
+                                    <View style={[s.detailRow, { borderBottomColor: 'transparent' }]}>
+                                        <Text style={[s.detailLabel, { color: colors.textSecondary }]}>메모</Text>
                                         {isEditingNote ? (
                                             <View style={s.noteEditContainer}>
                                                 <TextInput
@@ -450,110 +468,13 @@ export default function TransactionScreen({ navigation, route }) {
                 }}
             />
 
-            {/* Anomaly Action Modal (Report / Ignore) */}
-            <Modal
-                animationType="fade"
-                transparent={true}
-                visible={anomalyCategoryModalVisible}
-                onRequestClose={() => setAnomalyCategoryModalVisible(false)}>
-                <View style={styles(colors).modalOverlay}>
-                    <View style={styles(colors).categoryModalContent}>
-                        <Text style={styles(colors).modalTitle}>⚠️ 이상거래 확인</Text>
-
-                        {selectedTransaction && (
-                            <View style={styles(colors).categoryTransactionInfo}>
-                                <Text style={styles(colors).categoryTransactionName}>
-                                    {selectedTransaction.merchant}
-                                </Text>
-                                <Text style={styles(colors).categoryTransactionAmount}>
-                                    {formatCurrency(selectedTransaction.amount)}
-                                </Text>
-                            </View>
-                        )}
-
-                        <Text style={styles(colors).modalText}>
-                            본인이 사용하지 않은 거래인가요?
-                        </Text>
-
-                        <View style={styles(colors).actionButtons}>
-                            {/* 조건부 렌더링: 이미 신고/무시된 경우 메시지 표시 */}
-                            {(selectedTransaction?.notes === 'User Reported' || selectedTransaction?.status === 'reported') ? (
-                                <View style={styles(colors).reportButton}>
-                                    <Text style={styles(colors).reportButtonText}>🚨 이미 신고가 접수되었습니다.</Text>
-                                    <Text style={{ ...styles(colors).actionButtonSubText, marginTop: 4 }}>관리자 확인 대기 중</Text>
-                                </View>
-                            ) : (selectedTransaction?.status === 'ignored' || selectedTransaction?.notes === 'User Ignored') ? (
-                                <View style={{ ...styles(colors).actionButtonIgnore, backgroundColor: colors.success }}>
-                                    <Text style={styles(colors).actionButtonText}>✅ 이미 무시한 알림입니다.</Text>
-                                    <Text style={styles(colors).actionButtonSubText}>더 이상 알림이 뜨지 않습니다.</Text>
-                                </View>
-                            ) : (
-                                <>
-                                    {/* 신고하기 버튼 */}
-                                    <TouchableOpacity
-                                        style={styles(colors).actionButtonReport}
-                                        onPress={async () => {
-                                            try {
-                                                await reportAnomaly(selectedTransaction.id);
-
-                                                // 즉시 상태 반영
-                                                setSelectedTransaction(prev => ({ ...prev, notes: 'User Reported', status: 'pending' }));
-                                                setDisplayTransactions(prev => prev.map(t =>
-                                                    t.id === selectedTransaction.id ? { ...t, notes: 'User Reported', status: 'pending' } : t
-                                                ));
-
-                                                setTimeout(() => {
-                                                    alert('🚨 신고가 접수되었습니다.\n관리자 확인 후 조치됩니다.');
-                                                    setAnomalyCategoryModalVisible(false);
-                                                }, 300);
-                                            } catch (e) {
-                                                alert('신고 처리 중 오류가 발생했습니다.');
-                                            }
-                                        }}>
-                                        <Text style={styles(colors).actionButtonText}>🚨 신고하기</Text>
-                                        <Text style={styles(colors).actionButtonSubText}>관리자에게 알림</Text>
-                                    </TouchableOpacity>
-
-                                    {/* 무시하기 버튼 */}
-                                    <TouchableOpacity
-                                        style={styles(colors).actionButtonIgnore}
-                                        onPress={async () => {
-                                            try {
-                                                await ignoreAnomaly(selectedTransaction.id);
-
-                                                // 즉시 상태 반영
-                                                setSelectedTransaction(prev => ({ ...prev, notes: 'User Ignored', status: 'ignored' }));
-                                                setDisplayTransactions(prev => prev.map(t =>
-                                                    t.id === selectedTransaction.id ? { ...t, notes: 'User Ignored', status: 'ignored' } : t
-                                                ));
-
-                                                setTimeout(() => {
-                                                    alert('✅ 확인되었습니다.\n더 이상 알림이 뜨지 않습니다.');
-                                                    setAnomalyCategoryModalVisible(false);
-                                                }, 300);
-                                            } catch (e) {
-                                                alert('처리 중 오류가 발생했습니다.');
-                                            }
-                                        }}>
-                                        <Text style={styles(colors).actionButtonText}>👌 내가 쓴 거 맞아요</Text>
-                                        <Text style={styles(colors).actionButtonSubText}>알림 무시하기</Text>
-                                    </TouchableOpacity>
-                                </>
-                            )}
-                        </View>
-
-                        <TouchableOpacity
-                            style={styles(colors).categoryModalCancel}
-                            onPress={() => setAnomalyCategoryModalVisible(false)}>
-                            <Text style={styles(colors).categoryModalCancelText}>취소</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
-        </LinearGradient>
+            {/* Anomaly Category Modal (Placeholder for explicit implementation if needed) */}
+            {/* ... keeping existing logic if any ... */}
+        </LinearGradient >
     );
 }
 
+// 스타일
 const styles = (colors) => StyleSheet.create({
     container: { flex: 1 },
     listContainer: { padding: 16, paddingBottom: 100 },
@@ -572,8 +493,8 @@ const styles = (colors) => StyleSheet.create({
     merchant: { fontSize: 16, fontWeight: 'bold' },
     cardTypeBadge: (type) => ({
         fontSize: 11,
-        color: type === '신용' || type === '주의' ? '#2563EB' : type === '위험' ? '#EF4444' : '#059669',
-        backgroundColor: type === '신용' || type === '주의' ? '#DBEAFE' : type === '위험' ? '#FEE2E2' : '#D1FAE5',
+        color: type === '신용' ? '#2563EB' : '#059669',
+        backgroundColor: type === '신용' ? '#DBEAFE' : '#D1FAE5',
         paddingHorizontal: 8,
         paddingVertical: 3,
         borderRadius: 8,
@@ -651,140 +572,6 @@ const styles = (colors) => StyleSheet.create({
         elevation: 8,
     },
 
-    // Category Modal styles
-    categoryModalContent: {
-        backgroundColor: colors.cardBackground,
-        borderRadius: 16,
-        padding: 24,
-        width: '100%',
-        maxWidth: 500,
-        borderWidth: 1,
-        borderColor: colors.border,
-    },
-    categoryTransactionInfo: {
-        alignItems: 'center',
-        padding: 16,
-        backgroundColor: colors.background,
-        borderRadius: 12,
-        marginBottom: 20,
-    },
-    categoryTransactionName: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: colors.text,
-        marginBottom: 4,
-    },
-    categoryTransactionAmount: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: colors.error,
-    },
-    categoryOptions: {
-        gap: 12,
-        marginBottom: 20,
-    },
-    categoryOption: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 16,
-        borderRadius: 12,
-        borderWidth: 2,
-    },
-    categoryOptionSafe: {
-        borderColor: colors.success,
-        backgroundColor: colors.success + '10',
-    },
-    categoryOptionSuspicious: {
-        borderColor: colors.warning,
-        backgroundColor: colors.warning + '10',
-    },
-    categoryOptionDangerous: {
-        borderColor: colors.error,
-        backgroundColor: colors.error + '10',
-    },
-    categoryOptionIcon: {
-        fontSize: 32,
-        marginRight: 16,
-    },
-    categoryOptionContent: {
-        flex: 1,
-    },
-    categoryOptionTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: colors.text,
-        marginBottom: 4,
-    },
-    categoryOptionDesc: {
-        fontSize: 13,
-        color: colors.textSecondary,
-        lineHeight: 18,
-    },
-    actionButtons: {
-        flexDirection: 'column',
-        gap: 12,
-        marginBottom: 20,
-        width: '100%',
-    },
-    actionButtonReport: {
-        backgroundColor: '#EF4444',
-        padding: 16,
-        borderRadius: 12,
-        alignItems: 'center',
-        shadowColor: '#EF4444',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 4,
-    },
-    actionButtonIgnore: {
-        backgroundColor: '#3B82F6',
-        padding: 16,
-        borderRadius: 12,
-        alignItems: 'center',
-        shadowColor: '#3B82F6',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 4,
-    },
-    actionButtonText: {
-        color: '#FFFFFF',
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginBottom: 2,
-    },
-    actionButtonSubText: {
-        color: 'rgba(255, 255, 255, 0.8)',
-        fontSize: 12,
-    },
-    reportButton: {
-        backgroundColor: colors.error,
-        padding: 16,
-        borderRadius: 12,
-        alignItems: 'center',
-        marginBottom: 12,
-    },
-    reportButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    categoryModalCancel: {
-        padding: 14,
-        borderRadius: 12,
-        backgroundColor: colors.background,
-        borderWidth: 1,
-        borderColor: colors.border,
-        alignItems: 'center',
-    },
-    categoryModalCancelText: {
-        color: colors.text,
-        fontSize: 14,
-        fontWeight: 'bold',
-
-    },
-
     // Prediction Card styles
     predictionCard: {
         marginHorizontal: 16,
@@ -834,6 +621,149 @@ const styles = (colors) => StyleSheet.create({
     predictionButtonText: {
         color: '#FFFFFF',
         fontSize: 15,
+        fontWeight: '700',
+    },
+
+    // Coupon Banner styles
+    couponBanner: {
+        marginHorizontal: 16,
+        marginBottom: 12,
+        padding: 16,
+        backgroundColor: '#ECFDF5',
+        borderRadius: 16,
+        borderWidth: 2,
+        borderColor: '#10B981',
+        shadowColor: '#10B981',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    couponBannerHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    couponBannerIcon: {
+        fontSize: 24,
+        marginRight: 8,
+    },
+    couponBannerTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#059669',
+        flex: 1,
+    },
+    couponBannerClose: {
+        padding: 4,
+    },
+    couponBannerInfo: {
+        marginBottom: 12,
+        paddingBottom: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#A7F3D0',
+    },
+    couponBannerText: {
+        fontSize: 14,
+        color: '#065F46',
+        marginBottom: 4,
+        lineHeight: 20,
+    },
+    couponBannerCoupon: {
+        backgroundColor: '#D1FAE5',
+        padding: 12,
+        borderRadius: 10,
+        marginBottom: 12,
+    },
+    couponBannerCouponText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#047857',
+        textAlign: 'center',
+    },
+    couponBannerButton: {
+        backgroundColor: '#10B981',
+        padding: 14,
+        borderRadius: 12,
+        alignItems: 'center',
+    },
+    couponBannerButtonText: {
+        color: '#FFFFFF',
+        fontSize: 15,
+        fontWeight: '700',
+    },
+
+    // Top Coupon Banner
+    couponBannerTop: {
+        marginHorizontal: 16,
+        marginTop: 8,
+        marginBottom: 16,
+        padding: 24,
+        backgroundColor: '#DBEAFE',
+        borderRadius: 20,
+        borderWidth: 2,
+        borderColor: '#93C5FD',
+        shadowColor: '#2563EB',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+        elevation: 4,
+        position: 'relative',
+    },
+    couponBannerCloseTop: {
+        position: 'absolute',
+        top: 12,
+        right: 12,
+        padding: 8,
+        zIndex: 10,
+    },
+    couponBannerTitleTop: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#1E40AF',
+        textAlign: 'center',
+        marginBottom: 16,
+    },
+    couponBannerCouponTop: {
+        backgroundColor: '#EFF6FF',
+        padding: 20,
+        borderRadius: 16,
+        marginBottom: 16,
+        alignItems: 'center',
+        borderWidth: 1.5,
+        borderColor: '#93C5FD',
+    },
+    couponBannerMerchant: {
+        fontSize: 22,
+        fontWeight: '700',
+        color: '#1E40AF',
+        marginBottom: 6,
+    },
+    couponBannerDiscount: {
+        fontSize: 28,
+        fontWeight: '800',
+        color: '#2563EB',
+    },
+    couponBannerInfoTop: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        marginBottom: 16,
+        paddingHorizontal: 8,
+    },
+    couponBannerInfoText: {
+        fontSize: 16,
+        color: '#1E3A8A',
+        fontWeight: '600',
+    },
+    couponBannerButtonTop: {
+        backgroundColor: '#2563EB',
+        padding: 16,
+        borderRadius: 12,
+        alignItems: 'center',
+    },
+    couponBannerButtonTextTop: {
+        color: '#FFFFFF',
+        fontSize: 16,
         fontWeight: '700',
     },
 });

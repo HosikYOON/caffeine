@@ -17,10 +17,12 @@ services:
       GMAIL_APP_PASSWORD: ${GMAIL_APP_PASSWORD}
       DEVELOPMENT_MODE: ${DEVELOPMENT_MODE}
       GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
     ports:
       - "8001:8000"
     volumes:
-      - ./10_backend/app:/app/app
+      - ./10_backend/app:/app/app # 핫 리로드용
 
   # ============================================================
   # 프론트엔드 (관리자)
@@ -35,6 +37,7 @@ services:
     depends_on:
       - backend
 
+  # ============================================================
   # Nginx (리버스 프록시)
   # ============================================================
   nginx:
@@ -57,3 +60,5 @@ services:
       - "9102:9102"
     environment:
       GEMINI_API_KEY: ${GEMINI_API_KEY}
+      MAX_DAILY_CALLS: 100 # 일일 최대 API 호출 수
+      MAX_RPM: 10 # 분당 최대 API 요청 수

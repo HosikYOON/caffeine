@@ -8,11 +8,7 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 
-from pathlib import Path
-
-# 환경 변수 로드 (프로젝트 루트의 .env.local 및 백엔드 폴더의 .env 모두 로드)
-project_root = Path(__file__).resolve().parent.parent.parent  # /home/jj/proct
-load_dotenv(project_root / ".env.local")  # 프로젝트 루트의 .env.local
+# 환경 변수 로드
 load_dotenv()  # 현재 디렉토리 또는 상위의 .env (override=False가 기본값)
 
 # 로거 설정 (라이트 Audit 로그)
@@ -76,16 +72,6 @@ LOCAL_ORIGINS = [
 
 allowed_origins = LOCAL_ORIGINS + [CLOUDFRONT_URL] + CUSTOM_DOMAINS
 
-# CORS 설정 (가장 먼저 추가하여 OPTIONS preflight 요청 처리)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
 # 보안 헤더 미들웨어
 @app.middleware("http")
 async def security_headers_middleware(request: Request, call_next):
@@ -143,17 +129,23 @@ async def health(request: Request):
 
 # 라우터 등록
 from app.routers import (
-    ml, analysis, transactions, user, auth, coupons, 
+    ml, analysis, transactions, user, coupons, 
     settings, reports, anomalies, user_analytics, analytics_demographics,
     admin_transactions
 )
 from app.routers.chatbot import router as chatbot_router
+from app.routers.auth import kakao_router, google_router, password_router
 
 # 라우터 포함
 # 1. /api prefix 추가 그룹: 내부 prefix가 제거된 라우터들 (/admin/...) 또는 원래 없는 라우터들 (/users)
 app.include_router(transactions.router, prefix="/api")
-app.include_router(analysis.router, prefix="/api")
-app.include_router(anomalies.router, prefix="/api")
+app.include_router(user.router, prefix="/api")
+app.include_router(kakao_router, prefix="/api")      # 카카오 로그인
+app.include_router(google_router, prefix="/api")     # 구글 로그인
+app.include_router(password_router, prefix="/api")   # 비밀번호/회원탈퇴
+app.include_router(coupons.router, prefix="/api")
+
+# 관리자/분석 라우터 추가
 app.include_router(user_analytics.router, prefix="/api")
 app.include_router(analytics_demographics.router, prefix="/api")
 app.include_router(admin_transactions.router, prefix="/api")

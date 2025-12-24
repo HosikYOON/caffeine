@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, ScrollView, StyleSheet, Dimensions, RefreshControl, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { View, Text, ScrollView, StyleSheet, Dimensions, RefreshControl, TouchableOpacity, Modal, Platform, TextInput } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { LineChart } from 'react-native-chart-kit';
 import { Feather } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useTransactions } from '../contexts/TransactionContext';
-import { getAnomalies } from '../api';
+import { useFocusEffect } from '@react-navigation/native';
 import CountUpNumber from '../components/CountUpNumber';
 import FadeInView from '../components/FadeInView';
 import AnimatedButton from '../components/AnimatedButton';
@@ -16,40 +16,60 @@ import { SkeletonStats, SkeletonChart } from '../components/SkeletonCard';
 import { formatCurrency } from '../utils/currency';
 import { CHART_COLORS, ANIMATION_DELAY } from '../constants';
 
-// ============================================================
-// 카테고리별 아이콘 매핑 (Feather icons)
-// ============================================================
+// 카테고리별 아이콘 매핑
 const CATEGORY_ICON = {
-    '쇼핑': { icon: 'shopping-bag', color: '#EC4899' },
+    // 식사
+    '외식': { icon: 'coffee', color: '#F97316' },
     '식비': { icon: 'coffee', color: '#F59E0B' },
-    '공과금': { icon: 'zap', color: '#8B5CF6' },
-    '여가': { icon: 'music', color: '#10B981' },
-    '교통': { icon: 'truck', color: '#3B82F6' },
-    '기타': { icon: 'box', color: '#6B7280' },
+    '식료품': { icon: 'shopping-bag', color: '#84CC16' },
     '카페': { icon: 'coffee', color: '#92400E' },
-    '편의점': { icon: 'package', color: '#059669' },
-    '마트': { icon: 'shopping-cart', color: '#DC2626' },
-    '의료': { icon: 'heart', color: '#EF4444' },
+
+    // 생활 
+    '생활': { icon: 'home', color: '#8B5CF6' },
+    '주유': { icon: 'droplet', color: '#06B6D4' },
+    '교통': { icon: 'truck', color: '#3B82F6' },
+    '공과금': { icon: 'zap', color: '#6366F1' },
+
+    // 쇼핑 
+    '쇼핑': { icon: 'shopping-bag', color: '#EC4899' },
+    '마트': { icon: 'shopping-cart', color: '#EF4444' },
+    '편의점': { icon: 'package', color: '#10B981' },
+
+    // 여가/기타
+    '여가': { icon: 'music', color: '#14B8A6' },
+    '의료': { icon: 'heart', color: '#F43F5E' },
+    '문화': { icon: 'film', color: '#A855F7' },
+    '교육': { icon: 'book', color: '#0EA5E9' },
+    '통신': { icon: 'smartphone', color: '#6B7280' },
+    '기타': { icon: 'box', color: '#9CA3AF' },
 };
 
 // 이모지 폴백 (아이콘 없을 때)
 const CATEGORY_EMOJI = {
-    '쇼핑': '🛍️',
+    '외식': '🍽️',
     '식비': '🍔',
-    '공과금': '💡',
-    '여가': '🎮',
-    '교통': '🚗',
-    '기타': '📦',
+    '식료품': '🥗',
     '카페': '☕',
-    '편의점': '🏪',
+    '생활': '🏠',
+    '주유': '⛽',
+    '교통': '🚗',
+    '공과금': '💡',
+    '쇼핑': '🛍️',
     '마트': '🛒',
+    '편의점': '🏪',
+    '여가': '🎮',
     '의료': '🏥',
+    '문화': '🎬',
+    '교육': '📚',
+    '통신': '📱',
+    '기타': '📦',
 };
 
+// 대쉬보드 화면
 export default function DashboardScreen({ navigation }) {
     const { colors } = useTheme();
     const { user } = useAuth();
-    const { transactions, loading: transactionLoading, refresh } = useTransactions();
+    const { transactions, loading: transactionLoading, refresh, loadTransactionsFromServer } = useTransactions();
     const [refreshing, setRefreshing] = useState(false);
     const [summary, setSummary] = useState(null);
     const [monthlyData, setMonthlyData] = useState([]);
@@ -57,8 +77,10 @@ export default function DashboardScreen({ navigation }) {
     const [tooltip, setTooltip] = useState(null);
     const [predictedTransaction, setPredictedTransaction] = useState(null);
     const [couponReceived, setCouponReceived] = useState(false);
-    const [showAddModal, setShowAddModal] = useState(false);
-    const [anomalyCount, setAnomalyCount] = useState(0);
+
+    // 생년월일 모달 state (카카오 로그인 사용자)
+    const [showBirthModal, setShowBirthModal] = useState(false);
+    const [birthDateInput, setBirthDateInput] = useState('');  // 6자리 YYMMDD
 
     const scrollViewRef = useRef(null);
 
@@ -75,6 +97,29 @@ export default function DashboardScreen({ navigation }) {
             return txDate.getMonth() === currentMonth && txDate.getFullYear() === currentYear;
         });
     };
+
+    // 로그인 후 거래 데이터 자동 로드
+    useEffect(() => {
+        if (user?.id && (!transactions || transactions.length === 0) && !transactionLoading) {
+            loadTransactionsFromServer(user.id);
+        }
+    }, [user?.id]);
+
+    // 대시보드 화면 포커스 시 생년월일 체크 (카카오 사용자)
+    useFocusEffect(
+        useCallback(() => {
+            // 데이터가 로드되고, 카카오 사용자이고, 생년월일이 없으면 모달 표시
+            if (transactions && transactions.length > 0 && !transactionLoading) {
+                // 소셜 로그인(카카오/구글) 사용자이고, 생년월일이 없으면 모달 표시
+                if ((user?.provider === 'kakao' || user?.provider === 'google') && !user?.birth_date) {
+                    // 약간의 지연으로 화면 전환 후 모달 표시
+                    const timer = setTimeout(() => setShowBirthModal(true), 500);
+                    return () => clearTimeout(timer);
+                }
+            }
+        }, [transactions, transactionLoading, user])
+    );
+
     // 거래 데이터로부터 대시보드 요약 계산
     const calculateSummary = (txns) => {
         if (!txns || txns.length === 0) return null;
@@ -122,7 +167,7 @@ export default function DashboardScreen({ navigation }) {
             frequent_merchant: frequentMerchant,
             frequent_merchant_count: frequentMerchantCount,
             monthly_trend: '증가',
-            anomaly_count: anomalyCount
+            anomaly_count: 0
         };
     };
 
@@ -157,7 +202,9 @@ export default function DashboardScreen({ navigation }) {
 
         const monthlyMap = {};
         txns.forEach(t => {
-            let date = t.date?.split(' ')[0] || t.date || '';
+            // transaction_date 또는 date 필드 사용
+            let rawDate = t.transaction_date || t.date || '';
+            let date = rawDate?.split(' ')[0] || rawDate || '';
 
             // 다양한 날짜 형식 처리
             let month = null;
@@ -187,21 +234,41 @@ export default function DashboardScreen({ navigation }) {
             }
         });
 
+        // 월별 데이터 정렬
         const sortedData = Object.entries(monthlyMap)
             .sort((a, b) => a[0].localeCompare(b[0]))
             .slice(-6)
             .map(([month, amount]) => ({ month, total_amount: amount }));
 
-        // 데이터가 없으면 현재 월 기본값 반환
-        if (sortedData.length === 0) {
+        // 최소 3개월 데이터 보장 (그래프 가독성 향상)
+        if (sortedData.length < 3) {
             const now = new Date();
-            const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-            return [{ month: currentMonth, total_amount: 0 }];
+            const months = [];
+
+            // 최근 6개월 생성
+            for (let i = 5; i >= 0; i--) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const monthStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                months.push(monthStr);
+            }
+
+            // 기존 데이터를 맵으로 변환
+            const existingMap = {};
+            sortedData.forEach(item => {
+                existingMap[item.month] = item.total_amount;
+            });
+
+            // 6개월 데이터 생성 (없으면 0)
+            return months.map(month => ({
+                month,
+                total_amount: existingMap[month] || 0
+            }));
         }
 
         return sortedData;
     };
 
+    // 데이터 계산
     useEffect(() => {
         if (transactions && transactions.length > 0) {
             // 이번 달 거래만 필터링해서 요약 및 카테고리 계산
@@ -210,43 +277,79 @@ export default function DashboardScreen({ navigation }) {
             setCategoryData(calculateCategoryData(currentMonthTxns));
             // 월별 추이는 전체 데이터 사용
             setMonthlyData(calculateMonthlyData(transactions));
+        } else {
+            // 거래 데이터가 없을 때는 명시적으로 초기화
+            setSummary(null);
+            setCategoryData([]);
+            setMonthlyData([]);
         }
-    }, [transactions, anomalyCount]);
-
-    // 이상 거래 데이터 가져오기
-    useEffect(() => {
-        const fetchAnomalies = async () => {
-            try {
-                const data = await getAnomalies();
-                if (data) {
-                    setAnomalyCount(data.length);
-                }
-            } catch (error) {
-                console.error('이상 거래 데이터 로드 실패:', error);
-            }
-        };
-
-        fetchAnomalies();
-    }, [transactions]); // 거래 내역이 변경될 때마다 다시 확인
+    }, [transactions]);
 
     const onRefresh = async () => {
         setRefreshing(true);
         await refresh();
-        // 이상 거래도 같이 새로고침
-        try {
-            const data = await getAnomalies();
-            if (data) setAnomalyCount(data.length);
-        } catch (e) { }
         setRefreshing(false);
     };
 
-    const handleGetCoupon = () => {
+    // 쿠폰 받기
+    const handleGetCoupon = async () => {
         if (couponReceived) {
             alert('이미 쿠폰을 받으셨습니다!');
             return;
         }
-        setCouponReceived(true);
-        alert(`쿠폰 발급 완료!\n\n${predictedTransaction?.merchant}에서 사용 가능한\n${formatCurrency(predictedTransaction?.couponDiscount)} 할인 쿠폰이 발급되었습니다!`);
+
+        try {
+            // API 호출하여 쿠폰 발급
+            const { issueCoupon } = await import('../api/coupons');
+            const result = await issueCoupon(
+                predictedTransaction?.merchant,
+                predictedTransaction?.couponDiscount
+            );
+
+            if (result.success) {
+                setCouponReceived(true);
+                alert(`쿠폰 발급 완료!\n\n${predictedTransaction?.merchant}에서 사용 가능한\n${formatCurrency(predictedTransaction?.couponDiscount)} 할인 쿠폰이 발급되었습니다!`);
+            }
+        } catch (error) {
+            console.error('쿠폰 발급 오류:', error);
+            // 중복 발급 등 에러 처리
+            const message = error.response?.data?.detail || '쿠폰 발급에 실패했습니다.';
+            alert(message);
+        }
+    };
+
+    // 생년월일 저장 (카카오 로그인 사용자)
+    const handleSaveBirthDate = async () => {
+        if (!birthDateInput || birthDateInput.length !== 6) {
+            alert('생년월일 6자리를 입력해주세요. (예: 000212)');
+            return;
+        }
+
+        // YYMMDD -> YYYY-MM-DD 변환
+        const yy = birthDateInput.substring(0, 2);
+        const mm = birthDateInput.substring(2, 4);
+        const dd = birthDateInput.substring(4, 6);
+        const year = parseInt(yy) > 50 ? `19${yy}` : `20${yy}`;  // 50 이상이면 1900년대
+        const birthDate = `${year}-${mm}-${dd}`;
+
+        try {
+            const { updateUserProfile } = await import('../api/users');
+            await updateUserProfile({ birth_date: birthDate });
+
+            // AsyncStorage의 user 객체도 업데이트
+            const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
+            const storedUser = await AsyncStorage.getItem('user');
+            if (storedUser) {
+                const updatedUser = { ...JSON.parse(storedUser), birth_date: birthDate };
+                await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
+            }
+
+            setShowBirthModal(false);
+            alert('생년월일이 저장되었습니다!');
+        } catch (error) {
+            console.error('생년월일 저장 오류:', error);
+            alert('저장에 실패했습니다. 다시 시도해주세요.');
+        }
     };
 
     // 로딩 중
@@ -270,7 +373,7 @@ export default function DashboardScreen({ navigation }) {
             <EmptyState
                 icon="📊"
                 title="연동된 거래내역이 없습니다"
-                description="프로필에서 데이터를 동기화하여\n소비 분석을 시작하세요"
+                description={"프로필에서 데이터를 동기화하여\n소비 분석을 시작하세요"}
                 actionText="동기화 하러 가기"
                 onAction={() => navigation?.navigate('프로필')}
             />
@@ -375,7 +478,7 @@ export default function DashboardScreen({ navigation }) {
                     </LinearGradient>
                 </FadeInView>
 
-                {/* AI Insights - 최상단으로 이동 */}
+                {/* AI Insights*/}
                 <FadeInView style={styles.section} delay={150}>
                     <View style={styles.sectionHeader}>
                         <Text style={[styles.sectionTitle, { color: colors.text }]}>AI 인사이트</Text>
@@ -442,7 +545,7 @@ export default function DashboardScreen({ navigation }) {
                 <FadeInView style={styles.quickActions} delay={300}>
                     <TouchableOpacity
                         style={styles.quickActionItem}
-                        onPress={() => navigation?.navigate('거래내역', { filter: null })}
+                        onPress={() => navigation?.navigate('거래내역')}
                     >
                         <View style={[styles.quickActionIcon, { backgroundColor: '#DBEAFE' }]}>
                             <Feather name="file-text" size={24} color="#2563EB" />
@@ -478,11 +581,11 @@ export default function DashboardScreen({ navigation }) {
                     </TouchableOpacity>
                 </FadeInView>
 
-                {/* Anomaly Alert - 의심스러운 거래 발견 */}
+                {/* Anomaly Alert */}
                 <FadeInView style={styles.alertContainer} delay={350}>
                     <TouchableOpacity
                         style={styles.alertCard}
-                        onPress={() => navigation?.navigate('거래내역', { filter: 'suspicious' })}
+                        onPress={() => navigation?.navigate('거래내역')}
                         activeOpacity={0.8}
                     >
                         <View style={styles.alertIconContainer}>
@@ -490,7 +593,7 @@ export default function DashboardScreen({ navigation }) {
                         </View>
                         <View style={styles.alertContent}>
                             <Text style={styles.alertTitle}>의심스러운 거래 발견</Text>
-                            <Text style={styles.alertDesc}>{anomalyCount}건의 이상 거래가 감지되었습니다.</Text>
+                            <Text style={styles.alertDesc}>{summary?.anomaly_count || 3}건의 이상 거래가 감지되었습니다.</Text>
                         </View>
                         <Feather name="chevron-right" size={20} color="#EF4444" />
                     </TouchableOpacity>
@@ -524,13 +627,17 @@ export default function DashboardScreen({ navigation }) {
                                             strokeDasharray: '',
                                             stroke: '#E5E7EB',
                                             strokeWidth: 1,
-                                        }
+                                        },
+                                        fillShadowGradient: '#3B82F6',
+                                        fillShadowGradientOpacity: 0.3,
                                     }}
                                     bezier
+                                    withShadow={true}
                                     style={styles.chart}
                                     withInnerLines={true}
                                     withOuterLines={false}
                                     withVerticalLines={false}
+                                    formatYLabel={(value) => Math.round(Number(value)).toString()}
                                     onDataPointClick={(data) => {
                                         const amount = (data.value * 10000).toFixed(0);
                                         const monthLabel = getMonthLabel(monthlyData[data.index]?.month);
@@ -590,30 +697,51 @@ export default function DashboardScreen({ navigation }) {
                 <View style={{ height: 100 }} />
             </ScrollView>
 
-            {/* Floating Action Button - 소비 추가 */}
-            <TouchableOpacity
-                style={styles.fab}
-                onPress={() => setShowAddModal(true)}
-                activeOpacity={0.85}
-            >
-                <LinearGradient
-                    colors={['#10B981', '#059669']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.fabGradient}
-                >
-                    <Feather name="plus" size={28} color="#FFFFFF" />
-                </LinearGradient>
-            </TouchableOpacity>
+            {/* 생년월일 입력 모달 (카카오 로그인 사용자) */}
+            <Modal
+                visible={showBirthModal}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setShowBirthModal(false)}>
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+                        <Text style={[styles.modalTitle, { color: colors.text }]}>생년월일 입력</Text>
+                        <Text style={[styles.modalDesc, { color: colors.textSecondary }]}>
+                            연령대별 소비 분석을 위해{'\n'}생년월일을 입력해주세요
+                        </Text>
 
-            {/* 소비 추가 모달 */}
-            <AddTransactionModal
-                visible={showAddModal}
-                onClose={() => setShowAddModal(false)}
-                onSuccess={() => {
-                    refresh();  // 데이터 새로고침
-                }}
-            />
+                        <View style={styles.birthInputContainer}>
+                            <TextInput
+                                style={styles.birthInput}
+                                placeholder="000212"
+                                placeholderTextColor="#9CA3AF"
+                                value={birthDateInput}
+                                onChangeText={(text) => {
+                                    // 숫자만 허용, 6자리로 제한
+                                    const numOnly = text.replace(/[^0-9]/g, '').slice(0, 6);
+                                    setBirthDateInput(numOnly);
+                                }}
+                                keyboardType="number-pad"
+                                maxLength={6}
+                            />
+                            <Text style={styles.birthHint}>예: 000212 (2000년 2월 12일)</Text>
+                        </View>
+
+                        <View style={styles.modalBtnRow}>
+                            <TouchableOpacity
+                                style={[styles.modalBtn, styles.modalBtnSecondary]}
+                                onPress={() => setShowBirthModal(false)}>
+                                <Text style={styles.modalBtnTextSecondary}>나중에</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.modalBtn, styles.modalBtnPrimary]}
+                                onPress={handleSaveBirthDate}>
+                                <Text style={styles.modalBtnTextPrimary}>저장</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </LinearGradient>
     );
 }
@@ -837,8 +965,8 @@ const styles = StyleSheet.create({
         borderRadius: 20,
     },
     couponBadgeText: {
-        fontSize: 12,
-        fontWeight: '600',
+        fontSize: 13,
+        fontWeight: '700',
         color: '#FFFFFF',
     },
 
@@ -851,34 +979,47 @@ const styles = StyleSheet.create({
     },
     quickActionItem: {
         alignItems: 'center',
-        gap: 8,
+        flex: 1,
     },
     quickActionIcon: {
         width: 56,
         height: 56,
-        borderRadius: 20,
+        borderRadius: 18,
         justifyContent: 'center',
         alignItems: 'center',
+        marginBottom: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.1,
+        shadowRadius: 6,
+        elevation: 4,
+    },
+    quickActionEmoji: {
+        fontSize: 26,
     },
     quickActionLabel: {
         fontSize: 12,
+        color: '#374151',
         fontWeight: '600',
-        color: '#4B5563',
+        fontFamily: 'Inter_600SemiBold',
     },
 
-    // Anomaly Alert - Updated Styles
+    // Alert
     alertContainer: {
         paddingHorizontal: 24,
-        paddingTop: 24,
+        paddingTop: 16,
     },
     alertCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#FEF2F2',
+        backgroundColor: '#FEE2E2',
         borderRadius: 16,
         padding: 16,
-        borderWidth: 1,
-        borderColor: '#FECACA',
+        shadowColor: '#EF4444',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 3,
     },
     alertIconContainer: {
         width: 40,
@@ -889,18 +1030,25 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginRight: 12,
     },
+    alertEmoji: {
+        fontSize: 28,
+    },
     alertContent: {
         flex: 1,
     },
     alertTitle: {
-        fontSize: 14,
+        fontSize: 15,
         fontWeight: '700',
-        color: '#B91C1C',
+        color: '#991B1B',
         marginBottom: 2,
     },
     alertDesc: {
         fontSize: 13,
-        color: '#991B1B',
+        color: '#DC2626',
+    },
+    alertArrow: {
+        fontSize: 24,
+        color: '#EF4444',
     },
 
     // Section
@@ -922,112 +1070,102 @@ const styles = StyleSheet.create({
     },
     sectionMore: {
         fontSize: 14,
-        color: '#6B7280',
+        color: '#2563EB',
         fontWeight: '500',
     },
 
-    // Insight Card
-    insightCard: {
-        borderRadius: 16,
-        padding: 16,
-        marginBottom: 12,
-    },
-    insightRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12,
-    },
-    insightIconContainer: {
-        width: 36,
-        height: 36,
-        borderRadius: 10,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    insightText: {
-        flex: 1,
-        fontSize: 14,
-        color: '#374151',
-        lineHeight: 20,
-    },
-    insightHighlight: {
-        fontWeight: '700',
-    },
-
-    // Chart Card
+    // Chart
     chartCard: {
-        borderRadius: 24,
-        padding: 20,
-        alignItems: 'center',
+        backgroundColor: '#FFFFFF',
+        borderRadius: 20,
+        padding: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.06,
+        shadowRadius: 8,
+        elevation: 2,
     },
     chart: {
         marginVertical: 8,
         borderRadius: 16,
     },
     chartCaption: {
-        fontSize: 12,
+        fontSize: 11,
         color: '#9CA3AF',
+        textAlign: 'center',
         marginTop: 8,
     },
+
+    // Tooltip
     tooltip: {
         position: 'absolute',
-        backgroundColor: 'rgba(30, 41, 59, 0.9)',
-        paddingHorizontal: 12,
-        paddingVertical: 8,
+        backgroundColor: '#2563EB',
         borderRadius: 8,
-        alignItems: 'center',
+        padding: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 5,
+        zIndex: 1000,
     },
     tooltipMonth: {
-        color: '#FFFFFF',
-        fontSize: 12,
+        fontSize: 10,
+        color: 'rgba(255, 255, 255, 0.8)',
         marginBottom: 2,
     },
     tooltipValue: {
+        fontSize: 13,
         color: '#FFFFFF',
-        fontSize: 14,
         fontWeight: 'bold',
     },
 
     // Category Grid
     categoryGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
         gap: 12,
     },
     categoryCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 16,
+        width: (Dimensions.get('window').width - 60) / 2,
+        backgroundColor: '#FFFFFF',
         borderRadius: 16,
-        paddingVertical: 12,
+        padding: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.06,
+        shadowRadius: 8,
+        elevation: 2,
     },
     categoryIconContainer: {
-        width: 40,
-        height: 40,
+        width: 44,
+        height: 44,
         borderRadius: 12,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 12,
+        marginBottom: 12,
+    },
+    categoryEmoji: {
+        fontSize: 22,
     },
     categoryName: {
-        fontSize: 15,
+        fontSize: 14,
         fontWeight: '600',
-        color: '#374151',
-        width: 80,
+        color: '#1F2937',
+        marginBottom: 4,
     },
     categoryAmount: {
-        fontSize: 15,
-        fontWeight: '600',
-        color: '#111827',
-        flex: 1,
-        textAlign: 'right',
-        marginRight: 12,
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#1F2937',
+        marginBottom: 8,
     },
     categoryProgress: {
-        width: 60,
         height: 6,
-        borderRadius: 3,
         backgroundColor: '#E5E7EB',
+        borderRadius: 3,
         overflow: 'hidden',
-        marginRight: 8,
+        marginBottom: 6,
     },
     categoryProgressBar: {
         height: '100%',
@@ -1036,25 +1174,161 @@ const styles = StyleSheet.create({
     categoryPercent: {
         fontSize: 12,
         color: '#6B7280',
-        width: 32,
-        textAlign: 'right',
     },
 
-    // FAB
-    fab: {
-        position: 'absolute',
-        bottom: 24,
-        right: 24,
-        shadowColor: '#10B981',
+    // Insight
+    insightCard: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.06,
+        shadowRadius: 8,
+        elevation: 2,
+    },
+    insightRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    insightIconContainer: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        backgroundColor: '#F3F4F6',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
+    },
+    insightText: {
+        flex: 1,
+        fontSize: 14,
+        color: '#4B5563',
+        lineHeight: 20,
+    },
+    insightHighlight: {
+        fontWeight: '700',
+        color: '#2563EB',
+    },
+
+    // 생년월일 모달 스타일
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalContent: {
+        width: '85%',
+        maxWidth: 360,
+        borderRadius: 20,
+        padding: 24,
+        alignItems: 'center',
+        backgroundColor: 'white',
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
+        shadowRadius: 10,
+        elevation: 10,
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: '700',
+        marginBottom: 8,
+    },
+    modalDesc: {
+        fontSize: 14,
+        textAlign: 'center',
+        marginBottom: 24,
+        lineHeight: 20,
+    },
+    birthDateRow: {
+        flexDirection: 'row',
+        gap: 10,
+        marginBottom: 24,
+        width: '100%',
+    },
+    birthBtn: {
+        flex: 1,
+        borderWidth: 1,
+        borderRadius: 10,
+        paddingVertical: 14,
+        alignItems: 'center',
+    },
+    birthBtnText: {
+        fontSize: 15,
+        fontWeight: '500',
+    },
+    modalBtnRow: {
+        flexDirection: 'row',
+        gap: 12,
+        width: '100%',
+    },
+    modalBtn: {
+        flex: 1,
+        paddingVertical: 14,
+        borderRadius: 12,
+        alignItems: 'center',
+    },
+    modalBtnSecondary: {
+        backgroundColor: '#E5E7EB',
+    },
+    modalBtnPrimary: {
+        backgroundColor: '#2563EB',
+    },
+    modalBtnTextSecondary: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: '#4B5563',
+    },
+    modalBtnTextPrimary: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: 'white',
+    },
+    birthInputContainer: {
+        width: '100%',
+        marginBottom: 24,
+    },
+    birthInput: {
+        width: '100%',
+        borderWidth: 1,
+        borderColor: '#D1D5DB',
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        fontSize: 24,
+        fontWeight: '600',
+        textAlign: 'center',
+        letterSpacing: 4,
+        color: '#1F2937',
+    },
+    birthHint: {
+        marginTop: 8,
+        fontSize: 12,
+        color: '#9CA3AF',
+        textAlign: 'center',
+    },
+
+    // Floating Action Button
+    fab: {
+        position: 'absolute',
+        right: 24,
+        bottom: 100,
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        shadowColor: '#10B981',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.4,
         shadowRadius: 12,
         elevation: 8,
     },
     fabGradient: {
-        width: 64,
-        height: 64,
-        borderRadius: 32,
+        width: '100%',
+        height: '100%',
+        borderRadius: 30,
         justifyContent: 'center',
         alignItems: 'center',
     },

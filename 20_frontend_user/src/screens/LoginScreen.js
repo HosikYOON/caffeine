@@ -37,31 +37,47 @@ export default function LoginScreen({ navigation }) {
     };
 
     // 구글 로그인 버튼
-    const handleGoogleLogin = () => {
-        alert('Google 로그인 기능은 준비 중입니다.');
+    const GOOGLE_CLIENT_ID = '26373490884-huo98c2cgja8r265nmchqkj85sl0j22u.apps.googleusercontent.com';
+    // 현재 도메인 기반으로 Redirect URI 설정 (로컬/배포 모두 지원)
+    const GOOGLE_REDIRECT_URI = typeof window !== 'undefined' 
+        ? `${window.location.origin}/auth/google/callback`
+        : 'http://localhost:8081/auth/google/callback';
+    
+    const handleGoogleLogin = async () => {
+        try {
+            setLoading(true);
+            // 구글 OAuth 인증 URL
+            const encodedRedirectUri = encodeURIComponent(GOOGLE_REDIRECT_URI);
+            const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodedRedirectUri}&response_type=code&scope=email%20profile`;
+            
+            // 웹 브라우저에서 구글 로그인 페이지 열기
+            if (Platform.OS === 'web') {
+                window.location.href = googleAuthUrl;
+            } else {
+                await Linking.openURL(googleAuthUrl);
+            }
+        } catch (error) {
+            console.error('구글 로그인 오류:', error);
+            alert('구글 로그인 중 오류가 발생했습니다.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     // 카카오 로그인 버튼
     const KAKAO_REST_API_KEY = 'fa925a6646f9491a77eb9c8fd6537a21';
-    // 환경에 따른 동적 REDIRECT_URI 설정
-    const getRedirectUri = () => {
-        if (Platform.OS === 'web') {
-            // 웹 환경: 현재 호스트 기반으로 동적 설정
-            const host = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8081';
-            return `${host}/auth/kakao/callback`;
-        }
-        // 네이티브 앱: 프로덕션 URL 사용
-        return 'https://caffeineai.net/auth/kakao/callback';
-    };
-    const REDIRECT_URI = getRedirectUri();
-
+    // 현재 도메인 기반으로 Redirect URI 설정 (로컬/배포 모두 지원)
+    const REDIRECT_URI = typeof window !== 'undefined' 
+        ? `${window.location.origin}/auth/kakao/callback`
+        : 'http://localhost:8081/auth/kakao/callback';
+    
     const handleKakaoLogin = async () => {
         try {
             setLoading(true);
             // 카카오 OAuth 인증 URL (REST API 키 + redirect_uri 인코딩)
             const encodedRedirectUri = encodeURIComponent(REDIRECT_URI);
             const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_REST_API_KEY}&redirect_uri=${encodedRedirectUri}&response_type=code`;
-
+            
             // 웹 브라우저에서 카카오 로그인 페이지 열기
             if (Platform.OS === 'web') {
                 window.location.href = kakaoAuthUrl;
@@ -85,14 +101,18 @@ export default function LoginScreen({ navigation }) {
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={styles.keyboardView}>
-                <ScrollView
+                <ScrollView 
                     contentContainerStyle={styles.scrollContent}
-                    showsVerticalScrollIndicator={false}>
-
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
+                    bounces={true}
+                    scrollEnabled={true}
+                    nestedScrollEnabled={true}>
+                    
                     {/* Logo Section */}
                     <View style={styles.logoSection}>
-                        <Image
-                            source={require('../../assets/images/caffeine_logo.png')}
+                        <Image 
+                            source={require('../../assets/images/caffeine_logo.png')} 
                             style={styles.logoImage}
                             resizeMode="contain"
                         />
@@ -129,8 +149,8 @@ export default function LoginScreen({ navigation }) {
                                     secureTextEntry={!showPassword}
                                     autoCapitalize="none"
                                 />
-                                <TouchableOpacity
-                                    onPress={() => setShowPassword(!showPassword)}
+                                <TouchableOpacity 
+                                    onPress={() => setShowPassword(!showPassword)} 
                                     style={styles.eyeButton}>
                                     <Text style={styles.eyeIcon}>
                                         {showPassword ? '👁' : '👁‍🗨'}
@@ -141,12 +161,12 @@ export default function LoginScreen({ navigation }) {
 
                         {/* 아이디 찾기 | 비밀번호 찾기 */}
                         <View style={styles.findLinksContainer}>
-                            <TouchableOpacity
+                            <TouchableOpacity 
                                 onPress={() => navigation.navigate('FindEmail')}>
                                 <Text style={styles.findLinkText}>아이디 찾기</Text>
                             </TouchableOpacity>
                             <Text style={styles.findLinkDivider}>|</Text>
-                            <TouchableOpacity
+                            <TouchableOpacity 
                                 onPress={() => navigation.navigate('ResetPassword')}>
                                 <Text style={styles.findLinkText}>비밀번호 찾기</Text>
                             </TouchableOpacity>
@@ -184,7 +204,7 @@ export default function LoginScreen({ navigation }) {
                         </View>
 
                         {/* Kakao Login Button */}
-                        <TouchableOpacity
+                        <TouchableOpacity 
                             style={styles.kakaoButton}
                             onPress={handleKakaoLogin}
                             activeOpacity={0.7}
@@ -203,7 +223,7 @@ export default function LoginScreen({ navigation }) {
                         </TouchableOpacity>
 
                         {/* Google Login Button */}
-                        <TouchableOpacity
+                        <TouchableOpacity 
                             style={styles.googleButton}
                             onPress={handleGoogleLogin}
                             activeOpacity={0.7}>
@@ -255,6 +275,7 @@ const styles = StyleSheet.create({
         flexGrow: 1,
         padding: 24,
         paddingTop: 60,
+        paddingBottom: 80,
     },
 
     // Logo Section
