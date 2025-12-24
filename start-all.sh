@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 # Caffeine 전체 시스템 시작 (백엔드 + 프론트엔드)
 
 echo '=== Caffeine 전체 시스템 시작 ==='
