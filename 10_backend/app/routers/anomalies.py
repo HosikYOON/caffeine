@@ -5,7 +5,7 @@
 통계적 규칙(Heuristics)과 ML 모델을 결합하여 이상 거래를 탐지합니다.
 """
 
-from fastapi import APIRouter, HTTPException, Depends, Query, status, Header
+from fastapi import APIRouter, HTTPException, Depends, Query, status, Header, Body
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_, or_
@@ -18,7 +18,7 @@ import asyncio
 import math
 
 from app.db.database import get_db
-from app.db.model.transaction import Transaction, Category, Anomaly, AnomalyLog
+from app.db.model.transaction import Transaction, Category, Anomaly
 from app.db.model.user import User
 from app.routers.user import get_current_user
 
@@ -493,15 +493,14 @@ async def report_anomaly(
     """
     사용자가 이상거래를 신고함 (User Reported)
     """
-    query = select(AnomalyLog).where(
-        AnomalyLog.id == anomaly_id,
-        AnomalyLog.user_id == current_user.id
+    query = select(Anomaly).where(
+        Anomaly.id == anomaly_id,
+        Anomaly.user_id == current_user.id
     )
     result = await db.execute(query)
     anomaly = result.scalar_one_or_none()
     
     if not anomaly:
-        # Check standard Anomaly table if relevant, but AnomalyLog is primary for this
         raise HTTPException(status_code=404, detail="Anomaly not found")
         
     anomaly.is_resolved = False
@@ -521,16 +520,14 @@ async def ignore_anomaly(
     """
     사용자가 이상거래를 무시함 (User Ignored)
     """
-    query = select(AnomalyLog).where(
-        AnomalyLog.id == anomaly_id,
-        AnomalyLog.user_id == current_user.id
+    query = select(Anomaly).where(
+        Anomaly.id == anomaly_id,
+        Anomaly.user_id == current_user.id
     )
     result = await db.execute(query)
     anomaly = result.scalar_one_or_none()
     
     if not anomaly:
-        # Check standard Anomaly table, or create distinct logic if needed
-        # For now assuming AnomalyLog handles the interaction
         raise HTTPException(status_code=404, detail="Anomaly not found")
         
     anomaly.is_resolved = True
@@ -549,7 +546,7 @@ async def verify_anomaly(
     current_user: User = Depends(get_current_user)
 ):
     # 관리자 권한 체크 필요 (여기서는 생략하고 로직만 구현)
-    query = select(AnomalyLog).where(AnomalyLog.id == anomaly_id)
+    query = select(Anomaly).where(Anomaly.id == anomaly_id)
     result = await db.execute(query)
     anomaly = result.scalar_one_or_none()
     
@@ -574,14 +571,13 @@ async def approve_anomaly(
     db: AsyncSession = Depends(get_db),
     # Admin checks can be added here
 ):
-    query = select(AnomalyLog).where(AnomalyLog.id == anomaly_id)
+    query = select(Anomaly).where(Anomaly.id == anomaly_id)
     result = await db.execute(query)
     anomaly = result.scalar_one_or_none()
     
     if not anomaly:
         raise HTTPException(status_code=404, detail="Anomaly not found")
         
-    anomaly.status = 'approved'
     anomaly.is_resolved = True
     await db.commit()
     return {"status": "approved", "id": anomaly_id}
@@ -593,16 +589,13 @@ async def reject_anomaly(
     db: AsyncSession = Depends(get_db),
     # Admin checks can be added here
 ):
-    query = select(AnomalyLog).where(AnomalyLog.id == anomaly_id)
+    query = select(Anomaly).where(Anomaly.id == anomaly_id)
     result = await db.execute(query)
     anomaly = result.scalar_one_or_none()
     
     if not anomaly:
         raise HTTPException(status_code=404, detail="Anomaly not found")
         
-    anomaly.status = 'rejected'
     anomaly.is_resolved = True
     await db.commit()
     return {"status": "rejected", "id": anomaly_id}
-
-
