@@ -53,6 +53,16 @@ export default function TransactionScreen({ navigation, route }) {
         }
     }, [route.params?.filter]);
 
+    // 화면을 벗어날 때 필터 파라미터를 초기화하여 거래내역 탭 진입 시 일반 거래가 보이도록 함
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('blur', () => {
+            navigation.setParams({ filter: undefined });
+            setAnomalyMode(false);
+            setAnomalyTransactions([]);
+        });
+        return unsubscribe;
+    }, [navigation]);
+
     const fetchAnomalies = async () => {
         setAnomalyMode(true);
         setAnomalyLoading(true);
