@@ -1,18 +1,1 @@
-#!/bin/bash
-# Caffeine 전체 시스템 시작 (백엔드 + 프론트엔드)
-
-echo '=== Caffeine 전체 시스템 시작 ==='
-
-# 1. Docker 시작
-cd /root/caffeine
-docker-compose --env-file .env.local up -d
-
-# 2. 상태 확인
-sleep 5
-docker-compose ps
-
-# 3. 프론트엔드 시작
-echo ''
-echo '[프론트엔드 시작] http://localhost:8081'
-cd /root/caffeine/20_frontend_user
-npm start
+﻿#!/bin/bash# Caffeine ?꾩껜 ?쒖뒪???쒖옉 (諛깆뿏??+ ?꾨줎?몄뿏??echo '=== Caffeine ?꾩껜 ?쒖뒪???쒖옉 ==='# 1. Docker ?쒖옉# get script directorySCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"cd "$SCRIPT_DIR"docker compose --env-file .env.production up -d# 2. ?곹깭 ?뺤씤sleep 5docker compose ps# 3. ?꾨줎?몄뿏???쒖옉echo ''echo '[?꾨줎?몄뿏???쒖옉] http://localhost:8081'cd "$SCRIPT_DIR/20_frontend_user"npm start
