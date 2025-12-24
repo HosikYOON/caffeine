@@ -151,12 +151,13 @@ app.include_router(analytics_demographics.router, prefix="/api")
 app.include_router(admin_transactions.router, prefix="/api")
 app.include_router(settings.router, prefix="/api")
 app.include_router(reports.router, prefix="/api")
+app.include_router(anomalies.router, prefix="/api") # Added anomalies router
 app.include_router(ml.router, prefix="/api")
 app.include_router(user.router, prefix="/api")
 app.include_router(coupons.router, prefix="/api")
 
 # 2. Auth 라우터 (/auth prefix 가짐 -> /api/auth)
-app.include_router(auth.router, prefix="/api")
+# app.include_router(auth.router, prefix="/api") # Removed invalid reference, specific routers already included above
 
 # 챗봇 API (/api/chat/*)
 app.include_router(chatbot_router, prefix="/api")
