@@ -44,18 +44,53 @@ yarn-error.*
 
 # Database
 postgres_data/
+*.sqlite3
 
 # Python
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 
-# ML Models
+# Virtual Env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ML Models & Data
 production_models/*.joblib
 production_models/*.json
+*.joblib
+*.joblib.bak
+*.pth
+*.h5
+*.csv
+*.csv.gz
 
 # IDE
 .vscode/
+.idea/
+*.swp
+*.swo
 
 # Presentation/Dashboards
 presentation/
@@ -63,9 +98,26 @@ user_app_dashboard.py
 admin_app_dashboard.py
 *_dashboard.py
 
+# Next.js / Node
+next-swc.*.node
+.next/
+.npm/
+
+# Temporary Scripts
+check_dates.py
+clear_data.py
+mnist_cnn.pt
+
 # Others
 .zip
 .log
 audit.log
-
 .pid
+caffeine/
+caffeine
+forcodex/
+
+# Custom Scripts Folder
+cyj_scripts/
+forAntigravity/
+cyj_log/
