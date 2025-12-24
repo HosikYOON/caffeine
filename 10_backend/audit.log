@@ -2686,3 +2686,43 @@ TypeError: unsupported operand type(s) for /: 'decimal.Decimal' and 'float'
 2025-12-17 18:35:37,198 - audit - INFO - Response: 200 | Duration: 0.059s
 2025-12-17 18:35:40,429 - audit - INFO - Request: GET /api/transactions | Client: 127.0.0.1
 2025-12-17 18:35:40,501 - audit - INFO - Response: 200 | Duration: 0.072s
+2025-12-24 13:33:29,428 - app.main - INFO - ============================================================
+2025-12-24 13:33:29,429 - app.main - INFO - Caffeine API started
+2025-12-24 13:33:29,429 - app.main - INFO - Environment: development
+2025-12-24 13:33:29,429 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8081', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net', 'https://caffeineai.net', 'https://admin.caffeineai.net', 'https://api.caffeineai.net']
+2025-12-24 13:33:35,401 - app.main - INFO - ============================================================
+2025-12-24 13:33:35,401 - app.main - INFO - Caffeine API started
+2025-12-24 13:33:35,401 - app.main - INFO - Environment: development
+2025-12-24 13:33:35,401 - app.main - INFO - CORS Allowed Origins: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8001', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:19000', 'http://localhost:19006', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:8001', 'http://127.0.0.1:8081', 'http://127.0.0.1:8082', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081', 'http://127.0.0.1:19000', 'http://127.0.0.1:19006', 'https://d26uyg5darllja.cloudfront.net', 'https://caffeineai.net', 'https://admin.caffeineai.net', 'https://api.caffeineai.net']
+2025-12-24 13:33:36,200 - app.routers.ml - INFO - XGBoost model loaded: model_xgboost_acc_73.47.joblib
+2025-12-24 13:33:36,323 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-24 13:33:36,324 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-24 13:33:36,327 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-24 13:33:36,327 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-24 13:33:36,327 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-24 13:33:36,327 - app.services.scheduler - INFO - ============================================================
+2025-12-24 13:33:36,327 - app.services.scheduler - INFO - Scheduler started
+2025-12-24 13:33:36,327 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-24 13:33:36,327 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-24 13:33:36,327 - app.services.scheduler - INFO - ============================================================
+2025-12-24 13:33:37,286 - app.routers.ml - INFO - XGBoost model loaded: model_xgboost_acc_73.47.joblib
+2025-12-24 13:33:37,380 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-24 13:33:37,381 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-24 13:33:37,381 - apscheduler.scheduler - INFO - Added job "Send Weekly Report" to job store "default"
+2025-12-24 13:33:37,382 - apscheduler.scheduler - INFO - Added job "Send Monthly Report" to job store "default"
+2025-12-24 13:33:37,382 - apscheduler.scheduler - INFO - Scheduler started
+2025-12-24 13:33:37,382 - app.services.scheduler - INFO - ============================================================
+2025-12-24 13:33:37,382 - app.services.scheduler - INFO - Scheduler started
+2025-12-24 13:33:37,382 - app.services.scheduler - INFO -   - Weekly Report: Every Monday 09:00
+2025-12-24 13:33:37,382 - app.services.scheduler - INFO -   - Monthly Report: Every 1st day of month 09:00
+2025-12-24 13:33:37,382 - app.services.scheduler - INFO - ============================================================
+2025-12-24 13:34:09,135 - audit - INFO - Request: GET /api/analysis/admin/full | Client: 127.0.0.1
+2025-12-24 13:34:09,136 - app.db.database - INFO - Connecting to AWS RDS: caffeine-database.c58og6ke6t36.ap-northeast-2.rds.amazonaws.com
+2025-12-24 13:34:09,275 - app.db.database - INFO - Connected to AWS RDS: caffeine-database.c58og6ke6t36.ap-northeast-2.rds.amazonaws.com
+2025-12-24 13:34:09,702 - audit - INFO - Response: 200 | Duration: 0.567s
+2025-12-24 13:34:09,709 - audit - INFO - Request: GET /api/analysis/admin/full | Client: 127.0.0.1
+2025-12-24 13:34:09,988 - audit - INFO - Response: 200 | Duration: 0.279s
+2025-12-24 13:34:09,997 - audit - INFO - Request: GET /api/analysis/admin/full | Client: 127.0.0.1
+2025-12-24 13:34:10,388 - audit - INFO - Response: 200 | Duration: 0.392s
+2025-12-24 13:34:53,994 - audit - INFO - Request: POST /api/users/login | Client: 127.0.0.1
+2025-12-24 13:34:54,248 - audit - INFO - Response: 401 | Duration: 0.255s

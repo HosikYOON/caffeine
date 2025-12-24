@@ -97,9 +97,6 @@ function AppContent() {
   const { colors, isDarkMode } = useTheme();
   const { user, loading } = useAuth();
 
-<<<<<<< HEAD
-  console.log('[App] AppContent rendering, user:', !!user, 'loading:', loading);
-=======
   // 카카오 OAuth 콜백 처리 (웹 환경에서만)
   useEffect(() => {
     if (Platform.OS === 'web' && typeof window !== 'undefined' && window.location) {
@@ -131,7 +128,6 @@ function AppContent() {
       }
     }
   }, [user]);
->>>>>>> cyj_fraud
 
   if (loading) {
     return (

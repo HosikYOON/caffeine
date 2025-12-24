@@ -166,7 +166,6 @@ async def update_settings(
     # 설정 값 저장
     notifications = request.notifications
     
-<<<<<<< HEAD
     await set_setting_value(db, "notification.anomaly_detection", notifications.anomalyDetection)
     await set_setting_value(db, "notification.reports", notifications.reports)
     await set_setting_value(db, "notification.threshold", notifications.threshold)
@@ -178,6 +177,3 @@ async def update_settings(
     )
     
     return SettingsResponse(notifications=notifications)
-=======
-
->>>>>>> cyj_fraud

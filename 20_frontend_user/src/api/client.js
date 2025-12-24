@@ -2,11 +2,7 @@ import axios from "axios";
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-<<<<<<< HEAD
-const LOCAL_BASE_URL = "http://localhost:8001/api";  // 로컬 개발
-=======
 const LOCAL_BASE_URL = "http://localhost:8001/api";  // 로컬 개발 (Docker backend port)
->>>>>>> cyj_fraud
 // const PROD_BASE_URL = "https://d26uyg5darllja.cloudfront.net/api";  // 기존 CloudFront
 const PROD_BASE_URL = "https://api.caffeineai.net/api";  // 프로덕션
 

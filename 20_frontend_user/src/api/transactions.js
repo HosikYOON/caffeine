@@ -38,15 +38,8 @@ export const updateTransactionNote = async (id, description) => {
 // 이상거래 신고
 export const reportAnomaly = async (id, reason, severity = 'high') => {
     try {
-<<<<<<< HEAD
-        const response = await apiClient.post(`/transactions/${id}/anomaly-report`, {
-            reason,
-            severity
-        });
-=======
         // 백엔드 /api/anomalies/{id}/report 호출
         const response = await apiClient.post(`/anomalies/${id}/report`);
->>>>>>> cyj_fraud
         return response.data;
     } catch (error) {
         console.error('이상거래 신고 실패:', error);

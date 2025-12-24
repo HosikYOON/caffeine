@@ -141,10 +141,7 @@ export default function TransactionScreen({ navigation, route }) {
         }, 300);
     };
 
-<<<<<<< HEAD
-    // 이상거래 카테고리 선택
-=======
->>>>>>> cyj_fraud
+
     const handleCategorySelect = (category) => {
         if (!selectedTransaction) return;
 
@@ -785,7 +782,7 @@ const styles = (colors) => StyleSheet.create({
         color: colors.text,
         fontSize: 14,
         fontWeight: 'bold',
->>>>>>> cyj_fraud
+
     },
 
     // Prediction Card styles

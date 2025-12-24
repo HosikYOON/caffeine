@@ -62,7 +62,6 @@ export default function DashboardScreen({ navigation }) {
 
     const scrollViewRef = useRef(null);
 
-<<<<<<< HEAD
     // 이번 달 거래만 필터링
     const filterCurrentMonthTransactions = (txns) => {
         if (!txns || txns.length === 0) return [];
@@ -76,30 +75,6 @@ export default function DashboardScreen({ navigation }) {
             return txDate.getMonth() === currentMonth && txDate.getFullYear() === currentYear;
         });
     };
-
-    // 로그인 후 거래 데이터 자동 로드
-    useEffect(() => {
-        if (user?.id && (!transactions || transactions.length === 0) && !transactionLoading) {
-            loadTransactionsFromServer(user.id);
-        }
-    }, [user?.id]);
-
-    // 대시보드 화면 포커스 시 생년월일 체크 (카카오 사용자)
-    useFocusEffect(
-        useCallback(() => {
-            // 데이터가 로드되고, 카카오 사용자이고, 생년월일이 없으면 모달 표시
-            if (transactions && transactions.length > 0 && !transactionLoading) {
-                if (user?.provider === 'kakao' && !user?.birth_date) {
-                    // 약간의 지연으로 화면 전환 후 모달 표시
-                    const timer = setTimeout(() => setShowBirthModal(true), 500);
-                    return () => clearTimeout(timer);
-                }
-            }
-        }, [transactions, transactionLoading, user])
-    );
-
-=======
->>>>>>> cyj_fraud
     // 거래 데이터로부터 대시보드 요약 계산
     const calculateSummary = (txns) => {
         if (!txns || txns.length === 0) return null;
@@ -1083,83 +1058,4 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-<<<<<<< HEAD
-    birthBtnText: {
-        fontSize: 15,
-        fontWeight: '500',
-    },
-    modalBtnRow: {
-        flexDirection: 'row',
-        gap: 12,
-        width: '100%',
-    },
-    modalBtn: {
-        flex: 1,
-        paddingVertical: 14,
-        borderRadius: 12,
-        alignItems: 'center',
-    },
-    modalBtnSecondary: {
-        backgroundColor: '#E5E7EB',
-    },
-    modalBtnPrimary: {
-        backgroundColor: '#2563EB',
-    },
-    modalBtnTextSecondary: {
-        fontSize: 15,
-        fontWeight: '600',
-        color: '#4B5563',
-    },
-    modalBtnTextPrimary: {
-        fontSize: 15,
-        fontWeight: '600',
-        color: 'white',
-    },
-    birthInputContainer: {
-        width: '100%',
-        marginBottom: 24,
-    },
-    birthInput: {
-        width: '100%',
-        borderWidth: 1,
-        borderColor: '#D1D5DB',
-        borderRadius: 12,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-        fontSize: 24,
-        fontWeight: '600',
-        textAlign: 'center',
-        letterSpacing: 4,
-        color: '#1F2937',
-    },
-    birthHint: {
-        marginTop: 8,
-        fontSize: 12,
-        color: '#9CA3AF',
-        textAlign: 'center',
-    },
-
-    // Floating Action Button
-    fab: {
-        position: 'absolute',
-        right: 24,
-        bottom: 100,
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        shadowColor: '#10B981',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.4,
-        shadowRadius: 12,
-        elevation: 8,
-    },
-    fabGradient: {
-        width: '100%',
-        height: '100%',
-        borderRadius: 30,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-=======
->>>>>>> cyj_fraud
 });
