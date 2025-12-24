@@ -24,7 +24,7 @@ export default function AnomaliesPage() {
     const fetchAnomalies = async () => {
         try {
             setIsLoading(true);
-            const data = await getAnomalies(); // Backend API 직접 호출
+            const data = await getAnomalies('reported'); // Backend API 직접 호출 (Reported only)
             setAnomalies(data);
             console.log('✅ Anomaly 데이터 로드 완료:', data.length, '건');
         } catch (error) {

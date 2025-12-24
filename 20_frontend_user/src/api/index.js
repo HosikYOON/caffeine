@@ -3,6 +3,7 @@
 
 export * from './transactions';
 export * from './analysis';
+export * from './anomalies';
 export * from './ml';
 export * from './users';
 export * from './coupons';

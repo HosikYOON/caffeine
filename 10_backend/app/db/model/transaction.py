@@ -143,5 +143,8 @@ class Anomaly(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     resolved_at = Column(DateTime(timezone=True), nullable=True)
 
+    # Relationships
+    transaction = relationship("Transaction")
+
     def __repr__(self):
         return f"<Anomaly(id={self.id}, transaction_id={self.transaction_id}, severity='{self.severity}')>"
