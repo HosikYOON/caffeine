@@ -92,7 +92,8 @@ load_fraud_model()
 
 class AnomalyResponse(BaseModel):
     """이상 거래 응답"""
-    id: int
+    id: int              # anomaly id
+    transactionId: int   # underlying transaction id
     userId: str
     userName: str
     merchant: str
@@ -285,7 +286,8 @@ async def get_anomalies(
             # So unresolved items should return status='pending' regardless of source.
             
             anomalies.append(AnomalyResponse(
-                id=tx.id,
+                id=anom.id,
+                transactionId=tx.id,
                 userId=f"user_{tx.user_id}",
                 userName=tx.user.name if tx.user else f"User {tx.user_id}",
                 merchant=tx.merchant_name or "Unknown",
@@ -457,10 +459,12 @@ async def get_anomalies(
                                 created_at=datetime.utcnow()
                             )
                             db.add(new_anomaly)
+                            await db.flush()  # assign ID
                             
                             # Add to response list
                             anomalies.append(AnomalyResponse(
-                                id=tx.id,
+                                id=new_anomaly.id,
+                                transactionId=tx.id,
                                 userId=f"user_{tx.user_id}",
                                 userName=tx.user.name if tx.user else f"User {tx.user_id}",
                                 merchant=tx.merchant_name or "Unknown",
@@ -491,14 +495,11 @@ async def report_anomaly(
     """
     사용자가 이상거래를 신고함 (User Reported)
     """
-    query = select(Anomaly).where(
-        Anomaly.id == anomaly_id,
-        Anomaly.user_id == current_user.id
-    )
+    query = select(Anomaly).where(Anomaly.id == anomaly_id)
     result = await db.execute(query)
     anomaly = result.scalar_one_or_none()
     
-    if not anomaly:
+    if not anomaly or (not current_user.is_superuser and anomaly.user_id != current_user.id):
         raise HTTPException(status_code=404, detail="Anomaly not found")
         
     anomaly.is_resolved = False
@@ -506,7 +507,7 @@ async def report_anomaly(
     
     await db.commit()
     await db.refresh(anomaly)
-    return {"status": "reported", "id": anomaly.id}
+    return {"status": "reported", "id": anomaly.id, "transactionId": anomaly.transaction_id}
 
 @router.post("/anomalies/{anomaly_id}/ignore")
 async def ignore_anomaly(
@@ -517,14 +518,11 @@ async def ignore_anomaly(
     """
     사용자가 이상거래를 무시함 (User Ignored)
     """
-    query = select(Anomaly).where(
-        Anomaly.id == anomaly_id,
-        Anomaly.user_id == current_user.id
-    )
+    query = select(Anomaly).where(Anomaly.id == anomaly_id)
     result = await db.execute(query)
     anomaly = result.scalar_one_or_none()
     
-    if not anomaly:
+    if not anomaly or (not current_user.is_superuser and anomaly.user_id != current_user.id):
         raise HTTPException(status_code=404, detail="Anomaly not found")
         
     anomaly.is_resolved = True
@@ -532,7 +530,7 @@ async def ignore_anomaly(
     
     await db.commit()
     await db.refresh(anomaly)
-    return {"status": "ignored", "id": anomaly.id}
+    return {"status": "ignored", "id": anomaly.id, "transactionId": anomaly.transaction_id}
 
 @router.post("/anomalies/{anomaly_id}/verify")
 async def verify_anomaly(
@@ -546,7 +544,7 @@ async def verify_anomaly(
     result = await db.execute(query)
     anomaly = result.scalar_one_or_none()
     
-    if not anomaly:
+    if not anomaly or (not current_user.is_superuser and anomaly.user_id != current_user.id):
         raise HTTPException(status_code=404, detail="Anomaly not found")
     
     if action == "confirm":
@@ -570,7 +568,7 @@ async def approve_anomaly(
     result = await db.execute(query)
     anomaly = result.scalar_one_or_none()
     
-    if not anomaly:
+    if not anomaly or (not current_user.is_superuser and anomaly.user_id != current_user.id):
         raise HTTPException(status_code=404, detail="Anomaly not found")
         
     anomaly.is_resolved = True
