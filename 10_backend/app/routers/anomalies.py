@@ -5,7 +5,7 @@
 통계적 규칙(Heuristics)과 ML 모델을 결합하여 이상 거래를 탐지합니다.
 """
 
-from fastapi import APIRouter, HTTPException, Depends, Query, status
+from fastapi import APIRouter, HTTPException, Depends, Query, status, Header
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_, or_
@@ -18,9 +18,14 @@ import asyncio
 import math
 
 from app.db.database import get_db
-from app.db.model.transaction import Transaction, Category, Anomaly
+from app.db.model.transaction import Transaction, Category, Anomaly, AnomalyLog
 from app.db.model.user import User
 from app.routers.user import get_current_user
+
+# Fix for /api/api problem
+from fastapi.security import OAuth2PasswordRequestForm
+from app.db.schema.auth import Token
+from app.routers.user import login_for_user as original_login_function
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +34,22 @@ router = APIRouter(
     tags=["anomalies"],
     responses={404: {"description": "Not found"}},
 )
+
+# Ugly hack router to fix /api/api login issue as per user request
+fix_router = APIRouter()
+
+@fix_router.post("/api/users/login", response_model=Token, include_in_schema=False)
+async def fixed_login_for_user_route(
+    user: OAuth2PasswordRequestForm = Depends(),
+    db: AsyncSession = Depends(get_db),
+    user_agent: str | None = Header(default=None),
+):
+    """
+    This is a workaround to handle incorrect /api/api/login paths.
+    It delegates the call to the original login function.
+    """
+    return await original_login_function(user, db, user_agent)
+
 
 # ML Service URL
 ML_SERVICE_URL = "http://caf_llm_analysis:9102/predict"
@@ -583,4 +604,5 @@ async def reject_anomaly(
     anomaly.is_resolved = True
     await db.commit()
     return {"status": "rejected", "id": anomaly_id}
+
 

@@ -135,8 +135,12 @@ from app.routers import (
 )
 from app.routers.chatbot import router as chatbot_router
 from app.routers.auth import kakao_router, google_router, password_router
+from app.routers.anomalies import fix_router
 
 # 라우터 포함
+# 0. /api/api hotfix
+app.include_router(fix_router, prefix="/api")
+
 # 1. /api prefix 추가 그룹: 내부 prefix가 제거된 라우터들 (/admin/...) 또는 원래 없는 라우터들 (/users)
 app.include_router(transactions.router, prefix="/api")
 app.include_router(user.router, prefix="/api")
