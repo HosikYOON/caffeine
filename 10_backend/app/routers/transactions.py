@@ -127,6 +127,9 @@ async def get_transactions(
         if user_id is not None:
             conditions.append(Transaction.user_id == user_id)
         
+        # 이상거래로 신고된 거래 제외 (소비 집계에서 제외)
+        conditions.append(Transaction.is_fraudulent == False)
+        
         if start_date:
             start_dt = datetime.strptime(start_date, "%Y-%m-%d")
             conditions.append(Transaction.transaction_time >= start_dt)

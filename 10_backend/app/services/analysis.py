@@ -118,14 +118,15 @@ async def get_user_summary(
         else:
             this_month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
         
-        # 이번 달 통계
+        # 이번 달 통계 (이상거래 제외)
         query = select(
             func.coalesce(func.sum(Transaction.amount), 0).label('total'),
             func.coalesce(func.avg(Transaction.amount), 0).label('avg'),
             func.count(Transaction.id).label('count')
         ).where(
             Transaction.transaction_time >= this_month_start,
-            Transaction.user_id == user_id
+            Transaction.user_id == user_id,
+            Transaction.is_fraudulent == False  # 이상거래 제외
         )
         
         result = await db.execute(query)
@@ -140,7 +141,9 @@ async def get_user_summary(
             SELECT c.name, SUM(t.amount) as cat_total
             FROM transactions t
             LEFT JOIN categories c ON t.category_id = c.id
-            WHERE t.transaction_time >= :start_date AND t.user_id = :user_id
+            WHERE t.transaction_time >= :start_date 
+              AND t.user_id = :user_id
+              AND t.is_fraudulent = false
             GROUP BY c.name
             ORDER BY cat_total DESC
             LIMIT 1
@@ -159,7 +162,8 @@ async def get_user_summary(
         ).where(
             Transaction.transaction_time >= last_month_start,
             Transaction.transaction_time <= last_month_end,
-            Transaction.user_id == user_id
+            Transaction.user_id == user_id,
+            Transaction.is_fraudulent == False  # 이상거래 제외
         )
         
         prev_result = await db.execute(prev_query)
@@ -209,7 +213,9 @@ async def get_user_categories(
             SELECT c.name as category, SUM(t.amount) as total, COUNT(t.id) as count
             FROM transactions t
             LEFT JOIN categories c ON t.category_id = c.id
-            WHERE t.transaction_time >= :start_date AND t.user_id = :user_id
+            WHERE t.transaction_time >= :start_date 
+              AND t.user_id = :user_id
+              AND t.is_fraudulent = false
             GROUP BY c.name
             ORDER BY total DESC
         """)
@@ -249,6 +255,7 @@ async def get_user_trends(
                    COUNT(id) as count
             FROM transactions
             WHERE user_id = :user_id
+              AND is_fraudulent = false
             GROUP BY TO_CHAR(transaction_time, 'YYYY-MM')
             ORDER BY month DESC
             LIMIT :limit
@@ -324,6 +331,7 @@ async def get_admin_summary(
             JOIN users u ON t.user_id = u.id
             WHERE u.is_superuser = false
               AND t.transaction_time >= :start_date
+              AND t.is_fraudulent = false
         """)
         result = await db.execute(summary_query, {"start_date": this_month_start})
         row = result.fetchone()
@@ -340,6 +348,7 @@ async def get_admin_summary(
             LEFT JOIN categories c ON t.category_id = c.id
             WHERE u.is_superuser = false
               AND t.transaction_time >= :start_date
+              AND t.is_fraudulent = false
             GROUP BY c.name
             ORDER BY cat_total DESC
             LIMIT 1
@@ -359,6 +368,7 @@ async def get_admin_summary(
             WHERE u.is_superuser = false
               AND t.transaction_time >= :start_date
               AND t.transaction_time <= :end_date
+              AND t.is_fraudulent = false
         """)
         prev_result = await db.execute(prev_query, {"start_date": last_month_start, "end_date": last_month_end})
         prev_row = prev_result.fetchone()
@@ -404,6 +414,7 @@ async def get_admin_categories(
             LEFT JOIN categories c ON t.category_id = c.id
             WHERE u.is_superuser = false
               AND t.transaction_time >= :start_date
+              AND t.is_fraudulent = false
             GROUP BY c.name
             ORDER BY total DESC
         """)
@@ -437,6 +448,7 @@ async def get_admin_trends(db: AsyncSession, months: int = 6) -> List[MonthlyTre
             FROM transactions t
             JOIN users u ON t.user_id = u.id
             WHERE u.is_superuser = false
+              AND t.is_fraudulent = false
             GROUP BY TO_CHAR(t.transaction_time, 'YYYY-MM')
             ORDER BY month DESC
             LIMIT :limit

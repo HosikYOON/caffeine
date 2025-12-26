@@ -250,6 +250,20 @@ export const TransactionProvider = ({ children }) => {
         }
     };
 
+    // 로컬에서만 거래 제거 (백엔드 삭제 없음) - 이상거래 신고 시 사용
+    const removeTransactionLocally = async (id) => {
+        try {
+            const updated = transactions.filter(t => String(t.id) !== String(id));
+            setTransactions(updated);
+            await saveTransactionsToCache(updated);
+            console.log('로컬에서 거래 제거됨 (이상거래 신고):', id);
+            return { success: true };
+        } catch (error) {
+            console.error('로컬 거래 제거 실패:', error);
+            return { success: false, error };
+        }
+    };
+
     const updateNote = async (transactionId, note) => {
         try {
             // API 호출
@@ -349,7 +363,7 @@ export const TransactionProvider = ({ children }) => {
     };
 
     // 새로고침 함수
-    const refresh = async (userId = 1) => {
+    const refresh = async (userId = null) => {
         // userId가 없으면 현재 로그인한 사용자 ID 가져오기
         let uid = userId;
         if (!uid) {
@@ -370,6 +384,7 @@ export const TransactionProvider = ({ children }) => {
             updateTransactionNote: updateNote,
             addTransaction,
             removeTransaction,
+            removeTransactionLocally,  // 이상거래 신고 시 로컬에서만 제거
             clearTransactions,
             predictNextPurchase,
             loadTransactionsFromServer,

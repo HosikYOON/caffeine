@@ -28,7 +28,7 @@ import { EMPTY_MESSAGES } from '../constants';
 
 export default function TransactionScreen({ navigation, route }) {
     const { colors } = useTheme();
-    const { transactions, updateTransactionNote, addTransaction, removeTransaction } = useTransactions();
+    const { transactions, updateTransactionNote, addTransaction, removeTransaction, removeTransactionLocally } = useTransactions();
     const [selectedTransaction, setSelectedTransaction] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [addModalVisible, setAddModalVisible] = useState(false);
@@ -207,15 +207,20 @@ export default function TransactionScreen({ navigation, route }) {
         if (!selectedTransaction) return;
         try {
             await reportAnomaly(selectedTransaction.id);
-            // Update status instead of removing
+
+            // 이상거래 목록에서 상태 업데이트
             setAnomalyTransactions(prev => prev.map(t =>
                 t.id === selectedTransaction.id ? { ...t, status: 'reported' } : t
             ));
-            // Update selected transaction as well to reflect in modal immediately
             setSelectedTransaction(prev => ({ ...prev, status: 'reported' }));
+
+            // 🆕 핵심 수정: 로컬 거래 목록에서 즉시 제거 (대시보드 집계에서 제외)
+            // addTransaction처럼 로컬 상태를 직접 업데이트해야 대시보드가 바로 반영됨
+            await removeTransactionLocally(selectedTransaction.transactionId);
 
             Alert.alert('신고 완료', '이상거래로 신고되었습니다.\n관리자가 검토할 것입니다.');
         } catch (error) {
+            console.error('신고 처리 실패:', error);
             Alert.alert('오류', '신고 처리에 실패했습니다.');
         }
     };
@@ -385,8 +390,8 @@ export default function TransactionScreen({ navigation, route }) {
                 </View>
             ) : (
                 <ScrollView style={{ flex: 1 }}>
-                    {/* AI Prediction Card */}
-                    {transactions.length > 0 && (
+                    {/* AI Prediction Card - 이상거래 모드에서는 숨김 */}
+                    {!anomalyMode && transactions.length > 0 && (
                         <View style={styles(colors).predictionCard}>
                             <View style={styles(colors).predictionHeader}>
                                 <Text style={styles(colors).predictionIcon}>🤖</Text>

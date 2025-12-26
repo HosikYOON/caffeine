@@ -513,30 +513,33 @@ async def get_anomalies(
 
 
 @router.post("/anomalies/{anomaly_id}/report")
-async def report_anomaly(
+async def report_anomaly_endpoint(
     anomaly_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """
     사용자가 이상거래를 신고함 (User Reported)
+    - anomalies 테이블의 reason을 'User Reported'로 변경
+    - transactions 테이블의 is_fraudulent를 True로 설정 (소비 집계에서 제외)
     """
-    query = select(Anomaly).where(Anomaly.id == anomaly_id)
-    result = await db.execute(query)
-    anomaly = result.scalar_one_or_none()
+    from app.services.anomaly import (
+        report_anomaly,
+        AnomalyNotFoundError,
+        AnomalyAccessDeniedError
+    )
     
-    if not anomaly or (not current_user.is_superuser and anomaly.user_id != current_user.id):
+    try:
+        result = await report_anomaly(db, anomaly_id, current_user)
+        return result
+    except AnomalyNotFoundError:
         raise HTTPException(status_code=404, detail="Anomaly not found")
-        
-    anomaly.is_resolved = False
-    anomaly.reason = 'User Reported'
-    
-    await db.commit()
-    await db.refresh(anomaly)
-    return {"status": "reported", "id": anomaly.id, "transactionId": anomaly.transaction_id}
+    except AnomalyAccessDeniedError:
+        raise HTTPException(status_code=403, detail="Access denied")
+
 
 @router.post("/anomalies/{anomaly_id}/ignore")
-async def ignore_anomaly(
+async def ignore_anomaly_endpoint(
     anomaly_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -544,19 +547,19 @@ async def ignore_anomaly(
     """
     사용자가 이상거래를 무시함 (User Ignored)
     """
-    query = select(Anomaly).where(Anomaly.id == anomaly_id)
-    result = await db.execute(query)
-    anomaly = result.scalar_one_or_none()
+    from app.services.anomaly import (
+        ignore_anomaly,
+        AnomalyNotFoundError,
+        AnomalyAccessDeniedError
+    )
     
-    if not anomaly or (not current_user.is_superuser and anomaly.user_id != current_user.id):
+    try:
+        result = await ignore_anomaly(db, anomaly_id, current_user)
+        return result
+    except AnomalyNotFoundError:
         raise HTTPException(status_code=404, detail="Anomaly not found")
-        
-    anomaly.is_resolved = True
-    anomaly.reason = 'User Ignored'
-    
-    await db.commit()
-    await db.refresh(anomaly)
-    return {"status": "ignored", "id": anomaly.id, "transactionId": anomaly.transaction_id}
+    except AnomalyAccessDeniedError:
+        raise HTTPException(status_code=403, detail="Access denied")
 
 @router.post("/anomalies/{anomaly_id}/verify")
 async def verify_anomaly(
