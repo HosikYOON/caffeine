@@ -1,145 +1,21 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { AlertTriangle, CheckCircle, XCircle, Clock, ChevronRight, X, Shield, User, Calendar, CreditCard, Info, Bell } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import {
+    AlertTriangle, CheckCircle, XCircle, Clock, ChevronRight,
+    RotateCcw, Eye, ExternalLink, User, X,
+    ShieldCheck, ShieldAlert, Info, Bell
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { AnomalyData } from '@/types';
 import { AnomalySummaryCard } from '@/components/ui/AnomalySummaryCard';
-import { getAnomalies, approveAnomaly, rejectAnomaly, notifyAnomaly } from '@/api/client';
-
-// =========================================================================================
-// [상세보기 모달 컴포넌트]
-// =========================================================================================
-interface AnomalyDetailModalProps {
-    anomaly: AnomalyData | null;
-    isOpen: boolean;
-    onClose: () => void;
-    onApprove: (id: number) => Promise<void>;
-    onReject: (id: number) => Promise<void>;
-}
-
-function AnomalyDetailModal({ anomaly, isOpen, onClose, onApprove, onReject }: AnomalyDetailModalProps) {
-    if (!isOpen || !anomaly) return null;
-
-    const getRiskStyleClass = (level: string) => {
-        switch (level) {
-            case '위험': return { bg: 'bg-red-500', text: 'text-white', border: 'border-red-400' };
-            case '경고': return { bg: 'bg-yellow-500', text: 'text-white', border: 'border-yellow-400' };
-            case '주의': return { bg: 'bg-blue-500', text: 'text-white', border: 'border-blue-400' };
-            default: return { bg: 'bg-gray-500', text: 'text-white', border: 'border-gray-400' };
-        }
-    };
-
-    const riskStyle = getRiskStyleClass(anomaly.riskLevel);
-
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
-            <div
-                className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300"
-                onClick={(e) => e.stopPropagation()}
-            >
-                {/* 헤더 */}
-                <div className={`p-6 ${riskStyle.bg}`}>
-                    <div className="flex justify-between items-start">
-                        <div className="flex items-center gap-3">
-                            <div className={`p-3 rounded-full bg-white/20`}>
-                                <Shield className={`w-6 h-6 ${riskStyle.text}`} />
-                            </div>
-                            <div>
-                                <h2 className={`text-xl font-bold ${riskStyle.text}`}>이상 거래 상세</h2>
-                                <span className={`text-sm ${riskStyle.text} opacity-80`}>거래 ID: #{anomaly.id}</span>
-                            </div>
-                        </div>
-                        <button
-                            onClick={onClose}
-                            className={`p-2 hover:bg-white/20 rounded-full transition ${riskStyle.text}`}>
-                            <X className="w-5 h-5" />
-                        </button>
-                    </div>
-                    <div className="mt-4">
-                        <p className={`text-4xl font-bold ${riskStyle.text}`}>₩{anomaly.amount.toLocaleString()}</p>
-                        <div className="mt-2 inline-flex items-center gap-2">
-                            <span className={`px-3 py-1 rounded-full text-sm font-semibold ${riskStyle.bg} bg-white/20 ${riskStyle.text}`}>
-                                {anomaly.riskLevel}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* 상세 정보 */}
-                <div className="p-6 space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                            <User className="w-5 h-5 text-gray-400" />
-                            <div>
-                                <p className="text-xs text-gray-500">사용자</p>
-                                <p className="text-sm font-medium text-gray-800">{anomaly.userName}</p>
-                                <p className="text-xs text-gray-400">{anomaly.userId}</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                            <CreditCard className="w-5 h-5 text-gray-400" />
-                            <div>
-                                <p className="text-xs text-gray-500">카테고리</p>
-                                <p className="text-sm font-medium text-gray-800">{anomaly.category}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                        <Calendar className="w-5 h-5 text-gray-400" />
-                        <div>
-                            <p className="text-xs text-gray-500">거래 일시</p>
-                            <p className="text-sm font-medium text-gray-800">{anomaly.date}</p>
-                        </div>
-                    </div>
-
-                    <div className="p-4 bg-red-50 border-l-4 border-red-400 rounded-lg">
-                        <div className="flex items-start gap-3">
-                            <Info className="w-5 h-5 text-red-600 mt-0.5" />
-                            <div>
-                                <p className="text-sm font-semibold text-red-800">AI 탐지 사유</p>
-                                <p className="text-sm text-red-700 mt-1">{anomaly.reason}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 상태 표시 */}
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <Clock className="w-4 h-4" />
-                        <span>현재 상태: </span>
-                        <span className={`font-medium ${anomaly.status === 'pending' ? 'text-yellow-600' : anomaly.status === 'approved' ? 'text-green-600' : 'text-red-600'}`}>
-                            {anomaly.status === 'pending' ? '검토 대기' : anomaly.status === 'approved' ? '승인됨' : '거부됨'}
-                        </span>
-                    </div>
-                </div>
-
-                {/* 액션 버튼 */}
-                {anomaly.status === 'pending' && (
-                    <div className="p-6 bg-gray-50 border-t flex gap-3">
-                        <button
-                            onClick={() => { onReject(anomaly.id); onClose(); }}
-                            className="flex-1 px-4 py-3 bg-white border border-red-200 text-red-600 rounded-lg hover:bg-red-50 font-medium transition-colors"
-                        >
-                            사기 거래 거부
-                        </button>
-                        <button
-                            onClick={() => { onApprove(anomaly.id); onClose(); }}
-                            className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors"
-                        >
-                            정상 거래 승인
-                        </button>
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-}
+import { getAnomalies, approveAnomaly, rejectAnomaly, resetAnomaly, notifyAnomaly } from '@/api/client';
 
 export default function AnomaliesPage() {
+    const router = useRouter();
     const [anomalies, setAnomalies] = useState<AnomalyData[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedAnomaly, setSelectedAnomaly] = useState<AnomalyData | null>(null);
-    const [isDetailOpen, setIsDetailOpen] = useState(false);
 
     useEffect(() => {
         fetchAnomalies();
@@ -148,10 +24,16 @@ export default function AnomaliesPage() {
     const fetchAnomalies = async () => {
         try {
             setIsLoading(true);
-            const data = await getAnomalies();
+            const data = await getAnomalies('all'); // Backend API 직접 호출 (All statuses)
+            if (data === null) {
+                // 401 Unauthorized - silence and keep empty state (or show login message)
+                setAnomalies([]);
+                console.log('ℹ️ Unauthorized access - showing empty state');
+                return;
+            }
             setAnomalies(data);
             console.log('✅ Anomaly 데이터 로드 완료:', data.length, '건');
-        } catch (error) {
+        } catch (error: any) {
             console.error('❌ Anomaly 데이터 로드 실패:', error);
             setAnomalies([]);
         } finally {
@@ -159,10 +41,10 @@ export default function AnomaliesPage() {
         }
     };
 
-    const pendingCount = anomalies.filter(a => a.status === 'pending').length;
-    const approvedCount = anomalies.filter(a => a.status === 'approved').length;
-    const rejectedCount = anomalies.filter(a => a.status === 'rejected').length;
-    const totalRiskAmount = anomalies.reduce((sum, item) => sum + item.amount, 0);
+    const pendingCount = anomalies.filter((a: AnomalyData) => a.status === 'pending').length;
+    const approvedCount = anomalies.filter((a: AnomalyData) => a.status === 'approved').length;
+    const rejectedCount = anomalies.filter((a: AnomalyData) => a.status === 'rejected').length;
+    const totalRiskAmount = anomalies.reduce((sum: number, item: AnomalyData) => sum + item.amount, 0);
 
     const getRiskBadge = (level: string) => {
         switch (level) {
@@ -175,10 +57,15 @@ export default function AnomaliesPage() {
 
     const handleApprove = async (id: number) => {
         try {
-            await approveAnomaly(id);
-            alert('승인되었습니다.');
-            await fetchAnomalies();
-        } catch (error) {
+            const result = await approveAnomaly(id);
+            if (result === null) {
+                alert('승인 권한이 없거나 세션이 만료되었습니다. 다시 로그인해주세요.');
+                return;
+            }
+            alert('정상 승인되었습니다.');
+            if (selectedAnomaly && selectedAnomaly.id === id) setSelectedAnomaly(null);
+            await fetchAnomalies(); // 목록 새로고침
+        } catch (error: any) {
             console.error('승인 실패:', error);
             alert('처리에 실패했습니다.');
         }
@@ -186,10 +73,15 @@ export default function AnomaliesPage() {
 
     const handleReject = async (id: number) => {
         try {
-            await rejectAnomaly(id);
+            const result = await rejectAnomaly(id);
+            if (result === null) {
+                alert('거부 권한이 없거나 세션이 만료되었습니다. 다시 로그인해주세요.');
+                return;
+            }
             alert('거부되었습니다.');
-            await fetchAnomalies();
-        } catch (error) {
+            if (selectedAnomaly && selectedAnomaly.id === id) setSelectedAnomaly(null);
+            await fetchAnomalies(); // 목록 새로고침
+        } catch (error: any) {
             console.error('거부 실패:', error);
             alert('처리에 실패했습니다.');
         }
@@ -198,16 +90,38 @@ export default function AnomaliesPage() {
     const handleNotify = async (id: number) => {
         try {
             const result = await notifyAnomaly(id);
-            if (result.success) {
+            if (result && result.success) {
                 alert('✅ 사용자에게 알림이 전송되었습니다.');
             } else {
-                alert(`⚠️ ${result.message || '알림 전송에 실패했습니다.'}`);
+                alert(`⚠️ ${result?.message || '알림 전송에 실패했습니다.'}`);
             }
             await fetchAnomalies();
-        } catch (error) {
+        } catch (error: any) {
             console.error('알림 전송 실패:', error);
             alert('알림 전송에 실패했습니다.');
         }
+    };
+
+    const handleReset = async (id: number) => {
+        if (!confirm('해당 내역을 다시 대기 상태로 되돌리시겠습니까?')) return;
+        try {
+            const result = await resetAnomaly(id);
+            if (result === null) {
+                alert('재검토 권한이 없거나 세션이 만료되었습니다. 다시 로그인해주세요.');
+                return;
+            }
+            alert('대기 상태로 전환되었습니다.');
+            if (selectedAnomaly && selectedAnomaly.id === id) setSelectedAnomaly(null);
+            await fetchAnomalies(); // 목록 새로고침
+        } catch (error: any) {
+            console.error('재검토 실패:', error);
+            alert('처리에 실패했습니다.');
+        }
+    };
+
+    const navigateToUser = (userId: string) => {
+        const cleanId = userId.replace('user_', '');
+        router.push(`/users?search=${cleanId}`);
     };
 
     return (
@@ -217,7 +131,6 @@ export default function AnomaliesPage() {
                 <p className="text-gray-500 mt-1">실시간으로 감지된 이상 거래를 모니터링하고 관리합니다</p>
             </div>
 
-            {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <AnomalySummaryCard
                     title="대기 중인 알림"
@@ -242,7 +155,6 @@ export default function AnomaliesPage() {
                 />
             </div>
 
-            {/* Pending Anomalies List */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="p-6 border-b border-gray-100 flex justify-between items-center">
                     <h3 className="text-lg font-bold text-gray-800">대기 중인 이상 거래</h3>
@@ -255,13 +167,13 @@ export default function AnomaliesPage() {
                     <div className="p-12 text-center text-gray-500">
                         데이터를 불러오는 중입니다...
                     </div>
-                ) : anomalies.filter(a => a.status === 'pending').length === 0 ? (
+                ) : anomalies.filter((a: AnomalyData) => a.status === 'pending').length === 0 ? (
                     <div className="p-12 text-center text-gray-500">
                         대기 중인 이상 거래가 없습니다.
                     </div>
                 ) : (
                     <div className="divide-y divide-gray-100">
-                        {anomalies.filter(a => a.status === 'pending').map((anomaly) => (
+                        {anomalies.filter((a: AnomalyData) => a.status === 'pending').map((anomaly: AnomalyData) => (
                             <div key={anomaly.id} className="p-6 hover:bg-gray-50 transition-colors">
                                 <div className="flex items-start justify-between">
                                     <div className="flex gap-4">
@@ -281,15 +193,25 @@ export default function AnomaliesPage() {
                                                 <span className="font-medium">의심 사유:</span>
                                                 {anomaly.reason}
                                             </div>
-                                            <p className="text-sm text-gray-500 mt-2">
-                                                사용자: <span className="font-medium text-gray-700">{anomaly.userName}</span> ({anomaly.userId})
-                                            </p>
+                                            <div className="flex items-center gap-2 mt-2">
+                                                <p className="text-sm text-gray-500">
+                                                    사용자: <span className="font-medium text-gray-700">{anomaly.userName}</span> ({anomaly.userId})
+                                                </p>
+                                                <button
+                                                    onClick={(e: React.MouseEvent) => { e.stopPropagation(); navigateToUser(anomaly.userId); }}
+                                                    className="p-1 text-blue-500 hover:bg-blue-50 rounded-full transition-colors"
+                                                    title="사용자 정보 보기"
+                                                >
+                                                    <ExternalLink className="w-3.5 h-3.5" />
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="flex gap-2">
                                         <button
-                                            onClick={() => { setSelectedAnomaly(anomaly); setIsDetailOpen(true); }}
-                                            className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 font-medium text-sm transition-colors">
+                                            onClick={() => setSelectedAnomaly(anomaly)}
+                                            className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 font-medium text-sm transition-colors flex items-center gap-2">
+                                            <Eye className="w-4 h-4" />
                                             상세 보기
                                         </button>
                                         <button
@@ -311,19 +233,33 @@ export default function AnomaliesPage() {
                 )}
             </div>
 
-            {/* Processed History */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="p-6 border-b border-gray-100">
-                    <h3 className="text-lg font-bold text-gray-800">최근 처리 내역</h3>
+                <div className="p-6 border-b border-gray-100 flex justify-between items-center text-gray-800">
+                    <h3 className="text-lg font-bold">최근 처리 내역</h3>
+                    <div className="flex gap-4">
+                        <div className="flex items-center gap-1.5 text-xs">
+                            <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                            <span className="text-gray-500">승인 {approvedCount}건</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs">
+                            <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                            <span className="text-gray-500">거부 {rejectedCount}건</span>
+                        </div>
+                    </div>
                 </div>
                 <div className="divide-y divide-gray-100">
-                    {anomalies.filter(a => a.status !== 'pending').length === 0 ? (
-                        <div className="p-8 text-center text-gray-500 text-sm">
+                    {anomalies.filter((a: AnomalyData) => a.status !== 'pending').length === 0 ? (
+                        <div className="p-12 text-center text-gray-500 text-sm">
+                            <Info className="w-8 h-8 mx-auto mb-2 opacity-20" />
                             처리된 내역이 없습니다.
                         </div>
                     ) : (
-                        anomalies.filter(a => a.status !== 'pending').map((anomaly) => (
-                            <div key={anomaly.id} className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                        anomalies.filter((a: AnomalyData) => a.status !== 'pending').map((anomaly: AnomalyData) => (
+                            <div
+                                key={anomaly.id}
+                                className="group p-4 flex items-center justify-between hover:bg-blue-50/30 transition-all cursor-pointer"
+                                onClick={() => setSelectedAnomaly(anomaly)}
+                            >
                                 <div className="flex items-center gap-4">
                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${anomaly.status === 'approved' ? 'bg-green-100' : 'bg-red-100'}`}>
                                         {anomaly.status === 'approved' ? (
@@ -333,15 +269,38 @@ export default function AnomaliesPage() {
                                         )}
                                     </div>
                                     <div>
-                                        <p className="text-sm font-medium text-gray-800">{anomaly.category} - ₩{anomaly.amount.toLocaleString()}</p>
-                                        <p className="text-xs text-gray-500">{anomaly.date} • {anomaly.userName}</p>
+                                        <p className="text-sm font-bold text-gray-800">
+                                            {anomaly.category}
+                                            <span className="ml-2 font-normal text-gray-600">₩{anomaly.amount.toLocaleString()}</span>
+                                        </p>
+                                        <p className="text-xs text-gray-500">
+                                            {anomaly.date} • {anomaly.userName}
+                                            <span className="ml-2 px-1.5 py-0.5 bg-gray-100 rounded text-[10px] uppercase">{anomaly.userId}</span>
+                                        </p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-4">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${anomaly.status === 'approved' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                                <div className="flex items-center gap-3">
+                                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button
+                                            onClick={(e: React.MouseEvent) => { e.stopPropagation(); handleReset(anomaly.id); }}
+                                            className="p-1.5 bg-white border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors"
+                                            title="재검토 요청 (대기로 변경)"
+                                        >
+                                            <RotateCcw className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={(e: React.MouseEvent) => { e.stopPropagation(); setSelectedAnomaly(anomaly); }}
+                                            className="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs font-medium transition-colors"
+                                        >
+                                            상세
+                                        </button>
+                                    </div>
+
+                                    <span className={`min-w-[80px] text-center px-2 py-1 rounded-full text-xs font-bold ${anomaly.status === 'approved' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                                        }`}>
                                         {anomaly.status === 'approved' ? '정상 승인됨' : '거부됨'}
                                     </span>
-                                    <ChevronRight className="w-4 h-4 text-gray-400" />
+                                    <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-blue-500 transition-colors" />
                                 </div>
                             </div>
                         ))
@@ -349,14 +308,112 @@ export default function AnomaliesPage() {
                 </div>
             </div>
 
-            {/* 상세 보기 모달 */}
-            <AnomalyDetailModal
-                anomaly={selectedAnomaly}
-                isOpen={isDetailOpen}
-                onClose={() => setIsDetailOpen(false)}
-                onApprove={handleApprove}
-                onReject={handleReject}
-            />
+            {/* Anomaly Detail Modal */}
+            {selectedAnomaly && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in duration-200">
+                        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+                            <h3 className="text-xl font-bold text-gray-800">이상 거래 상세 정보</h3>
+                            <button onClick={() => setSelectedAnomaly(null)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                                <X className="w-5 h-5 text-gray-500" />
+                            </button>
+                        </div>
+
+                        <div className="p-8 space-y-6">
+                            {/* Header Status */}
+                            <div className="flex items-center gap-4 p-4 rounded-xl bg-gray-50">
+                                <div className={`w-14 h-14 rounded-full flex items-center justify-center ${selectedAnomaly.riskLevel === '위험' ? 'bg-red-100' :
+                                    selectedAnomaly.riskLevel === '경고' ? 'bg-yellow-100' : 'bg-blue-100'
+                                    }`}>
+                                    <AlertTriangle className={`w-8 h-8 ${selectedAnomaly.riskLevel === '위험' ? 'text-red-600' :
+                                        selectedAnomaly.riskLevel === '경고' ? 'text-yellow-600' : 'text-blue-600'
+                                        }`} />
+                                </div>
+                                <div>
+                                    <div className="flex items-center gap-2">
+                                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${getRiskBadge(selectedAnomaly.riskLevel)}`}>
+                                            {selectedAnomaly.riskLevel}
+                                        </span>
+                                        {selectedAnomaly.status !== 'pending' && (
+                                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${selectedAnomaly.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                                                }`}>
+                                                {selectedAnomaly.status === 'approved' ? '처리 완료: 정상 승인' : '처리 완료: 거부'}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p className="text-2xl font-black text-gray-900 mt-1">₩{selectedAnomaly.amount.toLocaleString()}</p>
+                                </div>
+                            </div>
+
+                            {/* Details Grid */}
+                            <div className="grid grid-cols-2 gap-6">
+                                <div>
+                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">카테고리</p>
+                                    <p className="text-base font-bold text-gray-800">{selectedAnomaly.category}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">거래 일시</p>
+                                    <p className="text-base font-bold text-gray-800">{selectedAnomaly.date}</p>
+                                </div>
+                                <div className="col-span-2">
+                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">탐지 사유</p>
+                                    <p className="text-base font-medium text-gray-700 bg-red-50 border border-red-100 p-3 rounded-lg">
+                                        {selectedAnomaly.reason}
+                                    </p>
+                                </div>
+                                <div className="col-span-2">
+                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">사용자 정보</p>
+                                    <div className="flex items-center justify-between p-3 border border-gray-100 rounded-lg group">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center font-bold text-sm">
+                                                {selectedAnomaly.userName[0]}
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-gray-800">{selectedAnomaly.userName}</p>
+                                                <p className="text-xs text-gray-500">{selectedAnomaly.userId}</p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => navigateToUser(selectedAnomaly.userId)}
+                                            className="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1"
+                                        >
+                                            관리 <ExternalLink className="w-3 h-3" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Footer Actions */}
+                        <div className="p-6 bg-gray-50 border-t border-gray-100 flex gap-3">
+                            {selectedAnomaly.status === 'pending' ? (
+                                <>
+                                    <button
+                                        onClick={() => handleReject(selectedAnomaly.id)}
+                                        className="flex-1 py-3 bg-white border border-red-200 text-red-600 rounded-xl hover:bg-red-50 font-bold transition-colors"
+                                    >
+                                        의심 거래 거부
+                                    </button>
+                                    <button
+                                        onClick={() => handleApprove(selectedAnomaly.id)}
+                                        className="flex-1 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold shadow-lg shadow-blue-200 transition-colors"
+                                    >
+                                        정상 거래로 승인
+                                    </button>
+                                </>
+                            ) : (
+                                <button
+                                    onClick={() => handleReset(selectedAnomaly.id)}
+                                    className="w-full py-3 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 font-bold flex items-center justify-center gap-2 transition-colors"
+                                >
+                                    <RotateCcw className="w-4 h-4" />
+                                    대기 상태로 되돌리기 (재검토)
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

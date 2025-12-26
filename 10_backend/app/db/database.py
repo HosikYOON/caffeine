@@ -81,6 +81,13 @@ async def init_db():
     global _async_engine
     if _async_engine is None:
         await create_engine_with_fallback()
+        # 자동 마이그레이션: status 컬럼 추가
+        try:
+            async with _async_engine.begin() as conn:
+                await conn.execute(text("ALTER TABLE anomalies ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'pending' NOT NULL;"))
+                logger.info("Successfully checked/added 'status' column to anomalies table")
+        except Exception as migrate_error:
+            logger.error(f"Failed to auto-migrate 'status' column: {migrate_error}")
     return _async_engine
 
 

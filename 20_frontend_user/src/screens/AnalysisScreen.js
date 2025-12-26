@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useMemo } from 'react';
+import { View, Text, ScrollView, StyleSheet, Dimensions, TouchableOpacity, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { LineChart, BarChart, PieChart } from 'react-native-chart-kit';
 import { Feather } from '@expo/vector-icons';
@@ -17,18 +17,18 @@ const CATEGORY_COLORS = {
     '식비': '#F59E0B',    // 황금색
     '식료품': '#84CC16',  // 라임
     '카페': '#92400E',    // 브라운
-    
+
     // 생활 관련
     '생활': '#8B5CF6',    // 보라색
     '주유': '#06B6D4',    // 시안
     '교통': '#3B82F6',    // 파랑
     '공과금': '#6366F1',  // 인디고
-    
+
     // 쇼핑 관련
     '쇼핑': '#EC4899',    // 핑크
     '마트': '#EF4444',    // 빨강
     '편의점': '#10B981',  // 에메랄드
-    
+
     // 여가/기타
     '여가': '#14B8A6',    // 틸
     '의료': '#F43F5E',    // 로즈
@@ -58,13 +58,13 @@ export default function AnalysisScreen({ navigation }) {
     // 월별 데이터 계산
     const calculateMonthlyData = (txns) => {
         const monthlyMap = {};
-        
+
         txns.forEach(t => {
             // transaction_date 또는 date 필드 사용
             let rawDate = t.transaction_date || t.date || '';
             let date = rawDate?.split(' ')[0] || rawDate || '';
             let month = null;
-            
+
             if (date.match(/^\d{4}-\d{2}/)) {
                 month = date.substring(0, 7);
             } else if (date.match(/^\d{4}\.\d{2}/)) {
@@ -73,17 +73,17 @@ export default function AnalysisScreen({ navigation }) {
                 const parts = date.split('/');
                 month = `${parts[2]}-${parts[1]}`;
             }
-            
+
             if (month) {
                 if (!monthlyMap[month]) monthlyMap[month] = 0;
                 monthlyMap[month] += Math.abs(t.amount);
             }
         });
-        
+
         const sorted = Object.entries(monthlyMap)
             .sort((a, b) => a[0].localeCompare(b[0]))
             .slice(-6);
-        
+
         setMonthlyData(sorted.map(([month, amount]) => ({
             month: month.substring(5) + '월',
             amount
@@ -94,7 +94,7 @@ export default function AnalysisScreen({ navigation }) {
     const calculateCategoryData = (txns) => {
         const categoryMap = {};
         let total = 0;
-        
+
         txns.forEach(t => {
             const cat = t.category || '기타';
             if (!categoryMap[cat]) categoryMap[cat] = 0;
@@ -113,7 +113,7 @@ export default function AnalysisScreen({ navigation }) {
                 legendFontColor: '#4B5563',
                 legendFontSize: 12
             }));
-        
+
         setCategoryData(sorted);
     };
 
@@ -121,7 +121,7 @@ export default function AnalysisScreen({ navigation }) {
     const calculateSummary = (txns) => {
         const total = txns.reduce((sum, t) => sum + Math.abs(t.amount), 0);
         const avg = total / txns.length;
-        
+
         // 요일별 지출
         const dayMap = { 0: '일', 1: '월', 2: '화', 3: '수', 4: '목', 5: '금', 6: '토' };
         const daySpending = {};
@@ -131,7 +131,7 @@ export default function AnalysisScreen({ navigation }) {
             if (!daySpending[day]) daySpending[day] = 0;
             daySpending[day] += Math.abs(t.amount);
         });
-        
+
         const maxDay = Object.entries(daySpending)
             .sort((a, b) => b[1] - a[1])[0];
 
@@ -144,6 +144,27 @@ export default function AnalysisScreen({ navigation }) {
         });
     };
 
+    // 차트 데이터 생성 (대시보드와 동일한 방식)
+    const lineChartData = useMemo(() => {
+        if (!monthlyData || monthlyData.length === 0) return null;
+        
+        let chartData = [...monthlyData];
+        if (chartData.length === 1) {
+            const currentMonth = parseInt(chartData[0].month.replace('월', ''));
+            const prevMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+            chartData = [{ month: `${prevMonth}월`, amount: 0 }, ...chartData];
+        }
+        
+        return {
+            labels: chartData.map(d => d.month),
+            datasets: [{
+                data: chartData.map(d => (d.amount || 0) / 10000),
+                color: (opacity = 1) => `rgba(37, 99, 235, ${opacity})`,
+                strokeWidth: 3
+            }]
+        };
+    }, [monthlyData]);
+
     // 차트 구성
     const chartConfig = {
         backgroundColor: colors.cardBackground,
@@ -153,11 +174,17 @@ export default function AnalysisScreen({ navigation }) {
         color: (opacity = 1) => `rgba(37, 99, 235, ${opacity})`,
         labelColor: (opacity = 1) => colors.textSecondary,
         style: { borderRadius: 16 },
+        useShadowColorFromDataset: true,
         propsForDots: {
-            r: '6',
+            r: '5',
             strokeWidth: '2',
             stroke: '#2563EB'
-        }
+        },
+        propsForBackgroundLines: {
+            strokeDasharray: '',
+            stroke: '#E5E7EB',
+            strokeWidth: 1,
+        },
     };
 
     // 데이터가 없을 때 화면
@@ -176,6 +203,15 @@ export default function AnalysisScreen({ navigation }) {
     // 분석 화면
     return (
         <LinearGradient colors={colors.screenGradient} style={styles.container}>
+            {/* Custom Header with Back Button */}
+            <View style={[styles.header, { backgroundColor: colors.headerBackground, borderBottomColor: colors.border }]}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                    <Feather name="chevron-left" size={28} color={colors.text} />
+                </TouchableOpacity>
+                <Text style={[styles.headerTitle, { color: colors.text }]}>지출 분석</Text>
+                <View style={{ width: 40 }} />
+            </View>
+
             <ScrollView showsVerticalScrollIndicator={false}>
                 {/* Summary Cards */}
                 <FadeInView style={styles.summarySection} delay={0}>
@@ -226,30 +262,39 @@ export default function AnalysisScreen({ navigation }) {
                 <FadeInView style={styles.section} delay={200}>
                     <Text style={[styles.sectionTitle, { color: colors.text }]}>월별 지출 추이</Text>
                     <View style={[styles.chartCard, { backgroundColor: colors.cardBackground }]}>
-                        {monthlyData.length > 0 && (() => {
-                            // 데이터가 1개일 때 차트가 깨지므로 최소 2개 이상 필요
-                            let chartData = [...monthlyData];
-                            if (chartData.length === 1) {
-                                // 이전 달 더미 데이터 추가
-                                const currentMonth = parseInt(chartData[0].month.replace('월', ''));
-                                const prevMonth = currentMonth === 1 ? 12 : currentMonth - 1;
-                                chartData = [{ month: `${prevMonth}월`, amount: 0 }, ...chartData];
-                            }
-                            return (
-                                <LineChart
-                                    data={{
-                                        labels: chartData.map(d => d.month),
-                                        datasets: [{ data: chartData.map(d => d.amount || 0) }]
-                                    }}
-                                    width={width - 64}
-                                    height={200}
-                                    chartConfig={chartConfig}
-                                    bezier
-                                    style={styles.chart}
-                                    fromZero
-                                />
-                            );
-                        })()}
+                        {lineChartData ? (
+                            <LineChart
+                                data={lineChartData}
+                                width={width - 64}
+                                height={200}
+                                chartConfig={{
+                                    backgroundColor: colors.cardBackground,
+                                    backgroundGradientFrom: colors.cardBackground,
+                                    backgroundGradientTo: colors.cardBackground,
+                                    decimalPlaces: 0,
+                                    color: (opacity = 1) => `rgba(37, 99, 235, ${opacity})`,
+                                    labelColor: (opacity = 1) => colors.textSecondary,
+                                    style: { borderRadius: 16 },
+                                    propsForDots: { r: '5', strokeWidth: '2', stroke: '#2563EB' },
+                                    propsForBackgroundLines: {
+                                        strokeDasharray: '',
+                                        stroke: '#E5E7EB',
+                                        strokeWidth: 1,
+                                    },
+                                }}
+                                bezier
+                                style={styles.chart}
+                                withInnerLines={true}
+                                withOuterLines={false}
+                                withVerticalLines={false}
+                                formatYLabel={(value) => Math.round(Number(value)).toString()}
+                            />
+                        ) : (
+                            <View style={{ height: 200, justifyContent: 'center', alignItems: 'center' }}>
+                                <Text style={{ color: colors.textSecondary, fontSize: 14 }}>차트 데이터 준비 중...</Text>
+                            </View>
+                        )}
+                        <Text style={[styles.chartUnit, { color: colors.textSecondary }]}>단위: 만원</Text>
                     </View>
                 </FadeInView>
 
@@ -266,9 +311,9 @@ export default function AnalysisScreen({ navigation }) {
                                 <View style={styles.categoryRight}>
                                     <Text style={[styles.categoryAmount, { color: colors.text }]}>{formatCurrency(item.amount)}</Text>
                                     <View style={[styles.categoryBarContainer, { backgroundColor: colors.border }]}>
-                                        <View style={[styles.categoryBar, { 
-                                            width: `${item.percentage}%`, 
-                                            backgroundColor: item.color 
+                                        <View style={[styles.categoryBar, {
+                                            width: `${item.percentage}%`,
+                                            backgroundColor: item.color
                                         }]} />
                                     </View>
                                     <Text style={[styles.categoryPercent, { color: colors.textSecondary }]}>{item.percentage}%</Text>
@@ -287,6 +332,25 @@ export default function AnalysisScreen({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 8,
+        paddingTop: Platform.OS === 'ios' ? 44 : 12,
+        paddingBottom: 12,
+        borderBottomWidth: 1,
+    },
+    headerTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    backButton: {
+        width: 44,
+        height: 44,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     emptyContainer: {
         flex: 1,
@@ -425,5 +489,10 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#92400E',
         lineHeight: 20,
+    },
+    chartUnit: {
+        fontSize: 12,
+        textAlign: 'center',
+        marginTop: 8,
     },
 });

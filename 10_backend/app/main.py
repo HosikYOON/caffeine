@@ -33,9 +33,7 @@ from dotenv import load_dotenv
 # ============================================================
 # 환경 변수 로드
 # ============================================================
-# .env 파일에서 환경 변수를 읽어옵니다.
-# DATABASE_URL, SECRET_KEY, ENCRYPTION_KEY 등이 포함되어야 합니다.
-load_dotenv()
+load_dotenv()  # 현재 디렉토리 또는 상위의 .env (override=False가 기본값)
 
 # ============================================================
 # 로거 설정 (라이트 Audit 로그)
@@ -114,29 +112,11 @@ CUSTOM_DOMAINS = [
 
 allowed_origins = LOCAL_ORIGINS + [CLOUDFRONT_URL] + CUSTOM_DOMAINS
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
-# ============================================================
 # 보안 헤더 미들웨어
-# ============================================================
-# 주로 Nginx에서 처리하지만, FastAPI 레벨에서도 백업으로 추가합니다.
-# 이 헤더들은 XSS, Clickjacking 등의 공격을 방어하는 데 도움이 됩니다.
 @app.middleware("http")
 async def security_headers_middleware(request: Request, call_next):
     """
     모든 응답에 보안 헤더를 추가하는 미들웨어
-    
-    추가되는 헤더:
-    - X-Content-Type-Options: MIME 타입 스니핑 방지
-    - X-Frame-Options: 클릭재킹 공격 방지 (iframe 차단)
-    - X-XSS-Protection: XSS 공격 방지 (구형 브라우저용)
     """
     response = await call_next(request)
     response.headers["X-Content-Type-Options"] = "nosniff"
@@ -144,25 +124,15 @@ async def security_headers_middleware(request: Request, call_next):
     response.headers["X-XSS-Protection"] = "1; mode=block"
     return response
 
-# ============================================================
 # 라이트 Audit 로그 미들웨어
-# ============================================================
-# 모든 HTTP 요청과 응답을 로깅하여 감사 추적을 가능하게 합니다.
-# v1.0에서는 파일/콘솔에만 기록하고, v2.0+에서는 DB에 저장할 예정입니다.
 @app.middleware("http")
 async def audit_log_middleware(request: Request, call_next):
     """
     모든 HTTP 요청/응답을 로깅하는 미들웨어
-    
-    로깅 내용:
-    - 요청: HTTP 메서드, URL 경로, 클라이언트 IP
-    - 응답: HTTP 상태 코드, 처리 시간
-    
-    로그 파일: audit.log (프로젝트 루트에 생성됨)
     """
     start_time = datetime.utcnow()
     
-    # 요청 로깅 (요청이 들어올 때)
+    # 요청 로깅
     audit_logger.info(
         f"Request: {request.method} {request.url.path} | "
         f"Client: {request.client.host if request.client else 'unknown'}"
@@ -171,7 +141,7 @@ async def audit_log_middleware(request: Request, call_next):
     # 실제 요청 처리
     response = await call_next(request)
     
-    # 응답 로깅 (응답을 보낼 때)
+    # 응답 로깅
     duration = (datetime.utcnow() - start_time).total_seconds()
     audit_logger.info(
         f"Response: {response.status_code} | Duration: {duration:.3f}s"
@@ -179,82 +149,67 @@ async def audit_log_middleware(request: Request, call_next):
     
     return response
 
-# ============================================================
-# 기본 엔드포인트
-# ============================================================
+# CORS 미들웨어 등록
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
+# 기본 엔드포인트
 @app.get("/")
 async def root():
-    """
-    API 루트 엔드포인트
-    
-    API가 정상 작동 중인지 확인하고 문서 링크를 제공합니다.
-    
-    Returns:
-        dict: API 상태 및 문서 링크
-    """
     return {
         "message": "Caffeine API v1.0",
         "status": "running",
-        "docs": "/docs",      # Swagger UI 문서
-        "redoc": "/redoc"     # ReDoc 문서
+        "docs": "/docs",
+        "redoc": "/redoc"
     }
 
 @app.get("/health")
-@limiter.limit("10/minute")  # 분당 10회로 제한
+@limiter.limit("10/minute")
 async def health(request: Request):
-    """
-    헬스체크 엔드포인트 (Rate Limiting 적용 예시)
-    
-    이 엔드포인트는 slowapi Rate Limiting이 적용되어 있어
-    동일 IP에서 분당 10회까지만 호출할 수 있습니다.
-    
-    모니터링 도구(Kubernetes, Docker 등)에서 주기적으로 호출하여
-    API 서버의 정상 작동 여부를 확인하는 데 사용됩니다.
-    
-    Args:
-        request: FastAPI Request 객체 (Rate Limiting에 필요)
-    
-    Returns:
-        dict: 상태 및 현재 타임스탬프
-    """
     return {
         "status": "ok",
         "timestamp": datetime.utcnow().isoformat()
     }
 
-# ============================================================
 # 라우터 등록
-# ============================================================
-from app.routers import ml, analysis, transactions, user, settings, reports, anomalies, user_analytics, analytics_demographics
+from app.routers import (
+    ml, analysis, transactions, user, coupons, 
+    settings, reports, anomalies, user_analytics, analytics_demographics,
+    admin_transactions
+)
+from app.routers.chatbot import router as chatbot_router
+from app.routers.auth import kakao_router, google_router, password_router
+from app.routers.anomalies import fix_router
 
-# ML 예측 API (/ml/*)
-app.include_router(ml.router)
+# 라우터 포함
+# 0. /api/api hotfix
+app.include_router(fix_router, prefix="/api")
 
-# 소비 분석 API (/api/analysis/*)
-app.include_router(analysis.router)
+# 1. /api prefix 추가 그룹: 내부 prefix가 제거된 라우터들 (/admin/...) 또는 원래 없는 라우터들 (/users)
+app.include_router(transactions.router, prefix="/api")
+app.include_router(user.router, prefix="/api")
+app.include_router(kakao_router, prefix="/api")      # 카카오 로그인
+app.include_router(google_router, prefix="/api")     # 구글 로그인
+app.include_router(password_router, prefix="/api")   # 비밀번호/회원탈퇴
+app.include_router(coupons.router, prefix="/api")
 
-# 거래 내역 API (/api/transactions/*)
-app.include_router(transactions.router)
+# 관리자/분석 라우터 추가
+app.include_router(analysis.router, prefix="/api")  # /api/analysis/* 라우터 (admin/full 포함)
+app.include_router(user_analytics.router, prefix="/api")
+app.include_router(analytics_demographics.router, prefix="/api")
+app.include_router(admin_transactions.router, prefix="/api")
+app.include_router(settings.router, prefix="/api")
+app.include_router(reports.router, prefix="/api")
+app.include_router(anomalies.router, prefix="/api") # Added anomalies router
+app.include_router(ml.router, prefix="/api")
 
-# 사용자/인증 API (/users/*)
-app.include_router(user.router)
-
-# 관리자 사용자 분석 API (/api/admin/users/*)
-app.include_router(user_analytics.router)
-
-# 인구통계 분석 API (/api/analytics/demographics/*)
-app.include_router(analytics_demographics.router)
-
-# 관리자 설정 API (/api/admin/settings/*)
-app.include_router(settings.router)
-
-# 관리자 리포트 API (/api/admin/reports/*)
-app.include_router(reports.router)
-
-# 이상 거래 탐지 API (/api/anomalies/*)
-app.include_router(anomalies.router)
-
+# 챗봇 API (/api/chat/*)
+app.include_router(chatbot_router, prefix="/api")
 
 # ============================================================
 # 시작 / 종료 이벤트
@@ -280,6 +235,10 @@ async def startup_event():
     # DB 연결 초기화
     from app.services.db_init import ensure_database_and_tables
     await ensure_database_and_tables()
+    
+    # Anomaly status column migration (Auto-fix)
+    from app.db.database import ensure_status_column_exists
+    await ensure_status_column_exists()
 
 
 @app.on_event("shutdown")

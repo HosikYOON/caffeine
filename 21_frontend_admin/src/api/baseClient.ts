@@ -1,5 +1,5 @@
 // Core API Client Logic
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001/api";
 
 interface FetchOptions extends RequestInit {
     timeout?: number;
@@ -38,6 +38,10 @@ async function fetchWithTimeout(url: string, options: FetchOptions = {}) {
 export const apiClient = {
     async get(endpoint: string) {
         const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`);
+        if (response.status === 401) {
+            // Silence 401 to prevent dev overlay crash, return null so caller can handle
+            return null;
+        }
         if (!response.ok) {
             throw new Error(`API Error: ${response.status}`);
         }
@@ -52,6 +56,9 @@ export const apiClient = {
             },
             body: JSON.stringify(data),
         });
+        if (response.status === 401 || response.status === 403) {
+            return null;
+        }
         if (!response.ok) {
             throw new Error(`API Error: ${response.status}`);
         }

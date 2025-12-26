@@ -7,6 +7,7 @@ import { Text, ActivityIndicator, View, Platform } from 'react-native';
 import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import { TransactionProvider } from './src/contexts/TransactionContext';
+import { ToastProvider } from './src/contexts/ToastContext';
 import { useFonts, Inter_400Regular, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
 import * as SplashScreen from 'expo-splash-screen';
 
@@ -22,6 +23,7 @@ import SignupScreen from './src/screens/SignupScreen';
 import FindEmailScreen from './src/screens/FindEmailScreen';
 import ResetPasswordScreen from './src/screens/ResetPasswordScreen';
 import NotificationsScreen from './src/screens/NotificationsScreen';
+import PasswordChangeScreen from './src/screens/PasswordChangeScreen';
 
 // 스플래시 스크린 유지
 SplashScreen.preventAutoHideAsync();
@@ -111,7 +113,6 @@ function MainTabs() {
       <Tab.Screen name="대시보드" component={DashboardScreen} />
       <Tab.Screen name="거래내역" component={TransactionScreen} />
       <Tab.Screen name="쿠폰함" component={CouponScreen} />
-      {/* 프로필 탭 제거 → 더보기에서 접근 */}
       <Tab.Screen name="더보기" component={MoreScreen} />
     </Tab.Navigator>
   );
@@ -136,9 +137,9 @@ function AuthStack() {
 
 function AppContent() {
   const { colors, isDarkMode } = useTheme();
-  const { user, loading, kakaoLogin, kakaoSignup } = useAuth();
+  const { user, loading, kakaoLogin, kakaoSignup, googleLogin, googleSignup } = useAuth();
 
-  // 카카오 OAuth 콜백 처리 (웹 환경에서만)
+  // 소셜 OAuth 콜백 처리 (웹 환경에서만)
   useEffect(() => {
     if (Platform.OS === 'web' && typeof window !== 'undefined' && window.location) {
       const urlParams = new URLSearchParams(window.location.search);
@@ -150,21 +151,41 @@ function AppContent() {
         // URL에서 code 파라미터 제거
         window.history.replaceState({}, document.title, '/');
 
-        // 회원가입 콜백인지 로그인 콜백인지 경로로 구분
-        if (pathname.includes('/signup')) {
-          // 카카오 회원가입 처리
-          kakaoSignup(code).then(result => {
-            if (!result.success) {
-              alert('카카오 회원가입 실패: ' + result.error);
-            }
-          });
-        } else {
-          // 카카오 로그인 처리
-          kakaoLogin(code).then(result => {
-            if (!result.success) {
-              alert('카카오 로그인 실패: ' + result.error);
-            }
-          });
+        // 구글 콜백 처리
+        if (pathname.includes('/auth/google')) {
+          if (pathname.includes('/signup')) {
+            // 구글 회원가입 처리
+            googleSignup(code).then(result => {
+              if (!result.success) {
+                alert('구글 회원가입 실패: ' + result.error);
+              }
+            });
+          } else {
+            // 구글 로그인 처리
+            googleLogin(code).then(result => {
+              if (!result.success) {
+                alert('구글 로그인 실패: ' + result.error);
+              }
+            });
+          }
+        }
+        // 카카오 콜백 처리
+        else if (pathname.includes('/auth/kakao')) {
+          if (pathname.includes('/signup')) {
+            // 카카오 회원가입 처리
+            kakaoSignup(code).then(result => {
+              if (!result.success) {
+                alert('카카오 회원가입 실패: ' + result.error);
+              }
+            });
+          } else {
+            // 카카오 로그인 처리
+            kakaoLogin(code).then(result => {
+              if (!result.success) {
+                alert('카카오 로그인 실패: ' + result.error);
+              }
+            });
+          }
         }
       }
     }
@@ -197,7 +218,6 @@ function AppContent() {
               cardStyle: { flex: 1 },
             }}
           />
-          {/* 프로필 화면 (더보기에서 접근) */}
           <Stack.Screen
             name="프로필"
             component={ProfileScreen}
@@ -217,6 +237,19 @@ function AppContent() {
             options={{
               headerShown: true,
               headerTitle: '알림',
+              headerStyle: { backgroundColor: colors.headerBackground },
+              headerTintColor: colors.text,
+              headerTitleStyle: { fontFamily: 'Inter_700Bold' },
+              cardStyle: { flex: 1 },
+            }}
+          />
+          {/* 비밀번호 변경 화면 */}
+          <Stack.Screen
+            name="PasswordChange"
+            component={PasswordChangeScreen}
+            options={{
+              headerShown: true,
+              headerTitle: '비밀번호 변경',
               headerStyle: { backgroundColor: colors.headerBackground },
               headerTintColor: colors.text,
               headerTitleStyle: { fontFamily: 'Inter_700Bold' },
@@ -264,9 +297,11 @@ export default function App() {
     <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <ThemeProvider>
         <AuthProvider>
-          <TransactionProvider>
-            <AppContent />
-          </TransactionProvider>
+          <ToastProvider>
+            <TransactionProvider>
+              <AppContent />
+            </TransactionProvider>
+          </ToastProvider>
         </AuthProvider>
       </ThemeProvider>
     </View>
