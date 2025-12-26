@@ -103,9 +103,17 @@ export default function AnomaliesPage() {
     };
 
     const handleReset = async (id: number) => {
-        if (!confirm('해당 내역을 다시 대기 상태로 되돌리시겠습니까?')) return;
+        console.log('🔘 HandleReset clicked for ID:', id);
+        if (!confirm('해당 내역을 다시 대기 상태로 되돌리시겠습니까?')) {
+            console.log('❌ Reset cancelled by user');
+            return;
+        }
+
         try {
+            console.log('🚀 Calling resetAnomaly API...');
             const result = await resetAnomaly(id);
+            console.log('✅ resetAnomaly result:', result);
+
             if (result === null) {
                 alert('재검토 권한이 없거나 세션이 만료되었습니다. 다시 로그인해주세요.');
                 return;
@@ -114,7 +122,7 @@ export default function AnomaliesPage() {
             if (selectedAnomaly && selectedAnomaly.id === id) setSelectedAnomaly(null);
             await fetchAnomalies(); // 목록 새로고침
         } catch (error: any) {
-            console.error('재검토 실패:', error);
+            console.error('❌ 재검토 실패:', error);
             alert('처리에 실패했습니다.');
         }
     };

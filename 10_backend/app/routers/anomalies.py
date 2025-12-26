@@ -33,7 +33,7 @@ from app.routers.user import login_for_user as original_login_function
 logger = logging.getLogger(__name__)
 
 router = APIRouter(
-    prefix="",
+    prefix="/anomalies",
     tags=["anomalies"],
     responses={404: {"description": "Not found"}},
 )
@@ -222,7 +222,7 @@ def detect_fraud_with_model(tx: Transaction, history: List[Transaction]) -> tupl
 # API Endpoints
 # ============================================================
 
-@router.get("/anomalies", response_model=List[AnomalyResponse])
+@router.get("", response_model=List[AnomalyResponse])
 async def get_anomalies(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -443,7 +443,7 @@ async def get_anomalies(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/anomalies/{anomaly_id}/report")
+@router.post("/{anomaly_id}/report")
 async def report_anomaly(
     anomaly_id: int,
     db: AsyncSession = Depends(get_db),
@@ -464,7 +464,7 @@ async def report_anomaly(
     await db.refresh(anomaly)
     return {"status": "pending", "id": anomaly.id, "transactionId": anomaly.transaction_id}
 
-@router.post("/anomalies/{anomaly_id}/ignore")
+@router.post("/{anomaly_id}/ignore")
 async def ignore_anomaly(
     anomaly_id: int,
     db: AsyncSession = Depends(get_db),
@@ -485,7 +485,7 @@ async def ignore_anomaly(
     await db.refresh(anomaly)
     return {"status": "ignored", "id": anomaly.id, "transactionId": anomaly.transaction_id}
 
-@router.post("/anomalies/{anomaly_id}/approve")
+@router.post("/{anomaly_id}/approve")
 async def approve_anomaly(
     anomaly_id: int,
     db: AsyncSession = Depends(get_db),
@@ -506,7 +506,7 @@ async def approve_anomaly(
     await db.commit()
     return {"status": "approved", "id": anomaly_id}
 
-@router.post("/anomalies/{anomaly_id}/reject")
+@router.post("/{anomaly_id}/reject")
 async def reject_anomaly(
     anomaly_id: int,
     db: AsyncSession = Depends(get_db),
@@ -527,7 +527,7 @@ async def reject_anomaly(
     await db.commit()
     return {"status": "rejected", "id": anomaly_id}
 
-@router.post("/anomalies/{anomaly_id}/reset")
+@router.post("/{anomaly_id}/reset")
 async def reset_anomaly(
     anomaly_id: int,
     db: AsyncSession = Depends(get_db),
@@ -548,7 +548,7 @@ async def reset_anomaly(
     await db.commit()
     return {"status": "pending", "id": anomaly_id}
 
-@router.post("/anomalies/{anomaly_id}/notify")
+@router.post("/{anomaly_id}/notify")
 async def notify_anomaly(
     anomaly_id: int,
     db: AsyncSession = Depends(get_db),

@@ -34,6 +34,10 @@ services:
       - "3001:3000"
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8001/api
+    volumes:
+      - ./21_frontend_admin:/app
+      - /app/node_modules
+      - /app/.next
     depends_on:
       - backend
 

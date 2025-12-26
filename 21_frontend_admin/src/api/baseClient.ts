@@ -43,6 +43,7 @@ export const apiClient = {
             return null;
         }
         if (!response.ok) {
+            console.error(`[API Error] URL: ${API_BASE_URL}${endpoint}`);
             throw new Error(`API Error: ${response.status}`);
         }
         return response.json();
