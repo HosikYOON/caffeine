@@ -52,8 +52,7 @@ export const useChatbot = ({ transactions = [], budget = 1000000 } = {}) => {
                 if (cached) {
                     const history = JSON.parse(cached);
                     setMessages(history);
-                    // chatStarted는 startChat() 호출 시에만 true로 설정
-                    // setChatStarted(true); // ← 제거: 자동 시작 방지
+                    // setChatStarted(true);
                     // ID 카운터 업데이트
                     const maxId = Math.max(...history.map(m => m.id || 0));
                     messageIdRef.current = maxId + 1;

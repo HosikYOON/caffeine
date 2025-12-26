@@ -12,6 +12,7 @@ import FadeInView from '../components/FadeInView';
 import AnimatedButton from '../components/AnimatedButton';
 import EmptyState from '../components/EmptyState';
 import { SkeletonStats, SkeletonChart } from '../components/SkeletonCard';
+import { getAnomalies } from '../api/anomalies';
 
 import { formatCurrency } from '../utils/currency';
 import { CHART_COLORS, ANIMATION_DELAY } from '../constants';
@@ -77,6 +78,7 @@ export default function DashboardScreen({ navigation }) {
     const [tooltip, setTooltip] = useState(null);
     const [predictedTransaction, setPredictedTransaction] = useState(null);
     const [couponReceived, setCouponReceived] = useState(false);
+    const [anomalyCount, setAnomalyCount] = useState(0);
 
     // 생년월일 모달 state (카카오 로그인 사용자)
     const [showBirthModal, setShowBirthModal] = useState(false);
@@ -110,7 +112,10 @@ export default function DashboardScreen({ navigation }) {
         useCallback(() => {
             // 데이터가 로드되고, 카카오 사용자이고, 생년월일이 없으면 모달 표시
             if (transactions && transactions.length > 0 && !transactionLoading) {
-                if (user?.provider === 'kakao' && !user?.birth_date) {
+                fetchAnomalyCount(); // Load anomalies when focused
+
+                // 소셜 로그인(카카오/구글) 사용자이고, 생년월일이 없으면 모달 표시
+                if ((user?.provider === 'kakao' || user?.provider === 'google') && !user?.birth_date) {
                     // 약간의 지연으로 화면 전환 후 모달 표시
                     const timer = setTimeout(() => setShowBirthModal(true), 500);
                     return () => clearTimeout(timer);
@@ -118,6 +123,17 @@ export default function DashboardScreen({ navigation }) {
             }
         }, [transactions, transactionLoading, user])
     );
+
+    // 이상거래 카운트 조회
+    const fetchAnomalyCount = async () => {
+        try {
+            const anomalies = await getAnomalies();
+            setAnomalyCount(anomalies ? anomalies.length : 0);
+        } catch (error) {
+            console.error('Failed to fetch anomalies count:', error);
+            // setAnomalyCount(0); // Keep previous state or 0
+        }
+    };
 
     // 거래 데이터로부터 대시보드 요약 계산
     const calculateSummary = (txns) => {
@@ -201,7 +217,9 @@ export default function DashboardScreen({ navigation }) {
 
         const monthlyMap = {};
         txns.forEach(t => {
-            let date = t.date?.split(' ')[0] || t.date || '';
+            // transaction_date 또는 date 필드 사용
+            let rawDate = t.transaction_date || t.date || '';
+            let date = rawDate?.split(' ')[0] || rawDate || '';
 
             // 다양한 날짜 형식 처리
             let month = null;
@@ -370,7 +388,7 @@ export default function DashboardScreen({ navigation }) {
             <EmptyState
                 icon="📊"
                 title="연동된 거래내역이 없습니다"
-                description="프로필에서 데이터를 동기화하여\n소비 분석을 시작하세요"
+                description={"프로필에서 데이터를 동기화하여\n소비 분석을 시작하세요"}
                 actionText="동기화 하러 가기"
                 onAction={() => navigation?.navigate('프로필')}
             />
@@ -578,23 +596,25 @@ export default function DashboardScreen({ navigation }) {
                     </TouchableOpacity>
                 </FadeInView>
 
-                {/* Anomaly Alert */}
-                <FadeInView style={styles.alertContainer} delay={350}>
-                    <TouchableOpacity
-                        style={styles.alertCard}
-                        onPress={() => navigation?.navigate('거래내역')}
-                        activeOpacity={0.8}
-                    >
-                        <View style={styles.alertIconContainer}>
-                            <Feather name="alert-circle" size={22} color="#FFFFFF" />
-                        </View>
-                        <View style={styles.alertContent}>
-                            <Text style={styles.alertTitle}>의심스러운 거래 발견</Text>
-                            <Text style={styles.alertDesc}>{summary?.anomaly_count || 3}건의 이상 거래가 감지되었습니다.</Text>
-                        </View>
-                        <Feather name="chevron-right" size={20} color="#EF4444" />
-                    </TouchableOpacity>
-                </FadeInView>
+                {/* Anomaly Alert - Only show if anomalies exist */}
+                {anomalyCount > 0 && (
+                    <FadeInView style={styles.alertContainer} delay={350}>
+                        <TouchableOpacity
+                            style={styles.alertCard}
+                            onPress={() => navigation?.navigate('거래내역', { filter: 'anomaly' })}
+                            activeOpacity={0.8}
+                        >
+                            <View style={styles.alertIconContainer}>
+                                <Feather name="alert-circle" size={22} color="#FFFFFF" />
+                            </View>
+                            <View style={styles.alertContent}>
+                                <Text style={styles.alertTitle}>의심스러운 거래 발견</Text>
+                                <Text style={styles.alertDesc}>{anomalyCount}건의 이상 거래가 감지되었습니다.</Text>
+                            </View>
+                            <Feather name="chevron-right" size={20} color="#EF4444" />
+                        </TouchableOpacity>
+                    </FadeInView>
+                )}
 
                 {/* Monthly Chart Section */}
                 <FadeInView style={styles.section} delay={400}>
@@ -624,13 +644,17 @@ export default function DashboardScreen({ navigation }) {
                                             strokeDasharray: '',
                                             stroke: '#E5E7EB',
                                             strokeWidth: 1,
-                                        }
+                                        },
+                                        fillShadowGradient: '#3B82F6',
+                                        fillShadowGradientOpacity: 0.3,
                                     }}
                                     bezier
+                                    withShadow={true}
                                     style={styles.chart}
                                     withInnerLines={true}
                                     withOuterLines={false}
                                     withVerticalLines={false}
+                                    formatYLabel={(value) => Math.round(Number(value)).toString()}
                                     onDataPointClick={(data) => {
                                         const amount = (data.value * 10000).toFixed(0);
                                         const monthLabel = getMonthLabel(monthlyData[data.index]?.month);

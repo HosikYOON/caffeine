@@ -5,7 +5,7 @@ echo '=== Caffeine 전체 시스템 시작 ==='
 
 # 1. Docker 시작
 cd /root/caffeine
-docker-compose up -d
+docker-compose --env-file .env.local up -d
 
 # 2. 상태 확인
 sleep 5

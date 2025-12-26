@@ -36,7 +36,7 @@ async def get_current_user_id(token: Optional[str] = Depends(oauth2_scheme)) -> 
 
 # 라우터 설정
 router = APIRouter(
-    prefix="/api/transactions",
+    prefix="/transactions",
     tags=["transactions"],
     responses={404: {"description": "Not found"}},
 )
@@ -182,7 +182,7 @@ async def get_transactions(
                 merchant=tx.merchant_name or "알 수 없음",
                 amount=float(tx.amount),
                 category=cat_name,
-                transaction_date=tx.transaction_time.strftime("%Y-%m-%d %H:%M:%S") if tx.transaction_time else "",
+                transaction_date=tx.transaction_time.strftime("%Y-%m-%d %H:%M") if tx.transaction_time else "",
                 description=tx.description,
                 status=tx.status,
                 currency=tx.currency
@@ -225,13 +225,24 @@ async def create_transactions_bulk(
                 
                 import random
                 try:
-                    tx_time = datetime.strptime(tx.transaction_date, "%Y-%m-%d %H:%M:%S")
+                    # 1. Try standard format with Seconds
+                    dt = datetime.strptime(tx.transaction_date, "%Y-%m-%d %H:%M:%S")
+                    # User Request: Truncate seconds even if provided
+                    tx_time = dt.replace(second=0, microsecond=0)
                 except ValueError:
                     try:
-                        tx_time = datetime.strptime(tx.transaction_date, "%Y-%m-%d")
+                        # 2. Try format without Seconds (User's case: YYYY-MM-DD HH:MM)
+                        tx_time = datetime.strptime(tx.transaction_date, "%Y-%m-%d %H:%M")
+                        # seconds are already 0 here
                     except ValueError:
-                        days_ago = random.randint(0, 365)
-                        tx_time = datetime.now() - timedelta(days=days_ago)
+                        try:
+                            # 3. Try Date only
+                            tx_time = datetime.strptime(tx.transaction_date, "%Y-%m-%d")
+                        except ValueError:
+                            # 4. Fallback: Random past date (Team Logic)
+                            days_ago = random.randint(0, 365)
+                            tx_time = datetime.now() - timedelta(days=days_ago)
+                            tx_time = tx_time.replace(second=0, microsecond=0)
                 
                 insert_stmt = insert(Transaction).values(
                     user_id=data.user_id,
@@ -378,7 +389,7 @@ async def get_transaction(
             merchant=tx.merchant_name or "알 수 없음",
             amount=float(tx.amount),
             category=tx.category.name if tx.category else "기타",
-            transaction_date=tx.transaction_time.strftime("%Y-%m-%d %H:%M:%S") if tx.transaction_time else "",
+            transaction_date=tx.transaction_time.strftime("%Y-%m-%d %H:%M") if tx.transaction_time else "",
             description=tx.description,
             status=tx.status,
             currency=tx.currency

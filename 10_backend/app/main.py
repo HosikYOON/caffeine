@@ -9,7 +9,7 @@ import os
 from dotenv import load_dotenv
 
 # 환경 변수 로드
-load_dotenv()
+load_dotenv()  # 현재 디렉토리 또는 상위의 .env (override=False가 기본값)
 
 # 로거 설정 (라이트 Audit 로그)
 logging.basicConfig(
@@ -72,7 +72,6 @@ LOCAL_ORIGINS = [
 
 allowed_origins = LOCAL_ORIGINS + [CLOUDFRONT_URL] + CUSTOM_DOMAINS
 
-
 # 보안 헤더 미들웨어
 @app.middleware("http")
 async def security_headers_middleware(request: Request, call_next):
@@ -130,28 +129,43 @@ async def health(request: Request):
 
 # 라우터 등록
 from app.routers import (
-    ml, analysis, transactions, user, auth, coupons, 
-    settings, reports, anomalies, user_analytics, analytics_demographics
+    ml, analysis, transactions, user, coupons, 
+    settings, reports, anomalies, user_analytics, analytics_demographics,
+    admin_transactions
 )
 from app.routers.chatbot import router as chatbot_router
+from app.routers.auth import kakao_router, google_router, password_router
+from app.routers.anomalies import fix_router
 
-# 라우터 포함 (라우터 자체에 이미 prefix가 있는 것은 prefix 추가 안함)
-app.include_router(ml.router)  # ml.py에 이미 /ml prefix 있음
-app.include_router(analysis.router)  # analysis.py에 이미 /api/analysis prefix 있음
-app.include_router(transactions.router)  # transactions.py에 이미 /api/transactions prefix 있음
-app.include_router(user.router, prefix="/api")  # user.py에는 /users prefix만 있음
-app.include_router(auth.router, prefix="/api")  # auth.py에는 /auth prefix만 있음
-app.include_router(coupons.router)  # coupons.py에 이미 /api/coupons prefix 있음
+# 라우터 포함
+# 0. /api/api hotfix
+app.include_router(fix_router, prefix="/api")
+
+# 1. /api prefix 추가 그룹: 내부 prefix가 제거된 라우터들 (/admin/...) 또는 원래 없는 라우터들 (/users)
+app.include_router(transactions.router, prefix="/api")
+app.include_router(user.router, prefix="/api")
+app.include_router(kakao_router, prefix="/api")      # 카카오 로그인
+app.include_router(google_router, prefix="/api")     # 구글 로그인
+app.include_router(password_router, prefix="/api")   # 비밀번호/회원탈퇴
+app.include_router(coupons.router, prefix="/api")
 
 # 관리자/분석 라우터 추가
-app.include_router(user_analytics.router)  # 이미 /api/admin/users prefix 있음
-app.include_router(analytics_demographics.router)  # 이미 /api/analytics/demographics prefix 있음
-app.include_router(settings.router)  # settings.py에 이미 /api/admin/settings prefix 있음
+app.include_router(analysis.router, prefix="/api")  # /api/analysis/* 라우터 (admin/full 포함)
+app.include_router(user_analytics.router, prefix="/api")
+app.include_router(analytics_demographics.router, prefix="/api")
+app.include_router(admin_transactions.router, prefix="/api")
+app.include_router(settings.router, prefix="/api")
 app.include_router(reports.router, prefix="/api")
-app.include_router(anomalies.router)  # anomalies.py에 이미 /api/anomalies prefix 있음
+app.include_router(anomalies.router, prefix="/api") # Added anomalies router
+app.include_router(ml.router, prefix="/api")
+app.include_router(user.router, prefix="/api")
+app.include_router(coupons.router, prefix="/api")
+
+# 2. Auth 라우터 (/auth prefix 가짐 -> /api/auth)
+# app.include_router(auth.router, prefix="/api") # Removed invalid reference, specific routers already included above
 
 # 챗봇 API (/api/chat/*)
-app.include_router(chatbot_router)
+app.include_router(chatbot_router, prefix="/api")
 
 # CORS 설정을 가장 마지막에 추가하여 outermost 레이어로 만듦
 app.add_middleware(
