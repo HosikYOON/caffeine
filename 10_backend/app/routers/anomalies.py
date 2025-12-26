@@ -269,15 +269,14 @@ async def get_anomalies(
             anom_query = anom_query.where(Anomaly.user_id == current_user.id)
             
         # Status Filter (Basic mapping)
-        if status == 'reported':
+        if status == 'all':
+             # Return everything (unresolved + resolved) for Admin Dashboard
+             pass
+        elif status == 'reported':
              # User Reported implies explicit report
              anom_query = anom_query.where(Anomaly.reason == "User Reported")
-        elif status == 'pending':
+        elif status == 'pending' or status is None:
              # Pending implies unresolved
-             anom_query = anom_query.where(Anomaly.is_resolved == False)
-        elif status is None:
-             # Default: Show only Unresolved (Hidden Ignored from User)
-             # User Request: "무시하기를 누르면... 유저에게도 안보이게끔 해줘"
              anom_query = anom_query.where(Anomaly.is_resolved == False)
              
         # Execute Anomaly Query
@@ -298,18 +297,22 @@ async def get_anomalies(
             
             persisted_ids.add(tx.id)
             
-            # Use 'pending' status for unresolved items so they appear in Admin Dashboard list
-            response_status = "pending" if not anom.is_resolved else "resolved"
+            # Priority: 1. anom.status (New) 2. Logic (Legacy)
+            if anom.status:
+                response_status = anom.status
+            else:
+                response_status = "pending" if not anom.is_resolved else "resolved"
+                
+                if anom.is_resolved and anom.reason == 'User Ignored':
+                    response_status = "ignored"
+                elif not anom.is_resolved and anom.reason == 'User Reported':
+                    response_status = "reported"
             
-            if anom.is_resolved and anom.reason == 'User Ignored':
-                response_status = "ignored"
-            elif not anom.is_resolved and anom.reason == 'User Reported':
-                response_status = "reported"
-            
-            # If specifically filtering for 'reported' via API param, and we found it via query, ensure it passes
-            # (Query filter above handles this mostly, but response status might need to be consistent?)
-            # Actually, frontend filters by response's 'status' field being 'pending'.
-            # So unresolved items should return status='pending' regardless of source.
+            # Map 'reported' back to 'pending' for UI consistency if needed, 
+            # but current frontend filters by 'pending'.
+            # To fix user reported items not appearing in pending list:
+            if response_status == "reported" and not anom.is_resolved:
+                response_status = "pending"
             
             anomalies.append(AnomalyResponse(
                 id=anom.id,
@@ -482,6 +485,7 @@ async def get_anomalies(
                                 reason=reason_str,
                                 severity=risk, # Use risk as severity
                                 is_resolved=False, # New detections are pending
+                                status="pending",
                                 created_at=datetime.utcnow()
                             )
                             db.add(new_anomaly)
@@ -530,10 +534,11 @@ async def report_anomaly(
         
     anomaly.is_resolved = False
     anomaly.reason = 'User Reported'
+    anomaly.status = 'pending'
     
     await db.commit()
     await db.refresh(anomaly)
-    return {"status": "reported", "id": anomaly.id, "transactionId": anomaly.transaction_id}
+    return {"status": "pending", "id": anomaly.id, "transactionId": anomaly.transaction_id}
 
 @router.post("/anomalies/{anomaly_id}/ignore")
 async def ignore_anomaly(
@@ -553,6 +558,7 @@ async def ignore_anomaly(
         
     anomaly.is_resolved = True
     anomaly.reason = 'User Ignored'
+    anomaly.status = 'ignored'
     
     await db.commit()
     await db.refresh(anomaly)
@@ -588,25 +594,11 @@ async def verify_anomaly(
 async def approve_anomaly(
     anomaly_id: int,
     db: AsyncSession = Depends(get_db),
-    # Admin checks can be added here
+    current_user: User = Depends(get_current_user)
 ):
-    query = select(Anomaly).where(Anomaly.id == anomaly_id)
-    result = await db.execute(query)
-    anomaly = result.scalar_one_or_none()
-    
-    if not anomaly or (not current_user.is_superuser and anomaly.user_id != current_user.id):
-        raise HTTPException(status_code=404, detail="Anomaly not found")
+    if not current_user.is_superuser:
+        raise HTTPException(status_code=403, detail="Not authorized")
         
-    anomaly.is_resolved = True
-    await db.commit()
-    return {"status": "approved", "id": anomaly_id}
-
-@router.post("/anomalies/{anomaly_id}/reject")
-async def reject_anomaly(
-    anomaly_id: int,
-    db: AsyncSession = Depends(get_db),
-    # Admin checks can be added here
-):
     query = select(Anomaly).where(Anomaly.id == anomaly_id)
     result = await db.execute(query)
     anomaly = result.scalar_one_or_none()
@@ -615,5 +607,52 @@ async def reject_anomaly(
         raise HTTPException(status_code=404, detail="Anomaly not found")
         
     anomaly.is_resolved = True
+    anomaly.status = 'approved'
+    await db.commit()
+    return {"status": "approved", "id": anomaly_id}
+
+@router.post("/anomalies/{anomaly_id}/reject")
+async def reject_anomaly(
+    anomaly_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if not current_user.is_superuser:
+        raise HTTPException(status_code=403, detail="Not authorized")
+        
+    query = select(Anomaly).where(Anomaly.id == anomaly_id)
+    result = await db.execute(query)
+    anomaly = result.scalar_one_or_none()
+    
+    if not anomaly:
+        raise HTTPException(status_code=404, detail="Anomaly not found")
+        
+    anomaly.is_resolved = True
+    anomaly.status = 'rejected'
     await db.commit()
     return {"status": "rejected", "id": anomaly_id}
+@router.post("/anomalies/{anomaly_id}/reset")
+async def reset_anomaly(
+    anomaly_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    처리된 이상거래를 다시 대기 상태로 되돌림 (Re-evaluate)
+    """
+    if not current_user.is_superuser:
+        raise HTTPException(status_code=403, detail="Not authorized")
+        
+    query = select(Anomaly).where(Anomaly.id == anomaly_id)
+    result = await db.execute(query)
+    anomaly = result.scalar_one_or_none()
+    
+    if not anomaly:
+        raise HTTPException(status_code=404, detail="Anomaly not found")
+        
+    anomaly.is_resolved = False
+    anomaly.status = 'pending'
+    # we don't clear the reason, as it might be useful to know why it was originally resolved
+    
+    await db.commit()
+    return {"status": "pending", "id": anomaly_id}

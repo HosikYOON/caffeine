@@ -139,6 +139,7 @@ class Anomaly(Base):
     severity = Column(String(20), nullable=True)  # low/medium/high
     reason = Column(Text, nullable=True)
     is_resolved = Column(Boolean, default=False)
+    status = Column(String(20), default="pending", nullable=False) # pending/approved/rejected/ignored
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     resolved_at = Column(DateTime(timezone=True), nullable=True)

@@ -60,3 +60,7 @@ export async function approveAnomaly(anomalyId: number) {
 export async function rejectAnomaly(anomalyId: number) {
     return apiClient.post(`/anomalies/${anomalyId}/reject`, {});
 }
+
+export async function resetAnomaly(anomalyId: number) {
+    return apiClient.post(`/anomalies/${anomalyId}/reset`, {});
+}
