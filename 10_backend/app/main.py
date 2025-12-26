@@ -225,8 +225,8 @@ async def startup_event():
     logger.info(f"Environment: {os.getenv('ENVIRONMENT', 'development')}")
     logger.info(f"CORS Allowed Origins: {allowed_origins}")
     
-    # ML 모델 로드
-    ml.load_model()
+    # ML 모델 로드 (자동 로드됨)
+    # ml.load_model()
     
     # 스케줄러 시작
     from app.services.scheduler import start_scheduler

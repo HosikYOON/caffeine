@@ -76,18 +76,26 @@ def get_engine():
     return _async_engine
 
 
+async def ensure_status_column_exists():
+    """자동 마이그레이션: anomalies 테이블에 status 컬럼이 없으면 추가"""
+    global _async_engine
+    if _async_engine is None:
+        await init_db()
+    
+    try:
+        async with _async_engine.begin() as conn:
+            await conn.execute(text("ALTER TABLE anomalies ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'pending' NOT NULL;"))
+            logger.info("Successfully checked/added 'status' column to anomalies table")
+    except Exception as migrate_error:
+        logger.error(f"Failed to auto-migrate 'status' column: {migrate_error}")
+
 async def init_db():
     """앱 시작 시 DB 연결 초기화 (폴백 로직 포함)"""
     global _async_engine
     if _async_engine is None:
         await create_engine_with_fallback()
-        # 자동 마이그레이션: status 컬럼 추가
-        try:
-            async with _async_engine.begin() as conn:
-                await conn.execute(text("ALTER TABLE anomalies ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'pending' NOT NULL;"))
-                logger.info("Successfully checked/added 'status' column to anomalies table")
-        except Exception as migrate_error:
-            logger.error(f"Failed to auto-migrate 'status' column: {migrate_error}")
+        # 자동 마이그레이션 수행
+        await ensure_status_column_exists()
     return _async_engine
 
 

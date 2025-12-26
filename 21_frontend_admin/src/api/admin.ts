@@ -54,5 +54,5 @@ export async function getChurnMetrics(churnDays: number = 30, signupDays: number
 
 // Anomaly Notification API
 export async function notifyAnomaly(anomalyId: number) {
-    return apiClient.post(`/api/anomalies/${anomalyId}/notify`, {});
+    return apiClient.post(`/anomalies/${anomalyId}/notify`, {});
 }

@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import {
     AlertTriangle, CheckCircle, XCircle, Clock, ChevronRight,
-    RotateCcw, Eye, ExternalLink, User, X,
-    ShieldCheck, ShieldAlert, Info, Bell
+    RotateCcw, Eye, ExternalLink, X,
+    Info, Bell
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { AnomalyData } from '@/types';

@@ -4,8 +4,8 @@ export interface AnomalyData {
     amount: number;
     date: string;
     reason: string;
-    riskLevel: '위험' | '경고' | '주의';
-    status: 'pending' | 'approved' | 'rejected';
+    riskLevel: string;
+    status: string;
     userId: string;
     userName: string;
 }
