@@ -5,6 +5,7 @@
 """
 
 import logging
+import re
 from datetime import datetime, timedelta
 from typing import Dict, Any
 from sqlalchemy import select, func, and_
@@ -14,6 +15,9 @@ from app.db.model.user import User
 
 logger = logging.getLogger(__name__)
 
+
+
+from app.services.ai_service import call_gemini_api, generate_report_prompt
 
 async def generate_weekly_report(db: AsyncSession) -> Dict[str, Any]:
     """
@@ -67,7 +71,8 @@ async def generate_weekly_report(db: AsyncSession) -> Dict[str, Any]:
     # 카테고리별 집계
     category_query = select(
         Category.name,
-        func.sum(Transaction.amount).label("amount")
+        func.sum(Transaction.amount).label("amount"),
+        func.count(Transaction.id).label("count")
     ).join(
         Transaction, Transaction.category_id == Category.id
     ).where(
@@ -90,17 +95,29 @@ async def generate_weekly_report(db: AsyncSession) -> Dict[str, Any]:
     else:
         change_rate = 0
     
-    return {
+    report_data = {
         "period_start": start_of_week.strftime("%Y-%m-%d"),
         "period_end": (end_of_week - timedelta(days=1)).strftime("%Y-%m-%d"),
         "total_amount": this_week_total,
         "transaction_count": this_week_data.count or 0,
         "change_rate": round(change_rate, 1),
         "top_categories": [
-            {"name": cat.name, "amount": float(cat.amount)}
+            {"name": cat.name, "amount": float(cat.amount), "count": int(cat.count)}
             for cat in categories
         ]
     }
+
+    # AI Insight 생성
+    try:
+        prompt = generate_report_prompt("주간 소비", report_data)
+        ai_insight = await call_gemini_api(prompt)
+        report_data["ai_insight"] = ai_insight
+        logger.info(f"Generated AI Insight (Weekly): {ai_insight}")
+    except Exception as e:
+        logger.error(f"Failed to generate AI insight: {e}")
+        report_data["ai_insight"] = "AI 분석을 불러올 수 없습니다."
+
+    return report_data
 
 
 async def generate_monthly_report(db: AsyncSession) -> Dict[str, Any]:
@@ -160,7 +177,8 @@ async def generate_monthly_report(db: AsyncSession) -> Dict[str, Any]:
     # 카테고리별 집계
     category_query = select(
         Category.name,
-        func.sum(Transaction.amount).label("amount")
+        func.sum(Transaction.amount).label("amount"),
+        func.count(Transaction.id).label("count")
     ).join(
         Transaction, Transaction.category_id == Category.id
     ).where(
@@ -183,28 +201,34 @@ async def generate_monthly_report(db: AsyncSession) -> Dict[str, Any]:
     else:
         change_rate = 0
     
-    return {
+    report_data = {
         "period_start": start_of_month.strftime("%Y-%m-%d"),
         "period_end": (end_of_month - timedelta(days=1)).strftime("%Y-%m-%d"),
         "total_amount": this_month_total,
         "transaction_count": this_month_data.count or 0,
         "change_rate": round(change_rate, 1),
         "top_categories": [
-            {"name": cat.name, "amount": float(cat.amount)}
+            {"name": cat.name, "amount": float(cat.amount), "count": int(cat.count)}
             for cat in categories
         ]
     }
+
+    # AI Insight 생성
+    try:
+        prompt = generate_report_prompt("월간 소비", report_data)
+        ai_insight = await call_gemini_api(prompt)
+        report_data["ai_insight"] = ai_insight
+        logger.info(f"Generated AI Insight (Monthly): {ai_insight}")
+    except Exception as e:
+        logger.error(f"Failed to generate AI insight: {e}")
+        report_data["ai_insight"] = "AI 분석을 불러올 수 없습니다."
+
+    return report_data
 
 
 def format_report_html(report_data: Dict[str, Any]) -> str:
     """
     리포트 데이터를 HTML 형식으로 변환합니다.
-    
-    Args:
-        report_data: 리포트 데이터
-    
-    Returns:
-        str: HTML 형식의 요약 내용
     """
     # 증감율에 따른 색상 및 아이콘
     change_rate = report_data["change_rate"]
@@ -227,30 +251,58 @@ def format_report_html(report_data: Dict[str, Any]) -> str:
     # 전기 대비
     change_text = f"{change_icon} {abs(change_rate):.1f}%"
     
-    # 상위 카테고리
+    # 상위 카테고리 HTML 생성 (거래 건수 포함)
     categories_html = ""
     for cat in report_data["top_categories"][:3]:
         categories_html += f"""
-        <div class="stat">
-            <span class="stat-label">{cat['name']}</span>
-            <span class="stat-value">₩{cat['amount']:,.0f}</span>
-        </div>
+        <tr>
+            <td style="padding: 6px 8px; border-bottom: 1px solid #f1f3f5; font-size: 14px;">
+                {cat['name']} <span style="font-size: 12px; color: #868e96; margin-left: 4px;">({cat['count']}건)</span>
+            </td>
+            <td style="text-align: right; padding: 6px 8px; border-bottom: 1px solid #f1f3f5; font-size: 14px;">₩{cat['amount']:,.0f}</td>
+        </tr>
         """
     
+    # NEW: AI Insight Section (줄바꿈 처리)
+    ai_insight_html = ""
+    if "ai_insight" in report_data and report_data["ai_insight"]:
+        # 줄바꿈을 <br>로 변환하고, **굵게**를 <b>굵게</b><br>로 변환 (타이틀 후 줄바꿈)
+        formatted_insight = report_data['ai_insight'].replace("\n", "<br>")
+        formatted_insight = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b><br>', formatted_insight)
+        ai_insight_html = f"""
+        <div style="margin-top: 24px; padding: 16px; background-color: #f8f9fa; border-left: 4px solid #6610f2; border-radius: 4px;">
+            <p style="margin: 0 0 12px 0; font-weight: bold; color: #6610f2; font-size: 0.95em;">AI 소비 분석</p>
+            <p style="margin: 0; color: #495057; font-size: 0.95em; line-height: 1.6;">{formatted_insight}</p>
+        </div>
+        """
+
+    # HTML Table Construction (여백 축소)
     html = f"""
-    <div class="stat">
-        <span class="stat-label">총 소비</span>
-        <span class="stat-value">{total_amount_formatted}</span>
-    </div>
-    <div class="stat">
-        <span class="stat-label">거래 건수</span>
-        <span class="stat-value">{transaction_count}</span>
-    </div>
-    <div class="stat">
-        <span class="stat-label">전기 대비</span>
-        <span class="stat-value" style="color: {change_color};">{change_text}</span>
-    </div>
-    {categories_html}
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <tr>
+            <th style="text-align: left; padding: 6px 8px; border-bottom: 2px solid #dee2e6; color: #495057; font-size: 14px;">항목</th>
+            <th style="text-align: right; padding: 6px 8px; border-bottom: 2px solid #dee2e6; color: #495057; font-size: 14px;">값</th>
+        </tr>
+        <tr>
+            <td style="padding: 6px 8px; border-bottom: 1px solid #f1f3f5; font-size: 14px;">총 소비</td>
+            <td style="text-align: right; padding: 6px 8px; border-bottom: 1px solid #f1f3f5; font-weight: bold; font-size: 14px;">{total_amount_formatted}</td>
+        </tr>
+        <tr>
+            <td style="padding: 6px 8px; border-bottom: 1px solid #f1f3f5; font-size: 14px;">거래 건수</td>
+            <td style="text-align: right; padding: 6px 8px; border-bottom: 1px solid #f1f3f5; font-size: 14px;">{transaction_count}</td>
+        </tr>
+        <tr>
+            <td style="padding: 6px 8px; border-bottom: 1px solid #f1f3f5; font-size: 14px;">전기 대비</td>
+            <td style="text-align: right; padding: 6px 8px; border-bottom: 1px solid #f1f3f5; font-size: 14px; color: {change_color};">{change_text}</td>
+        </tr>
+    </table>
+
+    <h3 style="margin: 24px 0 12px 0; font-size: 15px; color: #495057; border-bottom: 1px solid #dee2e6; padding-bottom: 8px;">상위 지출 카테고리</h3>
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 0;">
+        {categories_html}
+    </table>
+
+    {ai_insight_html}
     """
     
     return html
