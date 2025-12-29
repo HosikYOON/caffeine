@@ -67,7 +67,7 @@ export default function AddTransactionModal({ visible, onClose, onSuccess }) {
                 console.log('✅ 거래 추가 성공:', result.transaction);
                 resetForm();
                 onClose();
-                if (onSuccess) onSuccess();
+                if (onSuccess) onSuccess(result.transaction);
                 if (!result.aiEvaluation) {
                     alert('✅ 소비 내역이 추가되었습니다!');
                 }

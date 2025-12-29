@@ -628,10 +628,31 @@ export default function TransactionScreen({ navigation, route }) {
             <AddTransactionModal
                 visible={addModalVisible}
                 onClose={() => setAddModalVisible(false)}
-                onSuccess={() => {
+                onSuccess={async (newTransaction) => {
                     setAddModalVisible(false);
-                    // 새 거래 추가 시 이상거래 탐지 재실행
-                    fetchAnomalies();
+                    // 1. 이상거래 탐지 실행
+                    try {
+                        console.log('이상거래 탐지 시작...');
+                        const anomalies = await getAnomalies();
+
+                        // 2. 새로운 거래가 이상거래 목록에 있는지 확인
+                        const isAnomaly = anomalies.some(a => String(a.transactionId) === String(newTransaction.id));
+
+                        if (isAnomaly) {
+                            console.log('🚨 이상거래 감지됨! 알림 페이지로 이동');
+                            // 이상거래 상태로 변경 (화면 전환)
+                            setAnomalyMode(true);
+                            setAnomalyTransactions(anomalies);
+                            Alert.alert('주의', '이상거래가 의심되어 확인이 필요합니다.');
+                        } else {
+                            console.log('✅ 정상 거래. 거래내역 페이지 유지');
+                            setAnomalyMode(false);
+                        }
+                    } catch (e) {
+                        console.error('이상거래 탐지/확인 실패:', e);
+                        // 에러 발생 시 안전하게 일반 모드 유지
+                        setAnomalyMode(false);
+                    }
                 }}
             />
 
