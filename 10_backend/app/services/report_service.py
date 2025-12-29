@@ -21,7 +21,7 @@ from app.services.ai_service import call_gemini_api, generate_report_prompt
 
 async def generate_weekly_report(db: AsyncSession) -> Dict[str, Any]:
     """
-    주간 리포트 데이터를 생성합니다.
+    주간 리포트 데이터를 생성합니다. (지난주 월~일)
     
     Args:
         db: 데이터베이스 세션
@@ -29,19 +29,25 @@ async def generate_weekly_report(db: AsyncSession) -> Dict[str, Any]:
     Returns:
         dict: 리포트 데이터
     """
-    # 이번 주 (월요일 ~ 일요일)
+    # 실행 시점 (보통 월요일 오전)
     today = datetime.now()
-    # 이번 주 월요일
-    start_of_week = today - timedelta(days=today.weekday())
-    start_of_week = start_of_week.replace(hour=0, minute=0, second=0, microsecond=0)
-    # 다음 주 월요일 (이번 주 일요일 23:59:59)
-    end_of_week = start_of_week + timedelta(days=7)
     
-    # 지난 주
+    # 지난주 월요일 구하기
+    # today.weekday(): 월(0) ~ 일(6)
+    # 이번주 월요일: today - timedelta(days=today.weekday())
+    # 지난주 월요일: 이번주 월요일 - 7일
+    this_week_monday = today - timedelta(days=today.weekday())
+    start_of_week = this_week_monday - timedelta(days=7)
+    start_of_week = start_of_week.replace(hour=0, minute=0, second=0, microsecond=0)
+    
+    # 지난주 일요일 (이번주 월요일 00:00 직전)
+    end_of_week = this_week_monday.replace(hour=0, minute=0, second=0, microsecond=0)
+    
+    # 지지난 주 (증감율 비교용)
     last_week_start = start_of_week - timedelta(days=7)
     last_week_end = start_of_week
     
-    # 이번 주 거래 데이터 (이상 거래 제외)
+    # 이번 주(실제로는 지난 주) 거래 데이터 (이상 거래 제외)
     this_week_query = select(
         func.count(Transaction.id).label("count"),
         func.sum(Transaction.amount).label("total_amount")
@@ -79,7 +85,7 @@ async def generate_weekly_report(db: AsyncSession) -> Dict[str, Any]:
     fraud_tx_result = await db.execute(fraud_tx_query)
     fraud_transactions = fraud_tx_result.scalars().all()
 
-    # 지난 주 거래 데이터 (이상 거래 제외)
+    # 지난 주(실제로는 지지난 주) 거래 데이터 (이상 거래 제외)
     last_week_query = select(
         func.sum(Transaction.amount).label("total_amount")
     ).where(
@@ -177,7 +183,7 @@ async def generate_weekly_report(db: AsyncSession) -> Dict[str, Any]:
 
 async def generate_monthly_report(db: AsyncSession) -> Dict[str, Any]:
     """
-    월간 리포트 데이터를 생성합니다.
+    월간 리포트 데이터를 생성합니다. (지난달 1일 ~ 말일)
     
     Args:
         db: 데이터베이스 세션
@@ -185,21 +191,27 @@ async def generate_monthly_report(db: AsyncSession) -> Dict[str, Any]:
     Returns:
         dict: 리포트 데이터
     """
-    # 이번 달 (1일 ~ 말일)
+    # 실행 시점 (보통 1일 오전)
     today = datetime.now()
-    start_of_month = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     
-    # 다음 달 1일
-    if today.month == 12:
-        end_of_month = start_of_month.replace(year=today.year + 1, month=1)
+    # 이번 달 1일
+    this_month_start = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    
+    # 지난 달 1일 (start_of_month)
+    if this_month_start.month == 1:
+        start_of_month = this_month_start.replace(year=this_month_start.year - 1, month=12)
     else:
-        end_of_month = start_of_month.replace(month=today.month + 1)
+        start_of_month = this_month_start.replace(month=this_month_start.month - 1)
+        
+    # 지난 달의 다음 달 1일 == 이번 달 1일 (end_of_month)
+    # 쿼리에서 < end_of_month 로 사용하여 지난 달 말일까지 포함
+    end_of_month = this_month_start
     
-    # 지난 달
+    # 지지난 달 (증감율 비교용)
     if start_of_month.month == 1:
-        last_month_start = start_of_month.replace(year=today.year - 1, month=12)
+        last_month_start = start_of_month.replace(year=start_of_month.year - 1, month=12)
     else:
-        last_month_start = start_of_month.replace(month=today.month - 1)
+        last_month_start = start_of_month.replace(month=start_of_month.month - 1)
     last_month_end = start_of_month
     
     # 이번 달 거래 데이터 (이상 거래 제외)
@@ -569,12 +581,12 @@ def format_report_html(report_data: Dict[str, Any]) -> str:
             fraud_list_html += f"""
             <div style="padding: 12px 16px; border-bottom: 1px solid #ffe3e3; display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <div style="font-weight: bold; color: #c92a2a; font-size: 14px;">{tx['merchant_name']}</div>
-                    <div style="font-size: 12px; color: #e03131;">{tx['date']}</div>
+                    <div style="font-weight: bold; color: #c92a2a; font-size: 14px;">{tx.get('merchant_name')}</div>
+                    <div style="font-size: 12px; color: #e03131;">{tx.get('date')}</div>
                 </div>
                 <div style="text-align: right;">
-                    <div style="font-weight: bold; color: #c92a2a; font-size: 14px;">₩{tx['amount']:,.0f}</div>
-                    <div style="font-size: 11px; color: #e03131; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{tx.get('description', '') or '의심 거래 감지'}</div>
+                    <div style="font-weight: bold; color: #c92a2a; font-size: 14px;">₩{tx.get('amount'):,.0f}</div>
+                    <div style="font-size: 11px; color: #e03131; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{tx.get('description', '')}</div>
                 </div>
             </div>
             """
