@@ -41,7 +41,7 @@ async def generate_weekly_report(db: AsyncSession) -> Dict[str, Any]:
     last_week_start = start_of_week - timedelta(days=7)
     last_week_end = start_of_week
     
-    # 이번 주 거래 데이터
+    # 이번 주 거래 데이터 (이상 거래 제외)
     this_week_query = select(
         func.count(Transaction.id).label("count"),
         func.sum(Transaction.amount).label("total_amount")
@@ -49,37 +49,51 @@ async def generate_weekly_report(db: AsyncSession) -> Dict[str, Any]:
         and_(
             Transaction.transaction_time >= start_of_week,
             Transaction.transaction_time < end_of_week,
-            Transaction.status == "completed"
+            Transaction.status == "completed",
+            Transaction.is_fraudulent == False
         )
     )
     this_week_result = await db.execute(this_week_query)
     this_week_data = this_week_result.first()
     
-    # 최대 지출 거래 조회
+    # 최대 지출 거래 조회 (이상 거래 제외)
     max_tx_query = select(Transaction).where(
         and_(
             Transaction.transaction_time >= start_of_week,
             Transaction.transaction_time < end_of_week,
-            Transaction.status == "completed"
+            Transaction.status == "completed",
+            Transaction.is_fraudulent == False
         )
     ).order_by(Transaction.amount.desc()).limit(1)
     max_tx_result = await db.execute(max_tx_query)
     max_transaction = max_tx_result.scalar_one_or_none()
     
-    # 지난 주 거래 데이터
+    # 이상 거래 조회
+    fraud_tx_query = select(Transaction).where(
+        and_(
+            Transaction.transaction_time >= start_of_week,
+            Transaction.transaction_time < end_of_week,
+            Transaction.is_fraudulent == True
+        )
+    ).order_by(Transaction.transaction_time.desc())
+    fraud_tx_result = await db.execute(fraud_tx_query)
+    fraud_transactions = fraud_tx_result.scalars().all()
+
+    # 지난 주 거래 데이터 (이상 거래 제외)
     last_week_query = select(
         func.sum(Transaction.amount).label("total_amount")
     ).where(
         and_(
             Transaction.transaction_time >= last_week_start,
             Transaction.transaction_time < last_week_end,
-            Transaction.status == "completed"
+            Transaction.status == "completed",
+            Transaction.is_fraudulent == False
         )
     )
     last_week_result = await db.execute(last_week_query)
     last_week_data = last_week_result.first()
     
-    # 카테고리별 집계
+    # 카테고리별 집계 (이상 거래 제외)
     category_query = select(
         Category.name,
         func.sum(Transaction.amount).label("amount"),
@@ -90,7 +104,8 @@ async def generate_weekly_report(db: AsyncSession) -> Dict[str, Any]:
         and_(
             Transaction.transaction_time >= start_of_week,
             Transaction.transaction_time < end_of_week,
-            Transaction.status == "completed"
+            Transaction.status == "completed",
+            Transaction.is_fraudulent == False
         )
     ).group_by(Category.name).order_by(func.sum(Transaction.amount).desc()).limit(5)
     
@@ -113,7 +128,8 @@ async def generate_weekly_report(db: AsyncSession) -> Dict[str, Any]:
         "transaction_count": this_week_data.count or 0,
         "change_rate": round(change_rate, 1),
         "top_categories": [],
-        "max_transaction": None
+        "max_transaction": None,
+        "fraud_transactions": []
     }
     
     # 카테고리 데이터 처리 (비율 계산)
@@ -137,6 +153,14 @@ async def generate_weekly_report(db: AsyncSession) -> Dict[str, Any]:
             "date": max_transaction.transaction_time.strftime("%m/%d")
         }
 
+    # 이상 거래 데이터 처리
+    for tx in fraud_transactions:
+        report_data["fraud_transactions"].append({
+            "merchant_name": tx.merchant_name,
+            "amount": float(tx.amount),
+            "date": tx.transaction_time.strftime("%m/%d %H:%M"),
+            "description": tx.description
+        })
 
     # AI Insight 생성
     try:
@@ -178,7 +202,7 @@ async def generate_monthly_report(db: AsyncSession) -> Dict[str, Any]:
         last_month_start = start_of_month.replace(month=today.month - 1)
     last_month_end = start_of_month
     
-    # 이번 달 거래 데이터
+    # 이번 달 거래 데이터 (이상 거래 제외)
     this_month_query = select(
         func.count(Transaction.id).label("count"),
         func.sum(Transaction.amount).label("total_amount")
@@ -186,37 +210,51 @@ async def generate_monthly_report(db: AsyncSession) -> Dict[str, Any]:
         and_(
             Transaction.transaction_time >= start_of_month,
             Transaction.transaction_time < end_of_month,
-            Transaction.status == "completed"
+            Transaction.status == "completed",
+            Transaction.is_fraudulent == False
         )
     )
     this_month_result = await db.execute(this_month_query)
     this_month_data = this_month_result.first()
     
-    # 최대 지출 거래 조회
+    # 최대 지출 거래 조회 (이상 거래 제외)
     max_tx_query = select(Transaction).where(
         and_(
             Transaction.transaction_time >= start_of_month,
             Transaction.transaction_time < end_of_month,
-            Transaction.status == "completed"
+            Transaction.status == "completed",
+            Transaction.is_fraudulent == False
         )
     ).order_by(Transaction.amount.desc()).limit(1)
     max_tx_result = await db.execute(max_tx_query)
     max_transaction = max_tx_result.scalar_one_or_none()
+
+    # 이상 거래 조회
+    fraud_tx_query = select(Transaction).where(
+        and_(
+            Transaction.transaction_time >= start_of_month,
+            Transaction.transaction_time < end_of_month,
+            Transaction.is_fraudulent == True
+        )
+    ).order_by(Transaction.transaction_time.desc())
+    fraud_tx_result = await db.execute(fraud_tx_query)
+    fraud_transactions = fraud_tx_result.scalars().all()
     
-    # 지난 달 거래 데이터
+    # 지난 달 거래 데이터 (이상 거래 제외)
     last_month_query = select(
         func.sum(Transaction.amount).label("total_amount")
     ).where(
         and_(
             Transaction.transaction_time >= last_month_start,
             Transaction.transaction_time < last_month_end,
-            Transaction.status == "completed"
+            Transaction.status == "completed",
+            Transaction.is_fraudulent == False
         )
     )
     last_month_result = await db.execute(last_month_query)
     last_month_data = last_month_result.first()
     
-    # 카테고리별 집계
+    # 카테고리별 집계 (이상 거래 제외)
     category_query = select(
         Category.name,
         func.sum(Transaction.amount).label("amount"),
@@ -227,7 +265,8 @@ async def generate_monthly_report(db: AsyncSession) -> Dict[str, Any]:
         and_(
             Transaction.transaction_time >= start_of_month,
             Transaction.transaction_time < end_of_month,
-            Transaction.status == "completed"
+            Transaction.status == "completed",
+            Transaction.is_fraudulent == False
         )
     ).group_by(Category.name).order_by(func.sum(Transaction.amount).desc()).limit(5)
     
@@ -250,7 +289,8 @@ async def generate_monthly_report(db: AsyncSession) -> Dict[str, Any]:
         "transaction_count": this_month_data.count or 0,
         "change_rate": round(change_rate, 1),
         "top_categories": [],
-        "max_transaction": None
+        "max_transaction": None,
+        "fraud_transactions": []
     }
     
     # 카테고리 데이터 처리 (비율 계산)
@@ -273,6 +313,14 @@ async def generate_monthly_report(db: AsyncSession) -> Dict[str, Any]:
             "date": max_transaction.transaction_time.strftime("%m/%d")
         }
 
+    # 이상 거래 데이터 처리
+    for tx in fraud_transactions:
+        report_data["fraud_transactions"].append({
+            "merchant_name": tx.merchant_name,
+            "amount": float(tx.amount),
+            "date": tx.transaction_time.strftime("%m/%d %H:%M"),
+            "description": tx.description
+        })
 
     # AI Insight 생성
     try:
@@ -280,6 +328,161 @@ async def generate_monthly_report(db: AsyncSession) -> Dict[str, Any]:
         ai_insight = await call_gemini_api(prompt)
         report_data["ai_insight"] = ai_insight
         logger.info(f"Generated AI Insight (Monthly): {ai_insight}")
+    except Exception as e:
+        logger.error(f"Failed to generate AI insight: {e}")
+        report_data["ai_insight"] = "AI 분석을 불러올 수 없습니다."
+
+    return report_data
+
+
+async def generate_daily_report(db: AsyncSession) -> Dict[str, Any]:
+    """
+    일간 리포트 데이터를 생성합니다. (전날 데이터)
+    
+    Args:
+        db: 데이터베이스 세션
+    
+    Returns:
+        dict: 리포트 데이터
+    """
+    # 어제 (00:00:00 ~ 23:59:59)
+    today = datetime.now()
+    yesterday = today - timedelta(days=1)
+    
+    start_of_day = yesterday.replace(hour=0, minute=0, second=0, microsecond=0)
+    end_of_day = today.replace(hour=0, minute=0, second=0, microsecond=0)
+    
+    # 그저께 (증감율 비교용)
+    day_before_yesterday_start = start_of_day - timedelta(days=1)
+    day_before_yesterday_end = start_of_day
+
+    # 어제 거래 데이터 (이상 거래 제외)
+    yesterday_query = select(
+        func.count(Transaction.id).label("count"),
+        func.sum(Transaction.amount).label("total_amount")
+    ).where(
+        and_(
+            Transaction.transaction_time >= start_of_day,
+            Transaction.transaction_time < end_of_day,
+            Transaction.status == "completed",
+            Transaction.is_fraudulent == False
+        )
+    )
+    yesterday_result = await db.execute(yesterday_query)
+    yesterday_data = yesterday_result.first()
+
+    # 최대 지출 거래 조회 (이상 거래 제외)
+    max_tx_query = select(Transaction).where(
+        and_(
+            Transaction.transaction_time >= start_of_day,
+            Transaction.transaction_time < end_of_day,
+            Transaction.status == "completed",
+            Transaction.is_fraudulent == False
+        )
+    ).order_by(Transaction.amount.desc()).limit(1)
+    max_tx_result = await db.execute(max_tx_query)
+    max_transaction = max_tx_result.scalar_one_or_none()
+
+    # 이상 거래 조회
+    fraud_tx_query = select(Transaction).where(
+        and_(
+            Transaction.transaction_time >= start_of_day,
+            Transaction.transaction_time < end_of_day,
+            Transaction.is_fraudulent == True
+        )
+    ).order_by(Transaction.transaction_time.desc())
+    fraud_tx_result = await db.execute(fraud_tx_query)
+    fraud_transactions = fraud_tx_result.scalars().all()
+
+    # 그저께 거래 데이터 (이상 거래 제외)
+    day_before_query = select(
+        func.sum(Transaction.amount).label("total_amount")
+    ).where(
+        and_(
+            Transaction.transaction_time >= day_before_yesterday_start,
+            Transaction.transaction_time < day_before_yesterday_end,
+            Transaction.status == "completed",
+            Transaction.is_fraudulent == False
+        )
+    )
+    day_before_result = await db.execute(day_before_query)
+    day_before_data = day_before_result.first()
+
+    # 카테고리별 집계 (이상 거래 제외)
+    category_query = select(
+        Category.name,
+        func.sum(Transaction.amount).label("amount"),
+        func.count(Transaction.id).label("count")
+    ).join(
+        Transaction, Transaction.category_id == Category.id
+    ).where(
+        and_(
+            Transaction.transaction_time >= start_of_day,
+            Transaction.transaction_time < end_of_day,
+            Transaction.status == "completed",
+            Transaction.is_fraudulent == False
+        )
+    ).group_by(Category.name).order_by(func.sum(Transaction.amount).desc()).limit(5)
+    
+    category_result = await db.execute(category_query)
+    categories = category_result.all()
+
+    # 전일 대비 증감율 계산
+    yesterday_total = float(yesterday_data.total_amount or 0)
+    day_before_total = float(day_before_data.total_amount or 0)
+    
+    if day_before_total > 0:
+        change_rate = ((yesterday_total - day_before_total) / day_before_total) * 100
+    else:
+        change_rate = 0
+    
+    report_data = {
+        "period_start": start_of_day.strftime("%Y-%m-%d"),
+        "period_end": start_of_day.strftime("%Y-%m-%d"),
+        "total_amount": yesterday_total,
+        "transaction_count": yesterday_data.count or 0,
+        "change_rate": round(change_rate, 1),
+        "top_categories": [],
+        "max_transaction": None,
+        "fraud_transactions": []
+    }
+
+    # 카테고리 데이터 처리
+    if categories and yesterday_total > 0:
+        max_cat_amount = float(categories[0].amount) if categories else 1
+        for cat in categories:
+            cat_amount = float(cat.amount)
+            percentage = (cat_amount / max_cat_amount) * 100
+            report_data["top_categories"].append({
+                "name": cat.name, 
+                "amount": cat_amount, 
+                "count": int(cat.count),
+                "percent": percentage
+            })
+            
+    if max_transaction:
+        report_data["max_transaction"] = {
+            "merchant_name": max_transaction.merchant_name,
+            "amount": float(max_transaction.amount),
+            "date": max_transaction.transaction_time.strftime("%H:%M") 
+        }
+
+    # 이상 거래 데이터 처리
+    for tx in fraud_transactions:
+        report_data["fraud_transactions"].append({
+            "merchant_name": tx.merchant_name,
+            "amount": float(tx.amount),
+            "date": tx.transaction_time.strftime("%H:%M"),
+            "description": tx.description
+        })
+
+    # AI Insight 생성
+    try:
+        # 일간 리포트는 데이터 양이 적으므로 간략한 프롬프트 사용
+        prompt = generate_report_prompt("일간 소비", report_data)
+        ai_insight = await call_gemini_api(prompt)
+        report_data["ai_insight"] = ai_insight
+        logger.info(f"Generated AI Insight (Daily): {ai_insight}")
     except Exception as e:
         logger.error(f"Failed to generate AI insight: {e}")
         report_data["ai_insight"] = "AI 분석을 불러올 수 없습니다."
@@ -354,6 +557,38 @@ def format_report_html(report_data: Dict[str, Any]) -> str:
         </div>
         """
     
+    # 이상 거래 하이라이트 섹션 (NEW)
+    fraud_html = ""
+    if report_data.get("fraud_transactions"):
+        fraud_items = report_data["fraud_transactions"]
+        fraud_count = len(fraud_items)
+        fraud_total = sum(item["amount"] for item in fraud_items)
+        
+        fraud_list_html = ""
+        for tx in fraud_items:
+            fraud_list_html += f"""
+            <div style="padding: 12px 16px; border-bottom: 1px solid #ffe3e3; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-weight: bold; color: #c92a2a; font-size: 14px;">{tx['merchant_name']}</div>
+                    <div style="font-size: 12px; color: #e03131;">{tx['date']}</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-weight: bold; color: #c92a2a; font-size: 14px;">₩{tx['amount']:,.0f}</div>
+                    <div style="font-size: 11px; color: #e03131; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{tx.get('description', '') or '의심 거래 감지'}</div>
+                </div>
+            </div>
+            """
+            
+        fraud_html = f"""
+        <div style="background-color: #fff5f5; border: 1px solid #ffc9c9; border-radius: 8px; margin-bottom: 24px; overflow: hidden;">
+            <div style="background-color: #ffe3e3; padding: 10px 16px; font-weight: bold; color: #c92a2a; font-size: 14px; display: flex; justify-content: space-between; align-items: center;">
+                <span>🚨 이상 거래 감지 ({fraud_count}건)</span>
+                <span>총 ₩{fraud_total:,.0f}</span>
+            </div>
+            {fraud_list_html}
+        </div>
+        """
+
     # NEW: AI Insight Section & Headline extraction
     ai_headline_html = ""
     ai_insight_html = ""
@@ -392,6 +627,7 @@ def format_report_html(report_data: Dict[str, Any]) -> str:
     # HTML Table Construction (여백 및 스타일 조정)
     html = f"""
     {max_spend_html}
+    {fraud_html}
     
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
         <tr>
@@ -399,7 +635,7 @@ def format_report_html(report_data: Dict[str, Any]) -> str:
             <th style="text-align: right; padding: 6px 8px; border-bottom: 2px solid #dee2e6; color: #495057; font-size: 14px;">값</th>
         </tr>
         <tr>
-            <td style="padding: 6px 8px; border-bottom: 1px solid #f1f3f5; font-size: 14px;">총 소비</td>
+            <td style="padding: 6px 8px; border-bottom: 1px solid #f1f3f5; font-size: 14px;">총 소비 (정상 거래)</td>
             <td style="text-align: right; padding: 6px 8px; border-bottom: 1px solid #f1f3f5; font-weight: bold; font-size: 14px;">{total_amount_formatted}</td>
         </tr>
         <tr>
