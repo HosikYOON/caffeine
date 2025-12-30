@@ -55,8 +55,8 @@ jobs:
           sed -i 's|\${KAKAO_REST_API_KEY}|${{ secrets.KAKAO_REST_API_KEY }}|g' ecs-task-definition.json
           sed -i 's|\${KAKAO_REDIRECT_URI}|${{ secrets.KAKAO_REDIRECT_URI }}|g' ecs-task-definition.json
           sed -i 's|\${GEMINI_API_KEY}|${{ secrets.GEMINI_API_KEY }}|g' ecs-task-definition.json
-          sed -i 's|\\${GOOGLE_CLIENT_ID}|${{ secrets.GOOGLE_CLIENT_ID }}|g' ecs-task-definition.json
-          sed -i 's|\\${GOOGLE_CLIENT_SECRET}|${{ secrets.GOOGLE_CLIENT_SECRET }}|g' ecs-task-definition.json
+          sed -i 's|\${GOOGLE_CLIENT_ID}|${{ secrets.GOOGLE_CLIENT_ID }}|g' ecs-task-definition.json
+          sed -i 's|\${GOOGLE_CLIENT_SECRET}|${{ secrets.GOOGLE_CLIENT_SECRET }}|g' ecs-task-definition.json
 
       - name: Update ECS task definition
         id: task-def

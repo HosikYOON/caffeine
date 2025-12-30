@@ -84,6 +84,14 @@
         {
           "name": "GOOGLE_CLIENT_SECRET",
           "value": "${GOOGLE_CLIENT_SECRET}"
+        },
+        {
+          "name": "GOOGLE_REDIRECT_URI",
+          "value": "https://caffeineai.net/auth/google/callback"
+        },
+        {
+          "name": "GOOGLE_SIGNUP_REDIRECT_URI",
+          "value": "https://caffeineai.net/auth/google/signup/callback"
         }
       ],
       "logConfiguration": {
