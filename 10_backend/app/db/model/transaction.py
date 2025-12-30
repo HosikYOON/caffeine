@@ -53,6 +53,9 @@ class Transaction(Base):
     # 시간
     transaction_time = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    
+    # 이상 거래 플래그 (신고된 거래는 True)
+    is_fraudulent = Column(Boolean, default=False, nullable=False)
 
     # 관계
     category = relationship("Category", back_populates="transactions")
@@ -142,6 +145,9 @@ class Anomaly(Base):
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     resolved_at = Column(DateTime(timezone=True), nullable=True)
+
+    # Relationships
+    transaction = relationship("Transaction")
 
     def __repr__(self):
         return f"<Anomaly(id={self.id}, transaction_id={self.transaction_id}, severity='{self.severity}')>"

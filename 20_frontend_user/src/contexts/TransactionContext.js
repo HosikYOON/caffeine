@@ -250,6 +250,20 @@ export const TransactionProvider = ({ children }) => {
         }
     };
 
+    // 로컬에서만 거래 제거 (백엔드 삭제 없음) - 이상거래 신고 시 사용
+    const removeTransactionLocally = async (id) => {
+        try {
+            const updated = transactions.filter(t => String(t.id) !== String(id));
+            setTransactions(updated);
+            await saveTransactionsToCache(updated);
+            console.log('로컬에서 거래 제거됨 (이상거래 신고):', id);
+            return { success: true };
+        } catch (error) {
+            console.error('로컬 거래 제거 실패:', error);
+            return { success: false, error };
+        }
+    };
+
     const updateNote = async (transactionId, note) => {
         try {
             // API 호출
@@ -312,9 +326,23 @@ export const TransactionProvider = ({ children }) => {
             // 거래 데이터를 CSV 형식으로 변환
             const csvHeader = '날짜,시간,타입,대분류,소분류,내용,금액,화폐,결제수단,메모\n';
             const csvRows = transactions.map(t => {
-                const datetime = t.date.split(' ');
-                const date = datetime[0] || new Date().toISOString().split('T')[0];
-                const time = datetime[1] || '00:00';
+                // 날짜/시간 파싱 (ISO 형식 'T' 또는 공백 ' ' 모두 처리)
+                let date = new Date().toISOString().split('T')[0];
+                let time = '00:00';
+
+                if (t.date) {
+                    if (t.date.includes('T')) {
+                        const parts = t.date.split('T');
+                        date = parts[0];
+                        time = parts[1] ? parts[1].substring(0, 5) : '00:00';
+                    } else if (t.date.includes(' ')) {
+                        const parts = t.date.split(' ');
+                        date = parts[0];
+                        time = parts[1] ? parts[1].substring(0, 5) : '00:00';
+                    } else {
+                        date = t.date;
+                    }
+                }
 
                 return [
                     date,
@@ -349,7 +377,7 @@ export const TransactionProvider = ({ children }) => {
     };
 
     // 새로고침 함수
-    const refresh = async (userId = 1) => {
+    const refresh = async (userId = null) => {
         // userId가 없으면 현재 로그인한 사용자 ID 가져오기
         let uid = userId;
         if (!uid) {
@@ -370,6 +398,7 @@ export const TransactionProvider = ({ children }) => {
             updateTransactionNote: updateNote,
             addTransaction,
             removeTransaction,
+            removeTransactionLocally,  // 이상거래 신고 시 로컬에서만 제거
             clearTransactions,
             predictNextPurchase,
             loadTransactionsFromServer,

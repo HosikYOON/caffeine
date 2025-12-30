@@ -12,6 +12,7 @@ import FadeInView from '../components/FadeInView';
 import AnimatedButton from '../components/AnimatedButton';
 import EmptyState from '../components/EmptyState';
 import { SkeletonStats, SkeletonChart } from '../components/SkeletonCard';
+import { getAnomalies } from '../api/anomalies';
 
 import { formatCurrency } from '../utils/currency';
 import { CHART_COLORS, ANIMATION_DELAY } from '../constants';
@@ -68,7 +69,7 @@ const CATEGORY_EMOJI = {
 // 대쉬보드 화면
 export default function DashboardScreen({ navigation }) {
     const { colors } = useTheme();
-    const { user } = useAuth();
+    const { user, setUser } = useAuth();
     const { transactions, loading: transactionLoading, refresh, loadTransactionsFromServer } = useTransactions();
     const [refreshing, setRefreshing] = useState(false);
     const [summary, setSummary] = useState(null);
@@ -77,6 +78,7 @@ export default function DashboardScreen({ navigation }) {
     const [tooltip, setTooltip] = useState(null);
     const [predictedTransaction, setPredictedTransaction] = useState(null);
     const [couponReceived, setCouponReceived] = useState(false);
+    const [anomalyCount, setAnomalyCount] = useState(0);
 
     // 생년월일 모달 state (카카오 로그인 사용자)
     const [showBirthModal, setShowBirthModal] = useState(false);
@@ -110,6 +112,8 @@ export default function DashboardScreen({ navigation }) {
         useCallback(() => {
             // 데이터가 로드되고, 카카오 사용자이고, 생년월일이 없으면 모달 표시
             if (transactions && transactions.length > 0 && !transactionLoading) {
+                fetchAnomalyCount(); // Load anomalies when focused
+
                 // 소셜 로그인(카카오/구글) 사용자이고, 생년월일이 없으면 모달 표시
                 if ((user?.provider === 'kakao' || user?.provider === 'google') && !user?.birth_date) {
                     // 약간의 지연으로 화면 전환 후 모달 표시
@@ -119,6 +123,17 @@ export default function DashboardScreen({ navigation }) {
             }
         }, [transactions, transactionLoading, user])
     );
+
+    // 이상거래 카운트 조회
+    const fetchAnomalyCount = async () => {
+        try {
+            const anomalies = await getAnomalies();
+            setAnomalyCount(anomalies ? anomalies.length : 0);
+        } catch (error) {
+            console.error('Failed to fetch anomalies count:', error);
+            // setAnomalyCount(0); // Keep previous state or 0
+        }
+    };
 
     // 거래 데이터로부터 대시보드 요약 계산
     const calculateSummary = (txns) => {
@@ -342,6 +357,8 @@ export default function DashboardScreen({ navigation }) {
             if (storedUser) {
                 const updatedUser = { ...JSON.parse(storedUser), birth_date: birthDate };
                 await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
+                // AuthContext의 user 상태도 갱신하여 모달이 다시 안 뜨도록
+                setUser(updatedUser);
             }
 
             setShowBirthModal(false);
@@ -581,23 +598,25 @@ export default function DashboardScreen({ navigation }) {
                     </TouchableOpacity>
                 </FadeInView>
 
-                {/* Anomaly Alert */}
-                <FadeInView style={styles.alertContainer} delay={350}>
-                    <TouchableOpacity
-                        style={styles.alertCard}
-                        onPress={() => navigation?.navigate('거래내역')}
-                        activeOpacity={0.8}
-                    >
-                        <View style={styles.alertIconContainer}>
-                            <Feather name="alert-circle" size={22} color="#FFFFFF" />
-                        </View>
-                        <View style={styles.alertContent}>
-                            <Text style={styles.alertTitle}>의심스러운 거래 발견</Text>
-                            <Text style={styles.alertDesc}>{summary?.anomaly_count || 3}건의 이상 거래가 감지되었습니다.</Text>
-                        </View>
-                        <Feather name="chevron-right" size={20} color="#EF4444" />
-                    </TouchableOpacity>
-                </FadeInView>
+                {/* Anomaly Alert - Only show if anomalies exist */}
+                {anomalyCount > 0 && (
+                    <FadeInView style={styles.alertContainer} delay={350}>
+                        <TouchableOpacity
+                            style={styles.alertCard}
+                            onPress={() => navigation?.navigate('거래내역', { filter: 'anomaly' })}
+                            activeOpacity={0.8}
+                        >
+                            <View style={styles.alertIconContainer}>
+                                <Feather name="alert-circle" size={22} color="#FFFFFF" />
+                            </View>
+                            <View style={styles.alertContent}>
+                                <Text style={styles.alertTitle}>의심스러운 거래 발견</Text>
+                                <Text style={styles.alertDesc}>{anomalyCount}건의 이상 거래가 감지되었습니다.</Text>
+                            </View>
+                            <Feather name="chevron-right" size={20} color="#EF4444" />
+                        </TouchableOpacity>
+                    </FadeInView>
+                )}
 
                 {/* Monthly Chart Section */}
                 <FadeInView style={styles.section} delay={400}>

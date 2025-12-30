@@ -17,7 +17,7 @@ services:
       GMAIL_APP_PASSWORD: ${GMAIL_APP_PASSWORD}
       DEVELOPMENT_MODE: ${DEVELOPMENT_MODE}
       GEMINI_API_KEY: ${GEMINI_API_KEY}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID} # 구글 로그인 추가
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
     ports:
       - "8001:8000"
@@ -33,7 +33,7 @@ services:
     ports:
       - "3001:3000"
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost
+      NEXT_PUBLIC_API_URL: http://localhost:8001/api
     depends_on:
       - backend
 
@@ -60,5 +60,5 @@ services:
       - "9102:9102"
     environment:
       GEMINI_API_KEY: ${GEMINI_API_KEY}
-      MAX_DAILY_CALLS: 100    # 일일 최대 API 호출 수
-      MAX_RPM: 10             # 분당 최대 API 요청 수
+      MAX_DAILY_CALLS: 100 # 일일 최대 API 호출 수
+      MAX_RPM: 10 # 분당 최대 API 요청 수

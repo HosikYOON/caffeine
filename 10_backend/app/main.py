@@ -9,7 +9,7 @@ import os
 from dotenv import load_dotenv
 
 # 환경 변수 로드
-load_dotenv()
+load_dotenv()  # 현재 디렉토리 또는 상위의 .env (override=False가 기본값)
 
 # 로거 설정 (라이트 Audit 로그)
 logging.basicConfig(
@@ -23,6 +23,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 audit_logger = logging.getLogger('audit')  # Audit 전용 로거
 
+# Rate Limiter 초기화 (slowapi)
 # Rate Limiter 초기화 (slowapi)
 limiter = Limiter(key_func=get_remote_address)
 
@@ -71,7 +72,6 @@ LOCAL_ORIGINS = [
 ]
 
 allowed_origins = LOCAL_ORIGINS + [CLOUDFRONT_URL] + CUSTOM_DOMAINS
-
 
 # 보안 헤더 미들웨어
 @app.middleware("http")
@@ -136,10 +136,13 @@ from app.routers import (
 )
 from app.routers.chatbot import router as chatbot_router
 from app.routers.auth import kakao_router, google_router, password_router
+from app.routers.anomalies import fix_router
 
-# 라우터 포함 (모든 라우터에 /api 접두사 추가)
-app.include_router(ml.router, prefix="/api")
-app.include_router(analysis.router, prefix="/api")
+# 라우터 포함
+# 0. /api/api hotfix
+app.include_router(fix_router, prefix="/api")
+
+# 1. /api prefix 추가 그룹: 내부 prefix가 제거된 라우터들 (/admin/...) 또는 원래 없는 라우터들 (/users)
 app.include_router(transactions.router, prefix="/api")
 app.include_router(user.router, prefix="/api")
 app.include_router(kakao_router, prefix="/api")      # 카카오 로그인
@@ -148,12 +151,19 @@ app.include_router(password_router, prefix="/api")   # 비밀번호/회원탈퇴
 app.include_router(coupons.router, prefix="/api")
 
 # 관리자/분석 라우터 추가
+app.include_router(analysis.router, prefix="/api")  # /api/analysis/* 라우터 (admin/full 포함)
 app.include_router(user_analytics.router, prefix="/api")
 app.include_router(analytics_demographics.router, prefix="/api")
 app.include_router(admin_transactions.router, prefix="/api")
 app.include_router(settings.router, prefix="/api")
 app.include_router(reports.router, prefix="/api")
-app.include_router(anomalies.router, prefix="/api")
+app.include_router(anomalies.router, prefix="/api") # Added anomalies router
+app.include_router(ml.router, prefix="/api")
+app.include_router(user.router, prefix="/api")
+app.include_router(coupons.router, prefix="/api")
+
+# 2. Auth 라우터 (/auth prefix 가짐 -> /api/auth)
+# app.include_router(auth.router, prefix="/api") # Removed invalid reference, specific routers already included above
 
 # 챗봇 API (/api/chat/*)
 app.include_router(chatbot_router, prefix="/api")

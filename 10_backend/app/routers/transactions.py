@@ -127,6 +127,9 @@ async def get_transactions(
         if user_id is not None:
             conditions.append(Transaction.user_id == user_id)
         
+        # 이상거래로 신고된 거래 제외 (소비 집계에서 제외)
+        conditions.append(Transaction.is_fraudulent == False)
+        
         if start_date:
             start_dt = datetime.strptime(start_date, "%Y-%m-%d")
             conditions.append(Transaction.transaction_time >= start_dt)
@@ -181,7 +184,7 @@ async def get_transactions(
                 merchant=tx.merchant_name or "알 수 없음",
                 amount=float(tx.amount),
                 category=cat_name,
-                transaction_date=tx.transaction_time.strftime("%Y-%m-%d %H:%M:%S") if tx.transaction_time else "",
+                transaction_date=tx.transaction_time.strftime("%Y-%m-%d %H:%M") if tx.transaction_time else "",
                 description=tx.description,
                 status=tx.status,
                 currency=tx.currency
@@ -222,31 +225,26 @@ async def create_transactions_bulk(
                 if not category_id:
                     category_id = categories.get('기타') or (list(categories.values())[0] if categories else None)
                 
-                # 다양한 날짜 형식 파싱 시도
-                tx_time = None
-                date_formats = [
-                    "%Y-%m-%d %H:%M:%S",
-                    "%Y-%m-%d %H:%M",
-                    "%Y-%m-%d",
-                    "%Y.%m.%d %H:%M:%S",
-                    "%Y.%m.%d %H:%M",
-                    "%Y.%m.%d",
-                    "%d/%m/%Y %H:%M:%S",
-                    "%d/%m/%Y",
-                    "%m/%d/%Y %H:%M:%S",
-                    "%m/%d/%Y",
-                ]
-                for fmt in date_formats:
+                import random
+                try:
+                    # 1. Try standard format with Seconds
+                    dt = datetime.strptime(tx.transaction_date, "%Y-%m-%d %H:%M:%S")
+                    # User Request: Truncate seconds even if provided
+                    tx_time = dt.replace(second=0, microsecond=0)
+                except ValueError:
                     try:
-                        tx_time = datetime.strptime(tx.transaction_date.strip(), fmt)
-                        break
+                        # 2. Try format without Seconds (User's case: YYYY-MM-DD HH:MM)
+                        tx_time = datetime.strptime(tx.transaction_date, "%Y-%m-%d %H:%M")
+                        # seconds are already 0 here
                     except ValueError:
-                        continue
-                
-                # 모든 형식 실패 시 현재 시간 사용 (랜덤 아님)
-                if tx_time is None:
-                    logger.warning(f"날짜 파싱 실패: {tx.transaction_date}")
-                    tx_time = datetime.now()
+                        try:
+                            # 3. Try Date only
+                            tx_time = datetime.strptime(tx.transaction_date, "%Y-%m-%d")
+                        except ValueError:
+                            # 4. Fallback: Random past date (Team Logic)
+                            days_ago = random.randint(0, 365)
+                            tx_time = datetime.now() - timedelta(days=days_ago)
+                            tx_time = tx_time.replace(second=0, microsecond=0)
                 
                 insert_stmt = insert(Transaction).values(
                     user_id=data.user_id,
@@ -393,7 +391,7 @@ async def get_transaction(
             merchant=tx.merchant_name or "알 수 없음",
             amount=float(tx.amount),
             category=tx.category.name if tx.category else "기타",
-            transaction_date=tx.transaction_time.strftime("%Y-%m-%d %H:%M:%S") if tx.transaction_time else "",
+            transaction_date=tx.transaction_time.strftime("%Y-%m-%d %H:%M") if tx.transaction_time else "",
             description=tx.description,
             status=tx.status,
             currency=tx.currency
