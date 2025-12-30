@@ -154,12 +154,14 @@ def generate_report_pdf(report_type: str, report_data: Dict[str, Any], output_pa
     for old, new in forbidden_map.items():
         ai_raw_content = ai_raw_content.replace(old, new)
     
+    # AI 헤드라인 정규표현식 추출 (다양한 형식 대응: # [HEADLINE], [HEADLINE], \[HEADLINE] 등)
     headline_text = ""
-    if "# [HEADLINE]" in ai_raw_content:
-        parts = ai_raw_content.split("# [HEADLINE]")
-        if len(parts) > 1:
-            headline_text = parts[1].split("\n")[0].strip()
-            ai_raw_content = parts[0] + "\n".join(parts[1].split("\n")[1:])
+    import re
+    headline_match = re.search(r'(?:#\s*)?\\?\[HEADLINE\]\s*(.*)', ai_raw_content)
+    if headline_match:
+        headline_text = headline_match.group(1).split('\n')[0].strip().strip('"')
+        # 본문에서 헤드라인 부분 제거
+        ai_raw_content = ai_raw_content.replace(headline_match.group(0), "").strip()
     
     # 1. 제목 및 기간
     elements.append(Paragraph(f"Caffeine {report_type} 분석 리포트", title_style))
@@ -169,15 +171,17 @@ def generate_report_pdf(report_type: str, report_data: Dict[str, Any], output_pa
         headline_style = ParagraphStyle(
             'HeadlineStyle',
             parent=korean_style,
-            fontSize=16,
+            fontSize=24, # 1.5배 이상 상향 (기존 16)
             fontName='MalgunGothicBold',
             textColor=colors.HexColor("#4338ca"),
             alignment=1, # Center
-            spaceAfter=15,
-            borderPadding=10,
+            spaceBefore=10,
+            spaceAfter=20,
+            borderPadding=15,
             backgroundColor=colors.HexColor("#eef2ff"),
-            borderRadius=8
+            borderRadius=10
         )
+        # 큰 따옴표로 감싸기
         elements.append(Paragraph(f'"{headline_text}"', headline_style))
     else:
         elements.append(Paragraph(f"분석 기간: {report_data['period_start']} ~ {report_data['period_end']}", korean_style))
@@ -290,7 +294,7 @@ def generate_report_pdf(report_type: str, report_data: Dict[str, Any], output_pa
     elements.append(Paragraph("💡 AI 비즈니스 인사이트", sub_title_style))
     elements.append(Spacer(1, 15)) # 겹침 방지를 위한 명확한 여백 고정
     
-    ai_raw_content = report_data.get('ai_insight', "AI 분석 결과가 없습니다.")
+    # 이미 상단에서 필터링 및 헤드라인 추출이 완료된 ai_raw_content 사용
     
     # AI 박스 내부에 들어갈 요소들 구성
     ai_elements = []
