@@ -58,8 +58,8 @@ async def get_user_by_social_id(db: AsyncSession, social_provider: str, social_i
     return result.scalar_one_or_none()
 
 
-# 카카오 유저 조회 (기존 회원만 로그인 가능)
-async def get_kakao_user_if_exists(
+# 카카오 유저 조회 또는 생성 (간편 로그인/가입)
+async def get_or_create_kakao_user(
     db: AsyncSession,
     kakao_id: int,
     nickname: str,
@@ -76,11 +76,23 @@ async def get_kakao_user_if_exists(
         await db.refresh(existing_user)
         return existing_user
     
-    # 미가입 사용자는 로그인 불가
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="가입되지 않은 사용자입니다. 먼저 회원가입을 진행해주세요."
+    # 신규 유저 자동 생성 (간편 가입)
+    new_user = UserModel(
+        email=email or f"kakao_{kakao_id}@caffeine.app",
+        password_hash="SOCIAL_LOGIN",
+        name=nickname,
+        nickname=nickname,
+        role="USER",
+        status="ACTIVE",
+        social_provider="KAKAO",
+        social_id=str(kakao_id),
+        last_login_at=datetime.utcnow(),
     )
+    db.add(new_user)
+    await db.commit()
+    await db.refresh(new_user)
+    logger.info(f"카카오 간편 가입 완료: user_id={new_user.id}, kakao_id={kakao_id}")
+    return new_user
 
 
 # 카카오 로그인
@@ -136,8 +148,8 @@ async def kakao_login(payload: KakaoLoginRequest, db: DB_Dependency):
             email = kakao_account.get("email")
             profile_image = profile.get("profile_image_url")
             
-            # 3. DB에서 기존 회원 확인 (미가입자는 에러 반환)
-            db_user = await get_kakao_user_if_exists(
+            # 3. DB에서 회원 조회 또는 자동 가입
+            db_user = await get_or_create_kakao_user(
                 db=db,
                 kakao_id=kakao_id,
                 nickname=nickname,

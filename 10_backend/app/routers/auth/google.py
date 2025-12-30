@@ -60,8 +60,8 @@ async def get_user_by_social_id(db: AsyncSession, social_provider: str, social_i
     return result.scalar_one_or_none()
 
 
-# 구글 유저 조회 (기존 회원만 로그인 가능)
-async def get_google_user_if_exists(
+# 구글 유저 조회 또는 생성 (간편 로그인/가입)
+async def get_or_create_google_user(
     db: AsyncSession,
     google_id: str,
     nickname: str,
@@ -78,11 +78,23 @@ async def get_google_user_if_exists(
         await db.refresh(existing_user)
         return existing_user
     
-    # 미가입 사용자는 로그인 불가
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="가입되지 않은 사용자입니다. 먼저 회원가입을 진행해주세요."
+    # 신규 유저 자동 생성 (간편 가입)
+    new_user = UserModel(
+        email=email or f"google_{google_id}@caffeine.app",
+        name=nickname,
+        nickname=nickname,
+        password_hash="SOCIAL_LOGIN",
+        role="USER",
+        status="ACTIVE",
+        social_provider="GOOGLE",
+        social_id=google_id,
+        last_login_at=datetime.utcnow()
     )
+    db.add(new_user)
+    await db.commit()
+    await db.refresh(new_user)
+    logger.info(f"구글 간편 가입 완료: user_id={new_user.id}, google_id={google_id}")
+    return new_user
 
 
 # 구글 로그인
@@ -132,8 +144,8 @@ async def google_login(payload: GoogleLoginRequest, db: DB_Dependency):
         nickname = google_user.get("name", "사용자")
         profile_image = google_user.get("picture")
         
-        # 3. 기존 회원 확인 (없으면 에러)
-        db_user = await get_google_user_if_exists(
+        # 3. DB에서 회원 조회 또는 자동 가입
+        db_user = await get_or_create_google_user(
             db,
             google_id=google_id,
             nickname=nickname,
