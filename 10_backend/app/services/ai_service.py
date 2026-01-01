@@ -51,41 +51,56 @@ async def call_gemini_api(prompt: str) -> str:
 
 def generate_report_prompt(report_type: str, data: Dict[str, Any]) -> str:
     """
-    리포트 데이터를 바탕으로 AI 프롬프트를 생성합니다.
+    CEO/C-Level 대상의 프리미엄 전략 보고서 생성을 위한 AI 프롬프트.
+    HTML 슬라이드 자동 생성을 위해 엄격한 마크다운 구조를 사용합니다.
     """
     categories_text = "\n".join([
-        f"- {cat['name']}: {int(cat['amount']):,}원" 
+        f"- {cat['name']}: {int(cat['amount']):,}원 ({cat['percent']:.1f}%)" 
         for cat in data.get("top_categories", [])
     ])
 
+    max_tx_text = "N/A"
+    if data.get('max_transaction'):
+        max_tx = data['max_transaction']
+        max_tx_text = f"{max_tx['merchant_name']} ({int(max_tx['amount']):,}원) - {max_tx['category']} 분야"
+
     return f"""
-Role: 당신은 이 금융 플랫폼의 **Senior Data Scientist이자 실무 비즈니스 전략 컨설턴트**입니다.
-Task: 제공된 {report_type} 실제 데이터를 정밀 분석하여, 관리자가 즉시 활용할 수 있는 **Fact-Based 비즈니스 리포트**를 작성하세요.
+Role: Senior Strategic Consultant & BI Developer
+Context: 'Caffeine' Project (Vertex AI-based Financial Command Center)
 
-[필독: 작성 규칙 - 미준수 시 분석 실패]
-1. **금지어 영구 추방 (Strictly Banned)**: 
-   - **'제언'이라는 단어를 절대 사용하지 마세요.**
-   - **'액션 아이템'이라는 표현도 절대 사용하지 마세요.** (사용자 금칙어)
-   - '제고', '경주', '도모', '결론 및 제언' 등 낡은 관료적 표현은 전면 금지합니다.
-2. **세련된 브랜딩 용어 사용**: 
-   - 대신 **'성장 전략'**, **'향후 과제'**, **'비즈니스 통찰'**, **'실행 가이드'** 등 현대적이고 전문적인 용어를 사용하세요.
-   - 문체는 스타트업의 유능한 C-Level이 작성하듯 간결하고 임팩트 있게 작성하세요.
-3. **국립국어원 맞춤법 준수**: 띄어쓰기와 오탈자를 엄격히 검수하세요.
-4. **AI 헤드라인 (필수)**: 
-   - 리포트 최상단에 `[HEADLINE] 텍스트` 형식으로 배치하세요.
-5. **데이터 기반 정밀 분석**: 오로지 제공된 실데이터 숫자만 사용하세요.
-6. **시각적 강조**: 핵심 데이터는 `**굵은 글씨**`를 사용하여 강조하세요.
+당신은 데이터의 비즈니스 가치를 극대화하는 **전략 컨설턴트**입니다.
+제공된 [Raw 데이터]를 분석하여 아래 **4가지 핵심 섹션**에 대한 내용을 작성하십시오.
+각 섹션은 HTML 슬라이드로 변환되므로 **지정된 헤더(##)**를 정확히 지켜야 합니다.
 
-[리포트 데이터 (실제 수치)]
-- 분석 대상 기간: {data['period_start']} ~ {data['period_end']}
-- 총 지출 금액: KRW {int(data['total_amount']):,}
-- 전체 거래 건수: {data['transaction_count']}건
-- 전 기간 대비 변동율: {data['change_rate']}%
-- 상위 소비 카테고리 (금액 내림차순): 
-{chr(10).join([f"  * {c['name']}: {c['amount']:,.0f}원 ({c['count']}건, 비중 {c['percent']:.1f}%)" for c in data['top_categories']])}
+[분석 데이터 (Fact)]
+- 기간: {data['period_start']} ~ {data['period_end']}
+- 총 지출: {int(data['total_amount']):,}원 (전기 대비 {data['change_rate']}%)
+- 상위 카테고리:
+{categories_text}
+- 최대 지출 트랜잭션: {max_tx_text}
 
-    위의 **실데이터**를 바탕으로, 현재 소비 트렌드를 한 줄로 요약한 **Headline**, 전체 지표에 대한 **통계적 해석**, **상위 카테고리별 심층 분석 및 비즈니스 실행 전략**을 구조적으로 작성해 주세요. 
-    전문적인 비즈니스 문체로 작성하며, 가독성을 위해 각 항목 사이에는 적절한 줄바꿈을 포함하세요.
-    
-※ 반드시 실데이터에 근거한 분석 내용만 작성하세요. 지어내거나 플레이스홀더를 사용하는 것은 절대 엄금합니다.
+[작성 섹션 및 가이드]
+
+## 1. Executive Summary
+- 단순 현황 보고가 아닌, **리스크와 기회 요인**을 짚어주는 경영진 요약.
+- 줄글 금지. **핵심 3가지를 불렛 포인트(-)**로 요약할 것.
+
+## 2. B2C Consumer Insight
+- 유저 데이터({categories_text})를 기반으로 '소비 맥락'과 '라이프스타일' 분석.
+- **긴 문단 절대 금지**. 3~4개의 핵심 인사이트를 **불렛 포인트(-)**로 명확히 분리하여 작성.
+- 예: "- (Insight 1) 교통비 비중 35% -> 모빌리티 중심의 라이프스타일..."
+
+## 3. B2B Partnership Strategy
+- 지출 비중이 높은 분야에서 실제 수익을 창출할 수 있는 **구체적 제휴 대상** 제안.
+- 카카오T, 쿠팡, 배달의민족, 스타벅스 등 실존 기업명과 **제휴 아이템** 명시.
+- 각 제안은 **불렛 포인트(-)**로 구분하여 가독성 확보.
+
+## 4. Partnership Metrics
+- 위 B2B 전략 실행 시 기대되는 KPI 변화를 반드시 **Markdown Table**로 작성.
+| 타겟 기업 | 예상 수익 모델 | 기대 KPI (ROAS/Lock-in) |
+|---|---|---|
+| (기업명) | (모델명) | (수치) |
+
+※ **Tone & Manner**: 객관적, 비판적, 수치 기반(Evidence-based).
+※ **Format**: **모든 섹션은 가독성을 위해 불렛 포인트(-) 위주로 작성.** 한 문단이 3줄을 넘지 않도록 문장 길이를 조절하십시오.
 """

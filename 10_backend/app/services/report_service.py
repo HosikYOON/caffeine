@@ -23,10 +23,10 @@ import io
 import matplotlib.pyplot as plt
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.lib.pagesizes import A4
+from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable, PageBreak
 
 # 한글 폰트 설정 (윈도우 기본 맑은 고딕)
 FONT_PATH = "C:\\Windows\\Fonts\\malgun.ttf"
@@ -50,7 +50,7 @@ def generate_category_pie_chart(top_categories: list) -> io.BytesIO:
     # 세련된 인디고/슬레이트 컬러 팔레트
     colors_palette = ['#4338ca', '#6366f1', '#818cf8', '#a5b4fc', '#e2e8f0']
     
-    fig, ax = plt.subplots(figsize=(6, 4))
+    fig, ax = plt.subplots(figsize=(10, 4)) # Wider for landscape
     
     # 폰트 설정 (맑은 고딕)
     plt.rcParams['font.family'] = 'Malgun Gothic'
@@ -91,329 +91,601 @@ def generate_category_pie_chart(top_categories: list) -> io.BytesIO:
     
     return img_buffer
 
+def generate_daily_bar_chart(daily_data: list) -> io.BytesIO:
+    """
+    일별 지출 데이터를 막대 그래프로 생성합니다.
+    """
+    if not daily_data:
+        return None
+        
+    # 날짜 포맷팅 (예: 01/01)
+    dates = [d['date'].strftime('%m/%d') for d in daily_data]
+    amounts = [d['amount'] for d in daily_data]
+    
+    # 그래프 스타일 설정 (가로형 슬라이드에 맞춰 더 넓게)
+    fig, ax = plt.subplots(figsize=(10, 4))
+    plt.rcParams['font.family'] = 'Malgun Gothic'
+    
+    # 막대 그래프 생성
+    bars = ax.bar(dates, amounts, color='#e0e7ff', width=0.6)
+
+    # 값 표시
+    for bar in bars:
+        yval = bar.get_height()
+        ax.text(bar.get_x() + bar.get_width()/2, yval + 500, f'{int(yval):,}', ha='center', va='bottom', fontsize=8, color='#475569')
+
+    ax.set_title('일별 지출 추이', fontsize=14, color='#1e293b', pad=15)
+    ax.set_ylabel('금액 (원)', fontsize=10, color='#475569')
+    ax.set_xticks(range(len(dates)))
+    ax.set_xticklabels(dates, rotation=45, ha='right', fontsize=9)
+    ax.tick_params(axis='y', labelsize=9)
+    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: format(int(x), ','))) # y축 금액 콤마
+    ax.set_facecolor('#f8fafc') # 배경색
+    ax.grid(axis='y', linestyle='--', alpha=0.7) # y축 그리드
+    
+    plt.tight_layout()
+    
+    # 메모리 버퍼에 저장
+    img_buffer = io.BytesIO()
+    plt.savefig(img_buffer, format='png', dpi=150, transparent=True)
+    img_buffer.seek(0)
+    plt.close()
+    
+    return img_buffer
+
 def generate_report_pdf(report_type: str, report_data: Dict[str, Any], output_path: str):
     """
-    리포트 데이터를 바탕으로 전문적인 PDF 파일을 생성합니다.
+    리포트 데이터를 바탕으로 '프레젠테이션 슬라이드 덱(Slide Deck)' 형태의 PDF를 생성합니다.
+    (가로형 A4, 큰 폰트, 페이지 넘김 구조)
     """
-    doc = SimpleDocTemplate(output_path, pagesize=A4)
+    # 가로형 A4 설정
+    doc = SimpleDocTemplate(output_path, pagesize=landscape(A4), topMargin=40, bottomMargin=40, leftMargin=50, rightMargin=50)
     styles = getSampleStyleSheet()
     
-    # 맞춤형 스타일 정의
-    korean_style = ParagraphStyle(
-        'KoreanStyle',
-        parent=styles['Normal'],
-        fontName='MalgunGothic',
-        fontSize=10,
-        leading=14,
-        wordWrap='CJK'
-    )
+    # --- Presentation Styles Definition ---
+    # 슬라이드용 큰 폰트 스타일 정의
     
+    # 1. Slide Title (Main Cover)
     title_style = ParagraphStyle(
-        'TitleStyle',
+        'SlideTitle',
         parent=styles['Title'],
         fontName='MalgunGothicBold',
-        fontSize=24,
-        leading=28,
-        spaceAfter=20,
-        textColor=colors.HexColor("#1a202c")
+        fontSize=42, # Presentation Scale
+        leading=50,
+        alignment=1, # Center
+        spaceAfter=30,
+        textColor=colors.HexColor("#1e293b")
     )
     
-    sub_title_style = ParagraphStyle(
-        'SubTitleStyle',
-        parent=styles['Heading2'],
+    # 2. Slide Heading (Page Title)
+    slide_heading_style = ParagraphStyle(
+        'SlideHeading',
+        parent=styles['Heading1'],
         fontName='MalgunGothicBold',
-        fontSize=16,
-        leading=20,
-        spaceBefore=15,
-        spaceAfter=10,
-        textColor=colors.HexColor("#667eea")
+        fontSize=28,
+        leading=34,
+        textColor=colors.HexColor("#4338ca"), # Indigo Primary
+        spaceAfter=20,
+        spaceBefore=10
+    )
+    
+    # 3. Slide Body (Main Text)
+    slide_body_style = ParagraphStyle(
+        'SlideBody',
+        parent=styles['Normal'],
+        fontName='MalgunGothic',
+        fontSize=14, # 가독성 확보
+        leading=22,
+        spaceAfter=12
     )
 
-    # 가운데 정렬 스타일 추가
-    korean_center_style = ParagraphStyle(
-        'KoreanCenterStyle',
-        parent=korean_style,
-        alignment=1 # 1: CENTER
+    # 4. Slide Bullet (List)
+    slide_bullet_style = ParagraphStyle(
+        'SlideBullet',
+        parent=slide_body_style,
+        leftIndent=24,
+        firstLineIndent=-24,
+        spaceAfter=8
+    )
+
+    # 5. Centered Body
+    slide_center_style = ParagraphStyle(
+        'SlideCenter',
+        parent=slide_body_style,
+        alignment=1
     )
     
     elements = []
     
-    # AI 인사이트에서 헤드라인 추출
-    ai_raw_content = report_data.get('ai_insight', "AI 분석 결과가 없습니다.")
+    # --- SLIDE 1: Title Page ---
+    elements.append(Spacer(1, 100))
+    elements.append(Paragraph(f"Caffeine {report_type}", title_style))
+    elements.append(Paragraph("Strategic Business Report", 
+        ParagraphStyle('Sub', parent=title_style, fontSize=24, textColor=colors.HexColor("#64748b"))))
+    elements.append(Spacer(1, 40))
+    elements.append(HRFlowable(width="60%", thickness=2, color=colors.HexColor("#4338ca")))
+    elements.append(Spacer(1, 20))
+    elements.append(Paragraph(f"Period: {report_data['period_start']} ~ {report_data['period_end']}", 
+        ParagraphStyle('Period', parent=slide_center_style, fontSize=16, textColor=colors.HexColor("#475569"))))
     
-    # [긴급/최종] 절대 사용 금지어 필터링 (사용자 피드백 반영)
-    forbidden_map = {
-        "결론 및 제언": "종합 성장 전략",
-        "제언": "전략",
-        "액션 아이템": "핵심 과제",
-        "액션아이템": "핵심 과제",
-        "비즈니스 액션": "실행 전략",
-        "제고": "강화",
-        "도모": "추진"
-    }
-    for old, new in forbidden_map.items():
-        ai_raw_content = ai_raw_content.replace(old, new)
+    elements.append(PageBreak()) # Next Slide
     
-    # AI 헤드라인 정규표현식 추출 (다양한 형식 대응: # [HEADLINE], [HEADLINE], \[HEADLINE] 등)
-    headline_text = ""
-    import re
-    headline_match = re.search(r'(?:#\s*)?\\?\[HEADLINE\]\s*(.*)', ai_raw_content)
-    if headline_match:
-        headline_text = headline_match.group(1).split('\n')[0].strip().strip('"')
-        # 본문에서 헤드라인 부분 제거
-        ai_raw_content = ai_raw_content.replace(headline_match.group(0), "").strip()
+    # --- SLIDE 2: Key Metrics & Financial Summary ---
+    elements.append(Paragraph("1. Financial Overview (핵심 지표)", slide_heading_style))
+    elements.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#e2e8f0"), spaceAfter=20))
     
-    # 1. 제목 및 기간
-    elements.append(Paragraph(f"Caffeine {report_type} 분석 리포트", title_style))
-    
-    # AI 헤드라인 강조 배치
-    if headline_text:
-        headline_style = ParagraphStyle(
-            'HeadlineStyle',
-            parent=korean_style,
-            fontSize=24, # 1.5배 이상 상향 (기존 16)
-            fontName='MalgunGothicBold',
-            textColor=colors.HexColor("#4338ca"),
-            alignment=1, # Center
-            spaceBefore=10,
-            spaceAfter=20,
-            borderPadding=15,
-            backgroundColor=colors.HexColor("#eef2ff"),
-            borderRadius=10
-        )
-        # 큰 따옴표로 감싸기
-        elements.append(Paragraph(f'"{headline_text}"', headline_style))
-    else:
-        elements.append(Paragraph(f"분석 기간: {report_data['period_start']} ~ {report_data['period_end']}", korean_style))
-    
-    # 상단 구분선
-    elements.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#667eea"), spaceBefore=5, spaceAfter=15))
-    
-    # 2. 지출 하이라이트 (신규 추가: 상단 카드)
-    if report_data.get('max_transaction'):
-        max_tx = report_data['max_transaction']
-        elements.append(Paragraph("✨ 이번 기간 지출 하이라이트", sub_title_style))
-        
-        highlight_data = [[
-            Paragraph(f"<font size='12' color='#4338ca'><b>최대 지출 내역</b></font><br/><br/>"
-                      f"<font size='20' color='#1a202c'><b>{max_tx['merchant_name']}</b></font><br/>"
-                      f"<font size='11' color='#64748b'>{max_tx['date']} | {max_tx['category']}</font>", korean_style),
-            Paragraph(f"<font size='10' color='#64748b'>결제 금액</font><br/><br/>"
-                      f"<font size='22' color='#e53e3e'><b>{int(max_tx['amount']):,}원</b></font>", ParagraphStyle('RightAlign', parent=korean_style, alignment=2))
-        ]]
-        
-        highlight_table = Table(highlight_data, colWidths=[300, 160])
-        highlight_table.setStyle(TableStyle([
-            ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#f8fafc")),
-            ('BORDER', (0,0), (-1,-1), 1, colors.HexColor("#e2e8f0")),
-            ('ROUNDEDCORNERS', [10, 10, 10, 10]),
-            ('LEFTPADDING', (0,0), (-1,-1), 20),
-            ('RIGHTPADDING', (0,0), (-1,-1), 20),
-            ('TOPPADDING', (0,0), (-1,-1), 15),
-            ('BOTTOMPADDING', (0,0), (-1,-1), 15),
-            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-        ]))
-        elements.append(highlight_table)
-        elements.append(Spacer(1, 25))
-
-    # 3. 핵심 지표 요약 (표 형식)
-    elements.append(Paragraph("📊 핵심 지표 요약", sub_title_style))
-    
+    # Summary Table
     change_rate = report_data.get('change_rate', 0)
-    pos_color = colors.HexColor("#e53e3e")
-    neg_color = colors.HexColor("#38a169")
-    neutral_color = colors.HexColor("#475569")
-    
     hex_color_str = "#e53e3e" if change_rate > 0 else "#38a169" if change_rate < 0 else "#475569"
     
     summary_data = [
-        [Paragraph("<b>항목</b>", korean_center_style), Paragraph("<b>내용</b>", korean_center_style)],
-        [Paragraph("총 소비 금액", korean_center_style), Paragraph(f"KRW {int(report_data['total_amount']):,}", korean_center_style)],
-        [Paragraph("총 거래 건수", korean_center_style), Paragraph(f"{report_data['transaction_count']}건", korean_center_style)],
-        [Paragraph("전기 대비 변동", korean_center_style), Paragraph(f"<font color='{hex_color_str}'><b>{change_rate}%</b></font>", korean_center_style)]
+        [Paragraph("총 소비 금액", slide_center_style), Paragraph("총 거래 건수", slide_center_style), Paragraph("전기 대비 변동", slide_center_style)],
+        [
+            Paragraph(f"KRW {int(report_data['total_amount']):,}", 
+                      ParagraphStyle('BigNum', parent=slide_center_style, fontSize=24, fontName='MalgunGothicBold')),
+            Paragraph(f"{report_data['transaction_count']}건", 
+                      ParagraphStyle('BigNum', parent=slide_center_style, fontSize=24, fontName='MalgunGothicBold')),
+            Paragraph(f"<font color='{hex_color_str}'>{change_rate}%</font>", 
+                      ParagraphStyle('BigNum', parent=slide_center_style, fontSize=24, fontName='MalgunGothicBold'))
+        ]
     ]
     
-    summary_table = Table(summary_data, colWidths=[150, 300])
-    summary_table.setStyle(TableStyle([
-        ('FONTNAME', (0,0), (-1,-1), 'MalgunGothic'),
-        ('FONTSIZE', (0,0), (-1,-1), 10),
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#f8fafc")),
-        ('TEXTCOLOR', (0,0), (-1,0), colors.HexColor("#475569")),
+    t_summary = Table(summary_data, colWidths=[200, 200, 200])
+    t_summary.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#f1f5f9")),
         ('ALIGN', (0,0), (-1,-1), 'CENTER'),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#e2e8f0")),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 12),
-        ('TOPPADDING', (0,0), (-1,-1), 12),
+        ('GRID', (0,0), (-1,-1), 1, colors.HexColor("#e2e8f0")),
+        ('TOPPADDING', (0,0), (-1,-1), 20),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 20),
     ]))
-    elements.append(summary_table)
-    elements.append(Spacer(1, 30))
+    elements.append(t_summary)
     
-    # 3. 비주얼 분석 (그래프 추가)
+    # Highlights (Max Transaction)
+    elements.append(Spacer(1, 30))
+    if report_data.get('max_transaction'):
+        max_tx = report_data['max_transaction']
+        elements.append(Paragraph(f"💡 <b>최대 지출 발생</b>: {max_tx['merchant_name']} ({int(max_tx['amount']):,}원) - {max_tx['category']}", 
+                                  ParagraphStyle('Highlight', parent=slide_body_style, backColor=colors.HexColor("#fff7ed"), borderPadding=10, borderRadius=8)))
+    
+    # Add Daily Chart here for quick view
+    if report_data.get('daily_spending'):
+        elements.append(Spacer(1, 20))
+        daily_chart = generate_daily_bar_chart(report_data['daily_spending'])
+        if daily_chart:
+            from reportlab.platypus import Image
+            # 가로형에 맞춰 더 넓게 배치
+            img = Image(daily_chart, width=600, height=220) 
+            elements.append(img)
+            
+    elements.append(PageBreak()) # Next Slide
+
+    # --- SLIDE 3: Category Analysis ---
+    elements.append(Paragraph("2. Category & Spending Breakdown (지출 구성)", slide_heading_style))
+    elements.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#e2e8f0"), spaceAfter=20))
+    
+    # Layout: Left (Chart) / Right (Table)? ReportLab doesn't do columns easily without Frames.
+    # Just stack them for simplicity in Slide format.
+    
     if report_data.get('top_categories'):
-        elements.append(Paragraph("📊 카테고리별 지출 비중", sub_title_style))
+        # 1. Pie Chart
         chart_buffer = generate_category_pie_chart(report_data['top_categories'])
         if chart_buffer:
             from reportlab.platypus import Image
-            img = Image(chart_buffer, width=400, height=260)
-            img.hAlign = 'CENTER'
+            img = Image(chart_buffer, width=400, height=300)
+            img.hAlign = 'CENTER' # Centered
             elements.append(img)
             elements.append(Spacer(1, 20))
+            
+        # 2. Top Categories Table
+        cat_data = [[
+            Paragraph("<b>순위</b>", slide_center_style), 
+            Paragraph("<b>카테고리</b>", slide_center_style), 
+            Paragraph("<b>금액</b>", slide_center_style), 
+            Paragraph("<b>비중</b>", slide_center_style)
+        ]]
+        for i, cat in enumerate(report_data['top_categories'], 1):
+            if i > 5: break # Top 5 only
+            cat_data.append([
+                Paragraph(str(i), slide_center_style),
+                Paragraph(cat['name'], slide_center_style),
+                Paragraph(f"{int(cat['amount']):,}원", slide_center_style),
+                Paragraph(f"{cat['percent']:.1f}%", slide_center_style)
+            ])
+            
+        t_cat = Table(cat_data, colWidths=[60, 200, 200, 100])
+        t_cat.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#f8fafc")),
+            ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#cbd5e1")),
+            ('PADDING', (0,0), (-1,-1), 10),
+        ]))
+        elements.append(t_cat)
+        
+    elements.append(PageBreak()) # Next Slide
+    
+    # --- SLIDE 4 ~ N: AI Strategy Insights ---
+    # AI 내용을 파싱하여 슬라이드별로 분배
+    ai_raw_content = report_data.get('ai_insight', "")
+    
+    # 헤드라인 추출
+    import re
+    headline_text = ""
+    headline_match = re.search(r'(?:#\s*)?\\?\[HEADLINE\]\s*(.*)', ai_raw_content)
+    if headline_match:
+        headline_text = headline_match.group(1).split('\n')[0].strip().strip('"')
+        ai_raw_content = ai_raw_content.replace(headline_match.group(0), "").strip()
 
-    # 4. 상위 소비 카테고리
-    elements.append(Paragraph("📈 상세 지출 순위", sub_title_style))
-    cat_data = [[
-        Paragraph("<b>순위</b>", korean_center_style), 
-        Paragraph("<b>카테고리</b>", korean_center_style), 
-        Paragraph("<b>금액</b>", korean_center_style), 
-        Paragraph("<b>건수</b>", korean_center_style), 
-        Paragraph("<b>비중</b>", korean_center_style)
-    ]]
-    for i, cat in enumerate(report_data['top_categories'], 1):
-        cat_data.append([
-            Paragraph(str(i), korean_center_style),
-            Paragraph(cat['name'], korean_center_style),
-            Paragraph(f"{int(cat['amount']):,}원", korean_center_style),
-            Paragraph(f"{cat['count']}건", korean_center_style),
-            Paragraph(f"{cat['percent']:.1f}%", korean_center_style)
-        ])
+    # 4-1. Headline Slide (Impact)
+    if headline_text:
+        elements.append(Spacer(1, 100))
+        elements.append(Paragraph("AI Business Insight", 
+            ParagraphStyle('SuperTitle', parent=title_style, fontSize=24, textColor=colors.HexColor("#6366f1"))))
+        elements.append(Spacer(1, 20))
+        elements.append(Paragraph(f'"{headline_text}"', 
+            ParagraphStyle('HeadlineMain', parent=title_style, fontSize=36, leading=46, textColor=colors.HexColor("#1e293b"))))
+        elements.append(PageBreak())
+
+    # 4-2. Content Slides
+    # AI 텍스트 라인 파싱 -> '## ' 헤더를 만나면 PageBreak
     
-    cat_table = Table(cat_data, colWidths=[50, 110, 120, 80, 90])
-    cat_table.setStyle(TableStyle([
-        ('FONTNAME', (0,0), (-1,-1), 'MalgunGothic'),
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#f8fafc")),
-        ('TEXTCOLOR', (0,0), (-1,0), colors.HexColor("#475569")),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#e2e8f0")),
-        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-        ('PADDING', (0,0), (-1,-1), 10),
-    ]))
-    elements.append(cat_table)
-    elements.append(Spacer(1, 25))
-    
-    # 4. AI 비즈니스 인사이트 (가장 중요)
-    elements.append(Paragraph("💡 AI 비즈니스 인사이트", sub_title_style))
-    elements.append(Spacer(1, 15)) # 겹침 방지를 위한 명확한 여백 고정
-    
-    # 이미 상단에서 필터링 및 헤드라인 추출이 완료된 ai_raw_content 사용
-    
-    # AI 박스 내부에 들어갈 요소들 구성
-    ai_elements = []
-    
-    # 텍스트 강조 컬러 정의 (Indigo-700 계열)
-    accent_color = "#4338ca"
-    
-    # 마크다운 문법 처리 및 스타일링
     lines = ai_raw_content.split('\n')
+    
+    # 테이블 파싱용
+    table_buffer = []
+    
+    current_slide_elements = [] # 현재 슬라이드에 담길 요소들
+    first_header_seen = False
+
     for line in lines:
         stripped_line = line.strip()
+        
+        # --- 테이블 처리 로직 (기존과 동일) ---
+        if stripped_line.startswith('|'):
+            table_buffer.append(stripped_line)
+            continue
+        
+        if table_buffer and not stripped_line.startswith('|'): # 테이블 버퍼에 내용이 있는데 일반 라인을 만난 경우
+            # 테이블 가공 및 렌더링
+            table_rows = []
+            for row in table_buffer:
+                 if '---' in row: continue
+                 cells = [c.strip() for c in row.split('|') if c.strip()]
+                 if cells:
+                     # 테이블 셀 폰트도 조금 키움 (11pt)
+                     p_cells = [Paragraph(c, ParagraphStyle('TC', parent=slide_body_style, fontSize=11)) for c in cells]
+                     table_rows.append(p_cells)
+            
+            if table_rows:
+                # Landscape 넓이 활용 (700px)
+                col_w = 700 / len(table_rows[0])
+                t = Table(table_rows, colWidths=[col_w] * len(table_rows[0]))
+                t.setStyle(TableStyle([
+                    ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#e0e7ff")),
+                    ('TEXTCOLOR', (0,0), (-1,0), colors.HexColor("#4338ca")),
+                    ('ALIGN', (0,0), (-1,-1), 'CENTER'), 
+                    ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+                    ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#cbd5e1")),
+                    ('PADDING', (0,0), (-1,-1), 8)
+                ]))
+                current_slide_elements.append(t)
+                current_slide_elements.append(Spacer(1, 15))
+            table_buffer = [] # 초기화
+
         if not stripped_line:
-            ai_elements.append(Spacer(1, 10))
             continue
             
-        # 강조 표시 (<b> 태그 + 색상 적용) - 상위에서 먼저 처리
-        import re
-        # **텍스트** 를 강조 컬러와 굵은 글씨로 변환
-        line_content = re.sub(r'\*\*(.*?)\*\*', f'<font color="{accent_color}"><b>\\1</b></font>', stripped_line)
-        
-        # 계층 구조 파악 (공백으로 시작하는지 확인)
-        is_indented = line.startswith(' ') or line.startswith('\t')
-        
-        # 헤더 처리 (## 제목 등)
+        # --- 헤더 감지 -> 새 슬라이드 ---
         if stripped_line.startswith('## '):
-            header_style = ParagraphStyle(
-                'AIHeader',
-                parent=korean_style,
-                fontSize=13,
-                fontName='MalgunGothicBold',
-                leading=20,
-                spaceBefore=15,
-                spaceAfter=8,
-                textColor=colors.HexColor(accent_color),
-                leftIndent=10,
-                borderColor=colors.HexColor("#667eea"),
-                borderLeftWidth=2,
-                borderPadding=5
-            )
-            ai_elements.append(Paragraph(line_content.replace('## ', ''), header_style))
-        elif stripped_line.startswith('# '):
-            header_style = ParagraphStyle(
-                'AIHeaderMain',
-                parent=korean_style,
-                fontSize=15,
-                fontName='MalgunGothicBold',
-                leading=22,
-                spaceBefore=18,
-                spaceAfter=10,
-                textColor=colors.HexColor(accent_color),
-                borderLeftWidth=4,
-                borderPadding=10,
-                borderColor=colors.HexColor(accent_color)
-            )
-            ai_elements.append(Paragraph(line_content.replace('# ', ''), header_style))
+            # 이전 슬라이드 요소들 확정 (첫 헤더가 아니면 PageBreak 추가)
+            if first_header_seen:
+                elements.extend(current_slide_elements)
+                elements.append(PageBreak())
+                current_slide_elements = []
             
-        # 리스트 처리
-        elif stripped_line.startswith('- ') or stripped_line.startswith('* '):
-            content = line_content[2:]
+            first_header_seen = True
             
-            if is_indented:
-                # 하위 카테고리 (Level 2)
-                sub_bullet_style = ParagraphStyle(
-                    'AISubBullet',
-                    parent=korean_style,
-                    fontSize=10,
-                    leading=16,
-                    leftIndent=35,
-                    firstLineIndent=-15,
-                    spaceAfter=4
-                )
-                ai_elements.append(Paragraph(f"- {content}", sub_bullet_style))
-            else:
-                # 상위 카테고리 (Level 1)
-                bullet_style = ParagraphStyle(
-                    'AIBullet',
-                    parent=korean_style,
-                    fontSize=11,
-                    fontName='MalgunGothicBold', # 상위 카테고리는 볼드 처리
-                    leading=18,
-                    leftIndent=20,
-                    firstLineIndent=-15,
-                    spaceAfter=6
-                )
-                ai_elements.append(Paragraph(f"• {content}", bullet_style))
-                
-        # 일반 본문
+            header_text = stripped_line.replace('## ', '').strip()
+            # 슬라이드 제목 스타일
+            current_slide_elements.append(Paragraph(header_text, slide_heading_style))
+            current_slide_elements.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#e2e8f0"), spaceAfter=20))
+            
+        elif stripped_line.startswith('# '): # 혹시 모를 H1
+             pass # 무시하거나 일반 텍스트로 처리
+             
+        # --- 리스트 및 본문 ---
         else:
-            body_style = ParagraphStyle(
-                'AIBody',
-                parent=korean_style,
-                fontSize=10.5,
-                leading=17,
-                alignment=0, # LEFT
-                spaceBefore=2,
-                spaceAfter=5,
-                leftIndent=10
-            )
-            ai_elements.append(Paragraph(line_content, body_style))
+            # 강조 문법 처리 (** **)
+            import re
+            accent_color = "#4338ca"
+            line_content = re.sub(r'\*\*(.*?)\*\*', f'<font color="{accent_color}"><b>\\1</b></font>', stripped_line)
             
-    # AI 컨텐츠 직접 추가 (테이블 래핑 제거하여 LayoutError 방지)
-    for ai_el in ai_elements:
-        elements.append(ai_el)
-    
-    # 5. 푸터 (Footer) 추가
-    elements.append(Spacer(1, 40))
-    footer_style = ParagraphStyle(
-        'FooterStyle',
-        parent=korean_style,
-        fontSize=8,
-        textColor=colors.grey,
-        alignment=1 # Center
-    )
-    elements.append(Paragraph("본 리포트는 Caffeine AI 분석 엔진에 의해 자동으로 생성되었습니다.", footer_style))
-    elements.append(Paragraph("© 2025 Caffeine Financial Platform. All rights reserved.", footer_style))
-    
-    # PDF 생성
+            if stripped_line.startswith('- ') or stripped_line.startswith('* '):
+                 content = line_content[2:]
+                 current_slide_elements.append(Paragraph(f"• {content}", slide_bullet_style))
+            else:
+                 current_slide_elements.append(Paragraph(line_content, slide_body_style))
+
+    # 마지막 슬라이드 요소 추가
+    if current_slide_elements:
+        elements.extend(current_slide_elements)
+        
+    # --- Footer Slide ---
+    elements.append(PageBreak())
+    elements.append(Spacer(1, 200))
+    elements.append(Paragraph("End of Report", 
+        ParagraphStyle('End', parent=title_style, fontSize=24, textColor=colors.HexColor("#cbd5e1"))))
+    elements.append(Paragraph("Generative AI Powered Business Intelligence", 
+        ParagraphStyle('EndSub', parent=slide_center_style, fontSize=12, textColor=colors.HexColor("#94a3b8"))))
+
+    # Build PDF
     doc.build(elements)
-    logger.info(f"PDF Report generated: {output_path}")
+    logger.info(f"Slide Deck PDF generated: {output_path}")
+
+def generate_report_html_slide(report_data: Dict[str, Any], title: str = "Monthly Business Review") -> str:
+    """
+    CEO/C-Level 대상의 프리미엄 전략 보고서를 HTML Slide Deck으로 생성합니다. (Light Theme, 7 Slides)
+    
+    Args:
+        report_data: 리포트 데이터
+        title: 리포트 타이틀 (예: Monthly Business Review, Weekly Business Review)
+    """
+    # 1. 데이터 전처리
+    change_rate = report_data.get('change_rate', 0)
+    change_color = "#e53e3e" if change_rate > 0 else "#2f855a" if change_rate < 0 else "#718096"
+    arrow = "▲" if change_rate > 0 else "▼" if change_rate < 0 else "-"
+    
+    total_amount = int(report_data['total_amount'])
+    tx_count = report_data['transaction_count']
+    avg_ticket = int(total_amount / tx_count) if tx_count else 0
+    
+    max_tx = report_data.get('max_transaction', {})
+    max_tx_desc = f"{max_tx.get('merchant_name','-')} ({int(max_tx.get('amount',0)):,}원)"
+    
+    # 2. AI 인사이트 파싱 (4개 섹션)
+    ai_raw = report_data.get('ai_insight', "")
+    import re
+    import markdown
+    
+    sections = {
+        "exec_summary": r"## 1\. Executive Summary(.*?)(?=## 2\.|$)",
+        "b2c_insight": r"## 2\. B2C Consumer Insight(.*?)(?=## 3\.|$)",
+        "b2b_strategy": r"## 3\. B2B Partnership Strategy(.*?)(?=## 4\.|$)",
+        "metrics": r"## 4\. Partnership Metrics(.*?)(?=$)"
+    }
+    
+    parsed_content = {}
+    for key, pattern in sections.items():
+        match = re.search(pattern, ai_raw, re.DOTALL)
+        if match:
+            # Markdown -> HTML 변환
+            html_part = markdown.markdown(match.group(1).strip(), extensions=['tables'])
+            parsed_content[key] = html_part
+        else:
+            parsed_content[key] = "<p>데이터 부족으로 분석이 생략되었습니다.</p>"
+
+    # 3. HTML 템플릿 (Refined Light Mode Theme - White/Blue/Black)
+    return f"""<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caffeine Strategic Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {{
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --text-primary: #1a202c; /* Black (Dark Gray) */
+            --text-secondary: #4a5568;
+            --accent: #2563eb; /* Tech Blue */
+            --accent-light: #eff6ff; /* Very Light Blue */
+            --border: #e2e8f0;
+            --success: #2f855a;
+            --danger: #e53e3e;
+        }}
+        * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+        body {{
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }}
+        .slide {{
+            width: 100vw; height: 100vh;
+            max-width: 1280px; max-height: 720px;
+            margin: 0 auto;
+            position: relative;
+            padding: 50px 70px;
+            display: flex; flex-direction: column;
+            border-bottom: 2px solid var(--border);
+            page-break-after: always;
+            background: #fff;
+        }}
+        
+        /* Typography Rules for Readability */
+        h1 {{ font-family: 'Poppins', sans-serif; font-size: 3.5rem; font-weight: 800; line-height: 1.1; margin-bottom: 20px; color: #000; letter-spacing: -1px; word-break: keep-all; }}
+        h2 {{ font-family: 'Poppins', sans-serif; font-size: 2.2rem; font-weight: 700; color: #000; margin-bottom: 30px; display: flex; align-items: center; gap: 12px; word-break: keep-all; }}
+        h3 {{ font-size: 1.4rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 15px; word-break: keep-all; }}
+        
+        /* Body Text Alignment & Constraints */
+        p, li {{ 
+            font-size: 1.15rem; 
+            line-height: 1.8; /* 줄 간격 확대 */
+            color: #2d3748; 
+            list-style-position: outside; /* 들여쓰기 정렬 */
+            word-break: keep-all; 
+            text-align: left; /* 좌측 정렬로 변경 (가독성 UP) */
+            letter-spacing: -0.02em; /* 자간 축소 */
+            margin-bottom: 15px;
+        }}
+        li {{ margin-left: 20px; }}
+        ul {{ max-width: 950px; }} /* 텍스트 라인 길이 제한 */
+        
+        /* Components */
+        .badge {{ background: var(--accent-light); color: var(--accent); padding: 6px 16px; border-radius: 30px; font-size: 0.9rem; font-weight: 700; display: inline-block; margin-bottom: 20px; }}
+        .header-line {{ width: 60px; height: 6px; background: var(--accent); margin-bottom: 40px; border-radius: 3px; }}
+        
+        /* KPI Cards */
+        .kpi-container {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 40px; }}
+        .kpi-card {{ background: var(--bg-secondary); padding: 30px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }}
+        .kpi-title {{ font-size: 0.95rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 15px; }}
+        .kpi-value {{ font-family: 'Poppins', sans-serif; font-size: 2.5rem; font-weight: 700; color: #000; }}
+        .kpi-sub {{ font-size: 0.9rem; margin-top: 10px; font-weight: 500; display: flex; align-items: center; gap: 4px; }}
+        
+        /* Tables (Sophisticated Look) */
+        table {{ width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 20px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }}
+        th {{ background: #f1f5f9; text-align: left; padding: 20px; font-weight: 700; color: #334155; border-bottom: 1px solid var(--border); letter-spacing: 0.5px; }}
+        td {{ padding: 20px; border-bottom: 1px solid var(--border); color: #1a202c; font-size: 1.05rem; background: #fff; }}
+        tr:last-child td {{ border-bottom: none; }}
+        
+        /* Visual Elements */
+        .pie-container {{ display: flex; align-items: center; justify-content: center; height: 400px; gap: 60px; }}
+        .content-box {{ background: var(--bg-secondary); padding: 40px 50px; border-radius: 20px; border-left: 6px solid var(--accent); height: 100%; overflow-y: auto; }}
+        .content-box strong {{ color: #1a202c; font-weight: 700; background: linear-gradient(120deg, #dbeafe 0%, #dbeafe 100%); background-repeat: no-repeat; background-size: 100% 40%; background-position: 0 88%; padding: 0 4px; }}
+        
+        .footer-page {{ position: absolute; bottom: 40px; right: 60px; font-size: 0.9rem; color: #cbd5e0; font-weight: 600; }}
+    </style>
+</head>
+<body>
+
+    <!-- Slide 1: Title -->
+    <div class="slide" style="justify-content: center;">
+        <span class="badge">CONFIDENTIAL • STRATEGIC REPORT</span>
+        <h1>Vertex AI<br>Command Center</h1>
+        <div class="header-line"></div>
+        <p style="font-size: 1.5rem; color: var(--text-secondary);">{title}<br>{report_data['period_start']} — {report_data['period_end']}</p>
+        <div style="margin-top: 60px; display: flex; gap: 20px;">
+             <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--accent);">
+                <i data-lucide="shield-check"></i> Verified by Vertex AI
+             </div>
+        </div>
+        <div class="footer-page">01</div>
+    </div>
+
+    <!-- Slide 2: Executive Summary -->
+    <div class="slide">
+        <span class="badge">EXEC SUMMARY</span>
+        <h2><i data-lucide="activity"></i> Management Brief</h2>
+        <div class="content-box">
+            {parsed_content['exec_summary']}
+        </div>
+        <div class="footer-page">02</div>
+    </div>
+
+    <!-- Slide 3: Financial KPI -->
+    <div class="slide">
+        <span class="badge">FINANCIAL PERFORMANCE</span>
+        <h2><i data-lucide="bar-chart-2"></i> Monthly KPI Dashboard</h2>
+        <div class="kpi-container">
+            <div class="kpi-card">
+                <div class="kpi-title">Total Spending</div>
+                <div class="kpi-value">₩{total_amount:,}</div>
+                <div class="kpi-sub" style="color: {change_color}">
+                    {arrow} {abs(change_rate)}% <span style="color: #64748b; font-weight: 400;">vs last month</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Transactions</div>
+                <div class="kpi-value">{tx_count}</div>
+                <div class="kpi-sub" style="color: var(--text-secondary)">Processed Count</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Avg Ticket</div>
+                <div class="kpi-value">₩{avg_ticket:,}</div>
+                <div class="kpi-sub" style="color: var(--text-secondary)">Per Transaction</div>
+            </div>
+             <div class="kpi-card" style="border-color: var(--danger);">
+                <div class="kpi-title" style="color: var(--danger);">Max Value High</div>
+                <div class="kpi-value" style="font-size: 1.8rem; line-height: 1.4; margin-top:5px;">{int(max_tx.get('amount',0)):,}</div>
+                 <div class="kpi-sub" style="color: var(--text-secondary)">{max_tx.get('category','-')}</div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 25px; background: #fff5f5; border-radius: 12px; display: flex; align-items: center; gap: 20px; border: 1px solid #fed7d7;">
+            <i data-lucide="alert-triangle" style="color: var(--danger); width: 32px; height: 32px;"></i>
+            <div>
+                <strong style="color: #c53030; font-size: 1.1rem; display: block; marginBottom: 5px;">Highest Spending Alert</strong> 
+                <span style="color: #2d3748;">{max_tx.get('merchant_name','-')} 건이 단일 지출 최고액을 기록했습니다. 상세 검토가 필요합니다.</span>
+            </div>
+        </div>
+        
+        <div class="footer-page">03</div>
+    </div>
+    
+    <!-- Slide 4: Market Share (Visual) -->
+    <div class="slide">
+        <span class="badge">MARKET SHARE</span>
+        <h2><i data-lucide="pie-chart"></i> Category Analysis</h2>
+        
+        <div class="content-box" style="display: flex; align-items: center; justify-content: space-around; background: #fff; border: none; padding: 0;">
+             <!-- Pie Chart -->
+             <div style="width: 320px; height: 320px; border-radius: 50%; background: conic-gradient(
+                #2563eb 0% 30%, 
+                #3b82f6 30% 60%, 
+                #60a5fa 60% 80%,
+                #eff6ff 80% 100%
+             ); position: relative; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);">
+                <div style="position: absolute; width: 180px; height: 180px; background: #fff; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                    <div style="font-size: 0.9rem; color: #64748b; font-weight: 600;">TOP 1</div>
+                    <div style="font-size: 1.5rem; font-weight: 800; color: #1a202c;">{report_data.get('top_categories', [{}])[0].get('percent', 0):.1f}%</div>
+                </div>
+             </div>
+             
+             <!-- Legend Table -->
+             <div style="width: 450px;">
+                <table style="margin-top: 0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                    <tr>
+                        <th style="background: #f7fafc;">Category</th>
+                        <th style="background: #f7fafc;">Amount</th>
+                        <th style="background: #f7fafc;">Share</th>
+                    </tr>
+                    {''.join([f"<tr><td>{cat['name']}</td><td>₩{int(cat['amount']):,}</td><td>{cat['percent']:.1f}%</td></tr>" for cat in report_data.get('top_categories', [])[:4]])}
+                </table>
+             </div>
+        </div>
+        <div class="footer-page">04</div>
+    </div>
+
+    <!-- Slide 5: B2C Insight (AI) -->
+    <div class="slide">
+        <span class="badge">USER BEHAVIOR</span>
+        <h2><i data-lucide="users"></i> B2C Consumer Insight</h2>
+        <div class="content-box">
+             {parsed_content['b2c_insight']}
+        </div>
+        <div class="footer-page">05</div>
+    </div>
+    
+    <!-- Slide 6: B2B Strategy (AI) -->
+    <div class="slide">
+        <span class="badge">BUSINESS OPPORTUNITY</span>
+        <h2><i data-lucide="briefcase"></i> B2B Partnership Strategy</h2>
+        <div class="content-box">
+             {parsed_content['b2b_strategy']}
+        </div>
+        <div class="footer-page">06</div>
+    </div>
+    
+    <!-- Slide 7: Partnership Metrics (AI Table) -->
+    <div class="slide">
+        <span class="badge">EXPECTED ROI</span>
+        <h2><i data-lucide="table"></i> Partnership Metrics</h2>
+        <div style="padding: 10px 0;">
+             {parsed_content['metrics']}
+        </div>
+        <p style="margin-top: 20px; color: var(--text-secondary); font-size: 1rem;"><i data-lucide="info"></i> 위 지표는 유사 산업군의 평균 전환율을 기반으로 추산된 예상 수치입니다.</p>
+        <div class="footer-page">07</div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>"""
 
 async def generate_weekly_report(db: AsyncSession) -> Dict[str, Any]:
     """
