@@ -245,14 +245,18 @@ async def send_report_email(
             raise ValueError(error_msg)
         
         # 이메일 메시지 생성
-        message = MIMEMultipart("alternative")
+        message = MIMEMultipart("mixed") # Root는 mixed로 설정 (첨부파일 지원)
         message["Subject"] = subject
         message["From"] = smtp_from
         message["To"] = recipient_email
         
+        # 본문 영역 (Alternative: Plain Text / HTML)
+        msg_body = MIMEMultipart("alternative")
+        message.attach(msg_body)
+
         # HTML 파트 추가
         html_part = MIMEText(html_content, "html", "utf-8")
-        message.attach(html_part)
+        msg_body.attach(html_part)
         
         # 첨부 파일 추가
         if attachments:
