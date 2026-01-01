@@ -9,6 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 import logging
 import json
+import tempfile
+import os
 
 from app.db.database import get_db
 from app.db.model.user import User
@@ -17,7 +19,8 @@ from app.routers.user import get_current_user
 from app.services.report_service import (
     generate_weekly_report,
     generate_monthly_report,
-    format_report_html
+    format_report_html,
+    generate_report_pdf
 )
 from app.services.email_service import send_report_email
 
@@ -56,6 +59,7 @@ async def send_weekly_report_now(
 ):
     """
     주간 리포트를 즉시 생성하고 발송합니다.
+    (PDF 대신 단일 HTML 슬라이드 덱으로 발송)
     
     **권한 필요**: 슈퍼유저
     
@@ -82,25 +86,41 @@ async def send_weekly_report_now(
         
         # 리포트 데이터 생성
         report_data = await generate_weekly_report(db)
-        summary_html = format_report_html(report_data)
         
-        # 이메일 발송
+        # HTML 슬라이드 덱 포맷 생성
+        from app.services.report_service import generate_report_html_slide
+        
+        html_content = generate_report_html_slide(report_data, title="Weekly Business Review")
+        
+        # HTML 파일 임시 저장
         period = f"{report_data['period_start']} ~ {report_data['period_end']}"
-        success, message = await send_report_email(
-            recipient_email=recipient_email,
-            subject=f"[Caffeine] Weeky Report ({period})",
-            report_type="Weekly",
-            period=period,
-            summary_html=summary_html
-        )
+        with tempfile.NamedTemporaryFile(suffix=".html", delete=False, mode='w', encoding='utf-8') as tmp:
+            tmp.write(html_content)
+            html_path = tmp.name
         
-        logger.info(f"Weekly report processing completed: {message}")
+        try:
+            # 이메일 발송 (HTML 파일 첨부)
+            success, message = await send_report_email(
+                recipient_email=recipient_email,
+                subject=f"[Caffeine] Weekly Report ({period})",
+                report_type="Weekly",
+                period=period,
+                summary_html="<p>첨부된 <b>Weekly_Strategy_Deck.html</b> 파일을 <b>크롬 브라우저</b>에서 열어주세요.<br/>PC/모바일 어디서든 완벽한 프레젠테이션 뷰를 제공합니다.</p>",
+                attachments=[html_path]
+            )
+        finally:
+            if os.path.exists(html_path):
+                os.remove(html_path)
+        
+        logger.info(f"Weekly HTML report processing completed: {message}")
         
         return {
             "success": success,
             "message": message,
             "period": period,
-            "recipient": recipient_email
+            "recipient": recipient_email,
+            "has_attachment": True,
+            "file_type": "html"
         }
         
     except ValueError as e:
@@ -126,13 +146,13 @@ async def send_monthly_report_now(
 ):
     """
     월간 리포트를 즉시 생성하고 발송합니다.
+    (PDF 대신 단일 HTML 슬라이드 덱으로 발송)
     
     **권한 필요**: 슈퍼유저
     
     Returns:
         dict: 발송 결과
     """
-    # 슈퍼유저만 접근 가능
     if not current_user.is_superuser:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -152,38 +172,49 @@ async def send_monthly_report_now(
         
         # 리포트 데이터 생성
         report_data = await generate_monthly_report(db)
-        summary_html = format_report_html(report_data)
         
-        # 이메일 발송
+        # HTML 슬라이드 덱 포맷 생성 (generate_report_html_slide 내부에서 스트링 리턴)
+        # report_service.py에 generate_report_html_slide 함수 추가 필요
+        from app.services.report_service import generate_report_html_slide
+        
+        html_content = generate_report_html_slide(report_data)
+        
+        # HTML 파일 임시 저장
+        # 이메일 전송을 위해 파일로 저장
         period = f"{report_data['period_start']} ~ {report_data['period_end']}"
-        success, message = await send_report_email(
-            recipient_email=recipient_email,
-            subject=f"[Caffeine] Monthly Report ({period})",
-            report_type="Monthly",
-            period=period,
-            summary_html=summary_html
-        )
+        with tempfile.NamedTemporaryFile(suffix=".html", delete=False, mode='w', encoding='utf-8') as tmp:
+            tmp.write(html_content)
+            html_path = tmp.name
+            
+        try:
+            # 이메일 발송 (HTML 파일 첨부)
+            success, message = await send_report_email(
+                recipient_email=recipient_email,
+                subject=f"[Vertex AI] Monthly Strategic Report ({period})",
+                report_type="Monthly",
+                period=period,
+                summary_html="<p>첨부된 <b>Strategy_Deck.html</b> 파일을 <b>크롬 브라우저</b>에서 열어주세요.<br/>PC/모바일 어디서든 완벽한 프레젠테이션 뷰를 제공합니다.</p>",
+                attachments=[html_path]
+            )
+        finally:
+            if os.path.exists(html_path):
+                os.remove(html_path)
         
-        logger.info(f"Monthly report processing completed: {message}")
+        logger.info(f"Monthly HTML report processing completed: {message}")
         
         return {
             "success": success,
             "message": message,
             "period": period,
-            "recipient": recipient_email
+            "recipient": recipient_email,
+            "has_attachment": True,
+            "file_type": "html"
         }
     
     except ValueError as e:
-        # SMTP 설정 누락 등 구성 오류
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Monthly report failed: {str(e)}", exc_info=True)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to send report: {str(e)}"
-        )
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed: {str(e)}")

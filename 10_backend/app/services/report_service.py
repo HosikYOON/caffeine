@@ -18,6 +18,674 @@ logger = logging.getLogger(__name__)
 
 
 from app.services.ai_service import call_gemini_api, generate_report_prompt
+import os
+import io
+import matplotlib.pyplot as plt
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable, PageBreak
+
+# 한글 폰트 설정 (윈도우 기본 맑은 고딕)
+FONT_PATH = "C:\\Windows\\Fonts\\malgun.ttf"
+if os.path.exists(FONT_PATH):
+    pdfmetrics.registerFont(TTFont('MalgunGothic', FONT_PATH))
+    pdfmetrics.registerFont(TTFont('MalgunGothicBold', "C:\\Windows\\Fonts\\malgunbd.ttf"))
+else:
+    # 폰트가 없을 경우 기본 폰트 사용 (한글 깨짐 주의)
+    logger.warning("Korean font not found. PDF might have encoding issues.")
+
+def generate_category_pie_chart(top_categories: list) -> io.BytesIO:
+    """
+    카테고리 지출 비중을 도넛형 파이 차트로 생성합니다.
+    """
+    if not top_categories:
+        return None
+        
+    labels = [c['name'] for c in top_categories]
+    sizes = [c['amount'] for c in top_categories]
+    
+    # 세련된 인디고/슬레이트 컬러 팔레트
+    colors_palette = ['#4338ca', '#6366f1', '#818cf8', '#a5b4fc', '#e2e8f0']
+    
+    fig, ax = plt.subplots(figsize=(10, 4)) # Wider for landscape
+    
+    # 폰트 설정 (맑은 고딕)
+    plt.rcParams['font.family'] = 'Malgun Gothic'
+    
+    # 파이 차트 생성 (도넛 형태)
+    wedges, texts, autotexts = ax.pie(
+        sizes, 
+        labels=labels, 
+        autopct='%1.1f%%', 
+        startangle=140, 
+        colors=colors_palette,
+        pctdistance=0.85,
+        explode=[0.05] + [0] * (len(top_categories) - 1), # 가장 큰 조각 살짝 강조
+        textprops={'fontsize': 10, 'color': '#1e293b'}
+    )
+    
+    # 도넛 센터 구멍
+    centre_circle = plt.Circle((0,0), 0.70, fc='white')
+    fig = plt.gcf()
+    fig.gca().add_artist(centre_circle)
+    
+    # 텍스트 스타일링
+    for text in texts:
+        text.set_color('#475569')
+        text.set_weight('bold')
+    for autotext in autotexts:
+        autotext.set_color('white')
+        autotext.set_weight('bold')
+        
+    ax.axis('equal')  # 원형 유지
+    plt.tight_layout()
+    
+    # 메모리 버퍼에 저장
+    img_buffer = io.BytesIO()
+    plt.savefig(img_buffer, format='png', dpi=150, transparent=True)
+    img_buffer.seek(0)
+    plt.close()
+    
+    return img_buffer
+
+def generate_daily_bar_chart(daily_data: list) -> io.BytesIO:
+    """
+    일별 지출 데이터를 막대 그래프로 생성합니다.
+    """
+    if not daily_data:
+        return None
+        
+    # 날짜 포맷팅 (예: 01/01)
+    dates = [d['date'].strftime('%m/%d') for d in daily_data]
+    amounts = [d['amount'] for d in daily_data]
+    
+    # 그래프 스타일 설정 (가로형 슬라이드에 맞춰 더 넓게)
+    fig, ax = plt.subplots(figsize=(10, 4))
+    plt.rcParams['font.family'] = 'Malgun Gothic'
+    
+    # 막대 그래프 생성
+    bars = ax.bar(dates, amounts, color='#e0e7ff', width=0.6)
+
+    # 값 표시
+    for bar in bars:
+        yval = bar.get_height()
+        ax.text(bar.get_x() + bar.get_width()/2, yval + 500, f'{int(yval):,}', ha='center', va='bottom', fontsize=8, color='#475569')
+
+    ax.set_title('일별 지출 추이', fontsize=14, color='#1e293b', pad=15)
+    ax.set_ylabel('금액 (원)', fontsize=10, color='#475569')
+    ax.set_xticks(range(len(dates)))
+    ax.set_xticklabels(dates, rotation=45, ha='right', fontsize=9)
+    ax.tick_params(axis='y', labelsize=9)
+    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: format(int(x), ','))) # y축 금액 콤마
+    ax.set_facecolor('#f8fafc') # 배경색
+    ax.grid(axis='y', linestyle='--', alpha=0.7) # y축 그리드
+    
+    plt.tight_layout()
+    
+    # 메모리 버퍼에 저장
+    img_buffer = io.BytesIO()
+    plt.savefig(img_buffer, format='png', dpi=150, transparent=True)
+    img_buffer.seek(0)
+    plt.close()
+    
+    return img_buffer
+
+def generate_report_pdf(report_type: str, report_data: Dict[str, Any], output_path: str):
+    """
+    리포트 데이터를 바탕으로 '프레젠테이션 슬라이드 덱(Slide Deck)' 형태의 PDF를 생성합니다.
+    (가로형 A4, 큰 폰트, 페이지 넘김 구조)
+    """
+    # 가로형 A4 설정
+    doc = SimpleDocTemplate(output_path, pagesize=landscape(A4), topMargin=40, bottomMargin=40, leftMargin=50, rightMargin=50)
+    styles = getSampleStyleSheet()
+    
+    # --- Presentation Styles Definition ---
+    # 슬라이드용 큰 폰트 스타일 정의
+    
+    # 1. Slide Title (Main Cover)
+    title_style = ParagraphStyle(
+        'SlideTitle',
+        parent=styles['Title'],
+        fontName='MalgunGothicBold',
+        fontSize=42, # Presentation Scale
+        leading=50,
+        alignment=1, # Center
+        spaceAfter=30,
+        textColor=colors.HexColor("#1e293b")
+    )
+    
+    # 2. Slide Heading (Page Title)
+    slide_heading_style = ParagraphStyle(
+        'SlideHeading',
+        parent=styles['Heading1'],
+        fontName='MalgunGothicBold',
+        fontSize=28,
+        leading=34,
+        textColor=colors.HexColor("#4338ca"), # Indigo Primary
+        spaceAfter=20,
+        spaceBefore=10
+    )
+    
+    # 3. Slide Body (Main Text)
+    slide_body_style = ParagraphStyle(
+        'SlideBody',
+        parent=styles['Normal'],
+        fontName='MalgunGothic',
+        fontSize=14, # 가독성 확보
+        leading=22,
+        spaceAfter=12
+    )
+
+    # 4. Slide Bullet (List)
+    slide_bullet_style = ParagraphStyle(
+        'SlideBullet',
+        parent=slide_body_style,
+        leftIndent=24,
+        firstLineIndent=-24,
+        spaceAfter=8
+    )
+
+    # 5. Centered Body
+    slide_center_style = ParagraphStyle(
+        'SlideCenter',
+        parent=slide_body_style,
+        alignment=1
+    )
+    
+    elements = []
+    
+    # --- SLIDE 1: Title Page ---
+    elements.append(Spacer(1, 100))
+    elements.append(Paragraph(f"Caffeine {report_type}", title_style))
+    elements.append(Paragraph("Strategic Business Report", 
+        ParagraphStyle('Sub', parent=title_style, fontSize=24, textColor=colors.HexColor("#64748b"))))
+    elements.append(Spacer(1, 40))
+    elements.append(HRFlowable(width="60%", thickness=2, color=colors.HexColor("#4338ca")))
+    elements.append(Spacer(1, 20))
+    elements.append(Paragraph(f"Period: {report_data['period_start']} ~ {report_data['period_end']}", 
+        ParagraphStyle('Period', parent=slide_center_style, fontSize=16, textColor=colors.HexColor("#475569"))))
+    
+    elements.append(PageBreak()) # Next Slide
+    
+    # --- SLIDE 2: Key Metrics & Financial Summary ---
+    elements.append(Paragraph("1. Financial Overview (핵심 지표)", slide_heading_style))
+    elements.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#e2e8f0"), spaceAfter=20))
+    
+    # Summary Table
+    change_rate = report_data.get('change_rate', 0)
+    hex_color_str = "#e53e3e" if change_rate > 0 else "#38a169" if change_rate < 0 else "#475569"
+    
+    summary_data = [
+        [Paragraph("총 소비 금액", slide_center_style), Paragraph("총 거래 건수", slide_center_style), Paragraph("전기 대비 변동", slide_center_style)],
+        [
+            Paragraph(f"KRW {int(report_data['total_amount']):,}", 
+                      ParagraphStyle('BigNum', parent=slide_center_style, fontSize=24, fontName='MalgunGothicBold')),
+            Paragraph(f"{report_data['transaction_count']}건", 
+                      ParagraphStyle('BigNum', parent=slide_center_style, fontSize=24, fontName='MalgunGothicBold')),
+            Paragraph(f"<font color='{hex_color_str}'>{change_rate}%</font>", 
+                      ParagraphStyle('BigNum', parent=slide_center_style, fontSize=24, fontName='MalgunGothicBold'))
+        ]
+    ]
+    
+    t_summary = Table(summary_data, colWidths=[200, 200, 200])
+    t_summary.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#f1f5f9")),
+        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('GRID', (0,0), (-1,-1), 1, colors.HexColor("#e2e8f0")),
+        ('TOPPADDING', (0,0), (-1,-1), 20),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 20),
+    ]))
+    elements.append(t_summary)
+    
+    # Highlights (Max Transaction)
+    elements.append(Spacer(1, 30))
+    if report_data.get('max_transaction'):
+        max_tx = report_data['max_transaction']
+        elements.append(Paragraph(f"💡 <b>최대 지출 발생</b>: {max_tx['merchant_name']} ({int(max_tx['amount']):,}원) - {max_tx['category']}", 
+                                  ParagraphStyle('Highlight', parent=slide_body_style, backColor=colors.HexColor("#fff7ed"), borderPadding=10, borderRadius=8)))
+    
+    # Add Daily Chart here for quick view
+    if report_data.get('daily_spending'):
+        elements.append(Spacer(1, 20))
+        daily_chart = generate_daily_bar_chart(report_data['daily_spending'])
+        if daily_chart:
+            from reportlab.platypus import Image
+            # 가로형에 맞춰 더 넓게 배치
+            img = Image(daily_chart, width=600, height=220) 
+            elements.append(img)
+            
+    elements.append(PageBreak()) # Next Slide
+
+    # --- SLIDE 3: Category Analysis ---
+    elements.append(Paragraph("2. Category & Spending Breakdown (지출 구성)", slide_heading_style))
+    elements.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#e2e8f0"), spaceAfter=20))
+    
+    # Layout: Left (Chart) / Right (Table)? ReportLab doesn't do columns easily without Frames.
+    # Just stack them for simplicity in Slide format.
+    
+    if report_data.get('top_categories'):
+        # 1. Pie Chart
+        chart_buffer = generate_category_pie_chart(report_data['top_categories'])
+        if chart_buffer:
+            from reportlab.platypus import Image
+            img = Image(chart_buffer, width=400, height=300)
+            img.hAlign = 'CENTER' # Centered
+            elements.append(img)
+            elements.append(Spacer(1, 20))
+            
+        # 2. Top Categories Table
+        cat_data = [[
+            Paragraph("<b>순위</b>", slide_center_style), 
+            Paragraph("<b>카테고리</b>", slide_center_style), 
+            Paragraph("<b>금액</b>", slide_center_style), 
+            Paragraph("<b>비중</b>", slide_center_style)
+        ]]
+        for i, cat in enumerate(report_data['top_categories'], 1):
+            if i > 5: break # Top 5 only
+            cat_data.append([
+                Paragraph(str(i), slide_center_style),
+                Paragraph(cat['name'], slide_center_style),
+                Paragraph(f"{int(cat['amount']):,}원", slide_center_style),
+                Paragraph(f"{cat['percent']:.1f}%", slide_center_style)
+            ])
+            
+        t_cat = Table(cat_data, colWidths=[60, 200, 200, 100])
+        t_cat.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#f8fafc")),
+            ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#cbd5e1")),
+            ('PADDING', (0,0), (-1,-1), 10),
+        ]))
+        elements.append(t_cat)
+        
+    elements.append(PageBreak()) # Next Slide
+    
+    # --- SLIDE 4 ~ N: AI Strategy Insights ---
+    # AI 내용을 파싱하여 슬라이드별로 분배
+    ai_raw_content = report_data.get('ai_insight', "")
+    
+    # 헤드라인 추출
+    import re
+    headline_text = ""
+    headline_match = re.search(r'(?:#\s*)?\\?\[HEADLINE\]\s*(.*)', ai_raw_content)
+    if headline_match:
+        headline_text = headline_match.group(1).split('\n')[0].strip().strip('"')
+        ai_raw_content = ai_raw_content.replace(headline_match.group(0), "").strip()
+
+    # 4-1. Headline Slide (Impact)
+    if headline_text:
+        elements.append(Spacer(1, 100))
+        elements.append(Paragraph("AI Business Insight", 
+            ParagraphStyle('SuperTitle', parent=title_style, fontSize=24, textColor=colors.HexColor("#6366f1"))))
+        elements.append(Spacer(1, 20))
+        elements.append(Paragraph(f'"{headline_text}"', 
+            ParagraphStyle('HeadlineMain', parent=title_style, fontSize=36, leading=46, textColor=colors.HexColor("#1e293b"))))
+        elements.append(PageBreak())
+
+    # 4-2. Content Slides
+    # AI 텍스트 라인 파싱 -> '## ' 헤더를 만나면 PageBreak
+    
+    lines = ai_raw_content.split('\n')
+    
+    # 테이블 파싱용
+    table_buffer = []
+    
+    current_slide_elements = [] # 현재 슬라이드에 담길 요소들
+    first_header_seen = False
+
+    for line in lines:
+        stripped_line = line.strip()
+        
+        # --- 테이블 처리 로직 (기존과 동일) ---
+        if stripped_line.startswith('|'):
+            table_buffer.append(stripped_line)
+            continue
+        
+        if table_buffer and not stripped_line.startswith('|'): # 테이블 버퍼에 내용이 있는데 일반 라인을 만난 경우
+            # 테이블 가공 및 렌더링
+            table_rows = []
+            for row in table_buffer:
+                 if '---' in row: continue
+                 cells = [c.strip() for c in row.split('|') if c.strip()]
+                 if cells:
+                     # 테이블 셀 폰트도 조금 키움 (11pt)
+                     p_cells = [Paragraph(c, ParagraphStyle('TC', parent=slide_body_style, fontSize=11)) for c in cells]
+                     table_rows.append(p_cells)
+            
+            if table_rows:
+                # Landscape 넓이 활용 (700px)
+                col_w = 700 / len(table_rows[0])
+                t = Table(table_rows, colWidths=[col_w] * len(table_rows[0]))
+                t.setStyle(TableStyle([
+                    ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#e0e7ff")),
+                    ('TEXTCOLOR', (0,0), (-1,0), colors.HexColor("#4338ca")),
+                    ('ALIGN', (0,0), (-1,-1), 'CENTER'), 
+                    ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+                    ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#cbd5e1")),
+                    ('PADDING', (0,0), (-1,-1), 8)
+                ]))
+                current_slide_elements.append(t)
+                current_slide_elements.append(Spacer(1, 15))
+            table_buffer = [] # 초기화
+
+        if not stripped_line:
+            continue
+            
+        # --- 헤더 감지 -> 새 슬라이드 ---
+        if stripped_line.startswith('## '):
+            # 이전 슬라이드 요소들 확정 (첫 헤더가 아니면 PageBreak 추가)
+            if first_header_seen:
+                elements.extend(current_slide_elements)
+                elements.append(PageBreak())
+                current_slide_elements = []
+            
+            first_header_seen = True
+            
+            header_text = stripped_line.replace('## ', '').strip()
+            # 슬라이드 제목 스타일
+            current_slide_elements.append(Paragraph(header_text, slide_heading_style))
+            current_slide_elements.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#e2e8f0"), spaceAfter=20))
+            
+        elif stripped_line.startswith('# '): # 혹시 모를 H1
+             pass # 무시하거나 일반 텍스트로 처리
+             
+        # --- 리스트 및 본문 ---
+        else:
+            # 강조 문법 처리 (** **)
+            import re
+            accent_color = "#4338ca"
+            line_content = re.sub(r'\*\*(.*?)\*\*', f'<font color="{accent_color}"><b>\\1</b></font>', stripped_line)
+            
+            if stripped_line.startswith('- ') or stripped_line.startswith('* '):
+                 content = line_content[2:]
+                 current_slide_elements.append(Paragraph(f"• {content}", slide_bullet_style))
+            else:
+                 current_slide_elements.append(Paragraph(line_content, slide_body_style))
+
+    # 마지막 슬라이드 요소 추가
+    if current_slide_elements:
+        elements.extend(current_slide_elements)
+        
+    # --- Footer Slide ---
+    elements.append(PageBreak())
+    elements.append(Spacer(1, 200))
+    elements.append(Paragraph("End of Report", 
+        ParagraphStyle('End', parent=title_style, fontSize=24, textColor=colors.HexColor("#cbd5e1"))))
+    elements.append(Paragraph("Generative AI Powered Business Intelligence", 
+        ParagraphStyle('EndSub', parent=slide_center_style, fontSize=12, textColor=colors.HexColor("#94a3b8"))))
+
+    # Build PDF
+    doc.build(elements)
+    logger.info(f"Slide Deck PDF generated: {output_path}")
+
+def generate_report_html_slide(report_data: Dict[str, Any], title: str = "Monthly Business Review") -> str:
+    """
+    CEO/C-Level 대상의 프리미엄 전략 보고서를 HTML Slide Deck으로 생성합니다. (Light Theme, 7 Slides)
+    
+    Args:
+        report_data: 리포트 데이터
+        title: 리포트 타이틀 (예: Monthly Business Review, Weekly Business Review)
+    """
+    # 1. 데이터 전처리
+    change_rate = report_data.get('change_rate', 0)
+    change_color = "#e53e3e" if change_rate > 0 else "#2f855a" if change_rate < 0 else "#718096"
+    arrow = "▲" if change_rate > 0 else "▼" if change_rate < 0 else "-"
+    
+    total_amount = int(report_data['total_amount'])
+    tx_count = report_data['transaction_count']
+    avg_ticket = int(total_amount / tx_count) if tx_count else 0
+    
+    max_tx = report_data.get('max_transaction', {})
+    max_tx_desc = f"{max_tx.get('merchant_name','-')} ({int(max_tx.get('amount',0)):,}원)"
+    
+    # 2. AI 인사이트 파싱 (4개 섹션)
+    ai_raw = report_data.get('ai_insight', "")
+    import re
+    import markdown
+    
+    sections = {
+        "exec_summary": r"## 1\. Executive Summary(.*?)(?=## 2\.|$)",
+        "b2c_insight": r"## 2\. B2C Consumer Insight(.*?)(?=## 3\.|$)",
+        "b2b_strategy": r"## 3\. B2B Partnership Strategy(.*?)(?=## 4\.|$)",
+        "metrics": r"## 4\. Partnership Metrics(.*?)(?=$)"
+    }
+    
+    parsed_content = {}
+    for key, pattern in sections.items():
+        match = re.search(pattern, ai_raw, re.DOTALL)
+        if match:
+            # Markdown -> HTML 변환
+            html_part = markdown.markdown(match.group(1).strip(), extensions=['tables'])
+            parsed_content[key] = html_part
+        else:
+            parsed_content[key] = "<p>데이터 부족으로 분석이 생략되었습니다.</p>"
+
+    # 3. HTML 템플릿 (Refined Light Mode Theme - White/Blue/Black)
+    return f"""<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caffeine Strategic Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {{
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --text-primary: #1a202c; /* Black (Dark Gray) */
+            --text-secondary: #4a5568;
+            --accent: #2563eb; /* Tech Blue */
+            --accent-light: #eff6ff; /* Very Light Blue */
+            --border: #e2e8f0;
+            --success: #2f855a;
+            --danger: #e53e3e;
+        }}
+        * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+        body {{
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }}
+        .slide {{
+            width: 100vw; height: 100vh;
+            max-width: 1280px; max-height: 720px;
+            margin: 0 auto;
+            position: relative;
+            padding: 50px 70px;
+            display: flex; flex-direction: column;
+            border-bottom: 2px solid var(--border);
+            page-break-after: always;
+            background: #fff;
+        }}
+        
+        /* Typography Rules for Readability */
+        h1 {{ font-family: 'Poppins', sans-serif; font-size: 3.5rem; font-weight: 800; line-height: 1.1; margin-bottom: 20px; color: #000; letter-spacing: -1px; word-break: keep-all; }}
+        h2 {{ font-family: 'Poppins', sans-serif; font-size: 2.2rem; font-weight: 700; color: #000; margin-bottom: 30px; display: flex; align-items: center; gap: 12px; word-break: keep-all; }}
+        h3 {{ font-size: 1.4rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 15px; word-break: keep-all; }}
+        
+        /* Body Text Alignment & Constraints */
+        p, li {{ 
+            font-size: 1.15rem; 
+            line-height: 1.8; /* 줄 간격 확대 */
+            color: #2d3748; 
+            list-style-position: outside; /* 들여쓰기 정렬 */
+            word-break: keep-all; 
+            text-align: left; /* 좌측 정렬로 변경 (가독성 UP) */
+            letter-spacing: -0.02em; /* 자간 축소 */
+            margin-bottom: 15px;
+        }}
+        li {{ margin-left: 20px; }}
+        ul {{ max-width: 950px; }} /* 텍스트 라인 길이 제한 */
+        
+        /* Components */
+        .badge {{ background: var(--accent-light); color: var(--accent); padding: 6px 16px; border-radius: 30px; font-size: 0.9rem; font-weight: 700; display: inline-block; margin-bottom: 20px; }}
+        .header-line {{ width: 60px; height: 6px; background: var(--accent); margin-bottom: 40px; border-radius: 3px; }}
+        
+        /* KPI Cards */
+        .kpi-container {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 40px; }}
+        .kpi-card {{ background: var(--bg-secondary); padding: 30px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }}
+        .kpi-title {{ font-size: 0.95rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 15px; }}
+        .kpi-value {{ font-family: 'Poppins', sans-serif; font-size: 2.5rem; font-weight: 700; color: #000; }}
+        .kpi-sub {{ font-size: 0.9rem; margin-top: 10px; font-weight: 500; display: flex; align-items: center; gap: 4px; }}
+        
+        /* Tables (Sophisticated Look) */
+        table {{ width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 20px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }}
+        th {{ background: #f1f5f9; text-align: left; padding: 20px; font-weight: 700; color: #334155; border-bottom: 1px solid var(--border); letter-spacing: 0.5px; }}
+        td {{ padding: 20px; border-bottom: 1px solid var(--border); color: #1a202c; font-size: 1.05rem; background: #fff; }}
+        tr:last-child td {{ border-bottom: none; }}
+        
+        /* Visual Elements */
+        .pie-container {{ display: flex; align-items: center; justify-content: center; height: 400px; gap: 60px; }}
+        .content-box {{ background: var(--bg-secondary); padding: 40px 50px; border-radius: 20px; border-left: 6px solid var(--accent); height: 100%; overflow-y: auto; }}
+        .content-box strong {{ color: #1a202c; font-weight: 700; background: linear-gradient(120deg, #dbeafe 0%, #dbeafe 100%); background-repeat: no-repeat; background-size: 100% 40%; background-position: 0 88%; padding: 0 4px; }}
+        
+        .footer-page {{ position: absolute; bottom: 40px; right: 60px; font-size: 0.9rem; color: #cbd5e0; font-weight: 600; }}
+    </style>
+</head>
+<body>
+
+    <!-- Slide 1: Title -->
+    <div class="slide" style="justify-content: center;">
+        <span class="badge">CONFIDENTIAL • STRATEGIC REPORT</span>
+        <h1>Vertex AI<br>Command Center</h1>
+        <div class="header-line"></div>
+        <p style="font-size: 1.5rem; color: var(--text-secondary);">{title}<br>{report_data['period_start']} — {report_data['period_end']}</p>
+        <div style="margin-top: 60px; display: flex; gap: 20px;">
+             <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--accent);">
+                <i data-lucide="shield-check"></i> Verified by Vertex AI
+             </div>
+        </div>
+        <div class="footer-page">01</div>
+    </div>
+
+    <!-- Slide 2: Executive Summary -->
+    <div class="slide">
+        <span class="badge">EXEC SUMMARY</span>
+        <h2><i data-lucide="activity"></i> Management Brief</h2>
+        <div class="content-box">
+            {parsed_content['exec_summary']}
+        </div>
+        <div class="footer-page">02</div>
+    </div>
+
+    <!-- Slide 3: Financial KPI -->
+    <div class="slide">
+        <span class="badge">FINANCIAL PERFORMANCE</span>
+        <h2><i data-lucide="bar-chart-2"></i> Monthly KPI Dashboard</h2>
+        <div class="kpi-container">
+            <div class="kpi-card">
+                <div class="kpi-title">Total Spending</div>
+                <div class="kpi-value">₩{total_amount:,}</div>
+                <div class="kpi-sub" style="color: {change_color}">
+                    {arrow} {abs(change_rate)}% <span style="color: #64748b; font-weight: 400;">vs last month</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Transactions</div>
+                <div class="kpi-value">{tx_count}</div>
+                <div class="kpi-sub" style="color: var(--text-secondary)">Processed Count</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Avg Ticket</div>
+                <div class="kpi-value">₩{avg_ticket:,}</div>
+                <div class="kpi-sub" style="color: var(--text-secondary)">Per Transaction</div>
+            </div>
+             <div class="kpi-card" style="border-color: var(--danger);">
+                <div class="kpi-title" style="color: var(--danger);">Max Value High</div>
+                <div class="kpi-value" style="font-size: 1.8rem; line-height: 1.4; margin-top:5px;">{int(max_tx.get('amount',0)):,}</div>
+                 <div class="kpi-sub" style="color: var(--text-secondary)">{max_tx.get('category','-')}</div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 25px; background: #fff5f5; border-radius: 12px; display: flex; align-items: center; gap: 20px; border: 1px solid #fed7d7;">
+            <i data-lucide="alert-triangle" style="color: var(--danger); width: 32px; height: 32px;"></i>
+            <div>
+                <strong style="color: #c53030; font-size: 1.1rem; display: block; marginBottom: 5px;">Highest Spending Alert</strong> 
+                <span style="color: #2d3748;">{max_tx.get('merchant_name','-')} 건이 단일 지출 최고액을 기록했습니다. 상세 검토가 필요합니다.</span>
+            </div>
+        </div>
+        
+        <div class="footer-page">03</div>
+    </div>
+    
+    <!-- Slide 4: Market Share (Visual) -->
+    <div class="slide">
+        <span class="badge">MARKET SHARE</span>
+        <h2><i data-lucide="pie-chart"></i> Category Analysis</h2>
+        
+        <div class="content-box" style="display: flex; align-items: center; justify-content: space-around; background: #fff; border: none; padding: 0;">
+             <!-- Pie Chart -->
+             <div style="width: 320px; height: 320px; border-radius: 50%; background: conic-gradient(
+                #2563eb 0% 30%, 
+                #3b82f6 30% 60%, 
+                #60a5fa 60% 80%,
+                #eff6ff 80% 100%
+             ); position: relative; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);">
+                <div style="position: absolute; width: 180px; height: 180px; background: #fff; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                    <div style="font-size: 0.9rem; color: #64748b; font-weight: 600;">TOP 1</div>
+                    <div style="font-size: 1.5rem; font-weight: 800; color: #1a202c;">{report_data.get('top_categories', [{}])[0].get('percent', 0):.1f}%</div>
+                </div>
+             </div>
+             
+             <!-- Legend Table -->
+             <div style="width: 450px;">
+                <table style="margin-top: 0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                    <tr>
+                        <th style="background: #f7fafc;">Category</th>
+                        <th style="background: #f7fafc;">Amount</th>
+                        <th style="background: #f7fafc;">Share</th>
+                    </tr>
+                    {''.join([f"<tr><td>{cat['name']}</td><td>₩{int(cat['amount']):,}</td><td>{cat['percent']:.1f}%</td></tr>" for cat in report_data.get('top_categories', [])[:4]])}
+                </table>
+             </div>
+        </div>
+        <div class="footer-page">04</div>
+    </div>
+
+    <!-- Slide 5: B2C Insight (AI) -->
+    <div class="slide">
+        <span class="badge">USER BEHAVIOR</span>
+        <h2><i data-lucide="users"></i> B2C Consumer Insight</h2>
+        <div class="content-box">
+             {parsed_content['b2c_insight']}
+        </div>
+        <div class="footer-page">05</div>
+    </div>
+    
+    <!-- Slide 6: B2B Strategy (AI) -->
+    <div class="slide">
+        <span class="badge">BUSINESS OPPORTUNITY</span>
+        <h2><i data-lucide="briefcase"></i> B2B Partnership Strategy</h2>
+        <div class="content-box">
+             {parsed_content['b2b_strategy']}
+        </div>
+        <div class="footer-page">06</div>
+    </div>
+    
+    <!-- Slide 7: Partnership Metrics (AI Table) -->
+    <div class="slide">
+        <span class="badge">EXPECTED ROI</span>
+        <h2><i data-lucide="table"></i> Partnership Metrics</h2>
+        <div style="padding: 10px 0;">
+             {parsed_content['metrics']}
+        </div>
+        <p style="margin-top: 20px; color: var(--text-secondary); font-size: 1rem;"><i data-lucide="info"></i> 위 지표는 유사 산업군의 평균 전환율을 기반으로 추산된 예상 수치입니다.</p>
+        <div class="footer-page">07</div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>"""
 
 async def generate_weekly_report(db: AsyncSession) -> Dict[str, Any]:
     """
@@ -62,8 +730,10 @@ async def generate_weekly_report(db: AsyncSession) -> Dict[str, Any]:
     this_week_result = await db.execute(this_week_query)
     this_week_data = this_week_result.first()
     
-    # 최대 지출 거래 조회 (이상 거래 제외)
-    max_tx_query = select(Transaction).where(
+    # 최대 지출 거래 조회 (카테고리명 포함)
+    max_tx_query = select(Transaction, Category.name).join(
+        Category, Transaction.category_id == Category.id
+    ).where(
         and_(
             Transaction.transaction_time >= start_of_week,
             Transaction.transaction_time < end_of_week,
@@ -72,7 +742,10 @@ async def generate_weekly_report(db: AsyncSession) -> Dict[str, Any]:
         )
     ).order_by(Transaction.amount.desc()).limit(1)
     max_tx_result = await db.execute(max_tx_query)
-    max_transaction = max_tx_result.scalar_one_or_none()
+    max_tx_row = max_tx_result.first()
+    
+    max_transaction = max_tx_row[0] if max_tx_row else None
+    max_cat_name = max_tx_row[1] if max_tx_row else None
     
     # 이상 거래 조회
     fraud_tx_query = select(Transaction).where(
@@ -140,11 +813,10 @@ async def generate_weekly_report(db: AsyncSession) -> Dict[str, Any]:
     
     # 카테고리 데이터 처리 (비율 계산)
     if categories and this_week_total > 0:
-        max_cat_amount = float(categories[0].amount) if categories else 1
         for cat in categories:
             cat_amount = float(cat.amount)
-            # 최대 카테고리 대비 비율 (바 차트용)
-            percentage = (cat_amount / max_cat_amount) * 100
+            # 전체 지출액 대비 비중으로 계산
+            percentage = (cat_amount / this_week_total) * 100
             report_data["top_categories"].append({
                 "name": cat.name, 
                 "amount": cat_amount, 
@@ -156,7 +828,8 @@ async def generate_weekly_report(db: AsyncSession) -> Dict[str, Any]:
         report_data["max_transaction"] = {
             "merchant_name": max_transaction.merchant_name,
             "amount": float(max_transaction.amount),
-            "date": max_transaction.transaction_time.strftime("%m/%d")
+            "date": max_transaction.transaction_time.strftime("%m/%d"),
+            "category": max_cat_name
         }
 
     # 이상 거래 데이터 처리
@@ -230,7 +903,9 @@ async def generate_monthly_report(db: AsyncSession) -> Dict[str, Any]:
     this_month_data = this_month_result.first()
     
     # 최대 지출 거래 조회 (이상 거래 제외)
-    max_tx_query = select(Transaction).where(
+    max_tx_query = select(Transaction, Category.name).join(
+        Category, Transaction.category_id == Category.id
+    ).where(
         and_(
             Transaction.transaction_time >= start_of_month,
             Transaction.transaction_time < end_of_month,
@@ -239,7 +914,10 @@ async def generate_monthly_report(db: AsyncSession) -> Dict[str, Any]:
         )
     ).order_by(Transaction.amount.desc()).limit(1)
     max_tx_result = await db.execute(max_tx_query)
-    max_transaction = max_tx_result.scalar_one_or_none()
+    max_tx_row = max_tx_result.first()
+    
+    max_transaction = max_tx_row[0] if max_tx_row else None
+    max_cat_name = max_tx_row[1] if max_tx_row else None
 
     # 이상 거래 조회
     fraud_tx_query = select(Transaction).where(
@@ -307,10 +985,10 @@ async def generate_monthly_report(db: AsyncSession) -> Dict[str, Any]:
     
     # 카테고리 데이터 처리 (비율 계산)
     if categories and this_month_total > 0:
-        max_cat_amount = float(categories[0].amount) if categories else 1
         for cat in categories:
             cat_amount = float(cat.amount)
-            percentage = (cat_amount / max_cat_amount) * 100
+            # 전체 지출액 대비 비중으로 계산
+            percentage = (cat_amount / this_month_total) * 100
             report_data["top_categories"].append({
                 "name": cat.name, 
                 "amount": cat_amount, 
@@ -322,7 +1000,8 @@ async def generate_monthly_report(db: AsyncSession) -> Dict[str, Any]:
         report_data["max_transaction"] = {
             "merchant_name": max_transaction.merchant_name,
             "amount": float(max_transaction.amount),
-            "date": max_transaction.transaction_time.strftime("%m/%d")
+            "date": max_transaction.transaction_time.strftime("%m/%d"),
+            "category": max_cat_name
         }
 
     # 이상 거래 데이터 처리
@@ -383,8 +1062,10 @@ async def generate_daily_report(db: AsyncSession) -> Dict[str, Any]:
     yesterday_result = await db.execute(yesterday_query)
     yesterday_data = yesterday_result.first()
 
-    # 최대 지출 거래 조회 (이상 거래 제외)
-    max_tx_query = select(Transaction).where(
+    # 최대 지출 거래 조회 (카테고리명 포함)
+    max_tx_query = select(Transaction, Category.name).join(
+        Category, Transaction.category_id == Category.id
+    ).where(
         and_(
             Transaction.transaction_time >= start_of_day,
             Transaction.transaction_time < end_of_day,
@@ -393,7 +1074,10 @@ async def generate_daily_report(db: AsyncSession) -> Dict[str, Any]:
         )
     ).order_by(Transaction.amount.desc()).limit(1)
     max_tx_result = await db.execute(max_tx_query)
-    max_transaction = max_tx_result.scalar_one_or_none()
+    max_tx_row = max_tx_result.first()
+    
+    max_transaction = max_tx_row[0] if max_tx_row else None
+    max_cat_name = max_tx_row[1] if max_tx_row else None
 
     # 이상 거래 조회
     fraud_tx_query = select(Transaction).where(
@@ -461,10 +1145,10 @@ async def generate_daily_report(db: AsyncSession) -> Dict[str, Any]:
 
     # 카테고리 데이터 처리
     if categories and yesterday_total > 0:
-        max_cat_amount = float(categories[0].amount) if categories else 1
         for cat in categories:
             cat_amount = float(cat.amount)
-            percentage = (cat_amount / max_cat_amount) * 100
+            # 전체 지출액 대비 비중으로 계산
+            percentage = (cat_amount / yesterday_total) * 100
             report_data["top_categories"].append({
                 "name": cat.name, 
                 "amount": cat_amount, 
@@ -476,7 +1160,8 @@ async def generate_daily_report(db: AsyncSession) -> Dict[str, Any]:
         report_data["max_transaction"] = {
             "merchant_name": max_transaction.merchant_name,
             "amount": float(max_transaction.amount),
-            "date": max_transaction.transaction_time.strftime("%H:%M") 
+            "date": max_transaction.transaction_time.strftime("%H:%M"),
+            "category": max_cat_name
         }
 
     # 이상 거래 데이터 처리
@@ -509,67 +1194,73 @@ def format_report_html(report_data: Dict[str, Any]) -> str:
     # 증감율에 따른 색상 및 아이콘
     change_rate = report_data["change_rate"]
     if change_rate > 0:
-        change_color = "#dc3545"  # 빨강 (증가)
+        change_color = "#e53e3e"  # Red-600
         change_icon = "↑"
     elif change_rate < 0:
-        change_color = "#28a745"  # 초록 (감소)
+        change_color = "#38a169"  # Green-600
         change_icon = "↓"
     else:
-        change_color = "#6c757d"  # 회색 (동일)
+        change_color = "#718096"  # Gray-600
         change_icon = "="
     
-    # 총 소비
-    total_amount_formatted = f"₩{report_data['total_amount']:,.0f}"
+    # 지표 데이터 구성
+    stats = [
+        ("총 소비 (정상 거래)", f"₩{report_data['total_amount']:,.0f}", ""),
+        ("거래 건수", f"{report_data['transaction_count']}건", ""),
+        ("전기 대비", f"{change_icon} {abs(change_rate):.1f}%", change_color)
+    ]
     
-    # 거래 건수
-    transaction_count = f"{report_data['transaction_count']}건"
-    
-    # 전기 대비
-    change_text = f"{change_icon} {abs(change_rate):.1f}%"
-    
-    # 상위 카테고리 HTML 생성 (바 차트 포함)
+    stats_html = ""
+    for label, value, color in stats:
+        color_style = f"color: {color};" if color else ""
+        stats_html += f"""
+        <div class="stat">
+            <span class="stat-label">{label}</span>
+            <span class="stat-value" style="{color_style}">{value}</span>
+        </div>
+        """
+        
+    # 상위 카테고리 HTML 생성
     categories_html = ""
     for cat in report_data["top_categories"][:3]:
-        # 바 색상 (Top 1은 진하게, 나머지는 연하게)
+        # 바 색상
         bar_color = "#667eea" if cat['percent'] > 90 else "#a3bffa"
         
         categories_html += f"""
-        <tr>
-            <td style="padding: 12px 8px; border-bottom: 1px solid #f1f3f5; width: 40%; vertical-align: middle;">
-                <div style="font-size: 14px; font-weight: 500; color: #343a40;">{cat['name']}</div>
-                <div style="font-size: 12px; color: #868e96; margin-top: 2px;">{cat['count']}건</div>
-            </td>
-            <td style="padding: 12px 8px; border-bottom: 1px solid #f1f3f5; width: 60%; vertical-align: middle;">
-                <div style="text-align: right; font-size: 14px; font-weight: 600; color: #343a40; margin-bottom: 6px;">
-                    ₩{cat['amount']:,.0f}
+        <div style="margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; align-items: flex-end;">
+                <div>
+                    <span style="font-size: 15px; font-weight: 700; color: #1a202c;">{cat['name']}</span>
+                    <span style="font-size: 12px; color: #718096; margin-left: 6px;">({cat['count']}건)</span>
                 </div>
-                <div style="background-color: #e9ecef; height: 6px; border-radius: 3px; width: 100%;">
-                    <div style="background-color: {bar_color}; height: 6px; border-radius: 3px; width: {cat['percent']}%;"></div>
-                </div>
-            </td>
-        </tr>
+                <span style="font-size: 15px; font-weight: 700; color: #2d3748;">₩{cat['amount']:,.0f}</span>
+            </div>
+            <div style="background-color: #edf2f7; height: 8px; border-radius: 4px; width: 100%; overflow: hidden;">
+                <div style="background: {bar_color}; height: 8px; border-radius: 4px; width: {cat['percent']}%;"></div>
+            </div>
+        </div>
         """
         
-    # 최대 지출 하이라이트 섹션
+    # 최대 지출 하이라이트
     max_spend_html = ""
     if report_data.get("max_transaction"):
         tx = report_data["max_transaction"]
         max_spend_html = f"""
-        <div style="background: linear-gradient(to right, #667eea10, #764ba210); padding: 16px; border-radius: 8px; margin-bottom: 24px; border: 1px solid #667eea30;">
-            <div style="font-size: 12px; font-weight: bold; color: #667eea; text-transform: uppercase; letter-spacing: 0.5px;">Highest Spending</div>
-            <div style="margin-top: 8px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 12px; margin-bottom: 24px;">
+            <div style="font-size: 12px; font-weight: 800; color: #667eea; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">🏆 Highest Spending</div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <div style="font-weight: bold; color: #495057; font-size: 15px;">{tx['merchant_name']}</div>
-                    <div style="font-size: 12px; color: #868e96;">{tx['date']}</div>
+                    <div style="font-weight: 800; color: #1a202c; font-size: 17px;">{tx['merchant_name']}</div>
+                    <div style="font-size: 13px; color: #718096;">{tx['date']} 결제</div>
                 </div>
-                <div style="font-weight: bold; color: #d6336c; font-size: 16px;">
+                <div style="font-weight: 800; color: #e53e3e; font-size: 20px;">
                     ₩{tx['amount']:,.0f}
                 </div>
             </div>
         </div>
         """
     
-    # 이상 거래 하이라이트 섹션 (NEW)
+    # 이상 거래 섹션
     fraud_html = ""
     if report_data.get("fraud_transactions"):
         fraud_items = report_data["fraud_transactions"]
@@ -579,91 +1270,54 @@ def format_report_html(report_data: Dict[str, Any]) -> str:
         fraud_list_html = ""
         for tx in fraud_items:
             fraud_list_html += f"""
-            <div style="padding: 12px 16px; border-bottom: 1px solid #ffe3e3; display: flex; justify-content: space-between; align-items: center;">
+            <div style="padding: 12px 0; border-bottom: 1px solid #fed7d7; display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <div style="font-weight: bold; color: #c92a2a; font-size: 14px;">{tx.get('merchant_name')}</div>
-                    <div style="font-size: 12px; color: #e03131;">{tx.get('date')}</div>
+                    <div style="font-weight: 700; color: #c53030; font-size: 14px;">{tx.get('merchant_name')}</div>
+                    <div style="font-size: 12px; color: #e53e3e;">{tx.get('date')}</div>
                 </div>
                 <div style="text-align: right;">
-                    <div style="font-weight: bold; color: #c92a2a; font-size: 14px;">₩{tx.get('amount'):,.0f}</div>
-                    <div style="font-size: 11px; color: #e03131; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{tx.get('description', '')}</div>
+                    <div style="font-weight: 700; color: #c53030; font-size: 15px;">₩{tx.get('amount'):,.0f}</div>
                 </div>
             </div>
             """
             
         fraud_html = f"""
-        <div style="background-color: #fff5f5; border: 1px solid #ffc9c9; border-radius: 8px; margin-bottom: 24px; overflow: hidden;">
-            <div style="background-color: #ffe3e3; padding: 10px 16px; font-weight: bold; color: #c92a2a; font-size: 14px; display: flex; justify-content: space-between; align-items: center;">
-                <span>🚨 이상 거래 감지 ({fraud_count}건)</span>
+        <div style="background-color: #fff5f5; border: 1px solid #feb7b7; border-radius: 12px; margin-bottom: 24px; overflow: hidden; padding: 16px;">
+            <div style="font-weight: 800; color: #c53030; font-size: 15px; display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <span>🚨 이상 거래 탐지 ({fraud_count}건)</span>
                 <span>총 ₩{fraud_total:,.0f}</span>
             </div>
             {fraud_list_html}
         </div>
         """
 
-    # NEW: AI Insight Section & Headline extraction
-    ai_headline_html = ""
+    # AI Insight Section
     ai_insight_html = ""
-    
     if "ai_insight" in report_data and report_data["ai_insight"]:
         raw_insight = report_data['ai_insight']
-        
-        # 헤드라인 추출 (Headline: ... 으로 시작하는 경우)
-        headline_match = re.search(r'Headline:\s*(.*?)(\n|$)', raw_insight, re.IGNORECASE)
-        if headline_match:
-            headline_text = headline_match.group(1).strip()
-            # 본문에서 헤드라인 라인 제거
-            raw_insight = raw_insight.replace(headline_match.group(0), "").strip()
-            
-            ai_headline_html = f"""
-            <div style="background-color: #667eea; color: white; padding: 12px 16px; text-align: center; border-radius: 6px 6px 0 0; font-weight: bold; font-size: 14px; margin-bottom: -4px;">
-                💡 {headline_text}
-            </div>
-            """
-        
-        # 줄바꿈을 <br>로 변환하고, **굵게**를 <b>굵게</b><br>로 변환
-        formatted_insight = raw_insight.replace("\n", "<br>")
-        formatted_insight = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b><br>', formatted_insight)
-        
-        border_radius_style = "0 0 4px 4px" if ai_headline_html else "4px"
-        margin_top_style = "0" if ai_headline_html else "24px"
+        # Markdown 굵게 표시를 HTML로 변환
+        formatted_insight = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', raw_insight)
         
         ai_insight_html = f"""
-        {ai_headline_html}
-        <div style="margin-top: {margin_top_style}; padding: 16px; background-color: #f8f9fa; border-left: 4px solid #6610f2; border-radius: {border_radius_style};">
-            <p style="margin: 0 0 12px 0; font-weight: bold; color: #6610f2; font-size: 0.95em;">AI 소비 분석</p>
-            <p style="margin: 0; color: #495057; font-size: 0.95em; line-height: 1.6;">{formatted_insight}</p>
+        <div class="ai-insight-box">
+            <div class="ai-insight-title">
+                <span style="margin-right: 10px;">💡</span> AI 수석 분석가 비즈니스 인사이트
+            </div>
+            <div class="ai-content">{formatted_insight}</div>
         </div>
         """
 
-    # HTML Table Construction (여백 및 스타일 조정)
+    # HTML 구조 조립
     html = f"""
     {max_spend_html}
     {fraud_html}
     
-    <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
-        <tr>
-            <th style="text-align: left; padding: 6px 8px; border-bottom: 2px solid #dee2e6; color: #495057; font-size: 14px;">항목</th>
-            <th style="text-align: right; padding: 6px 8px; border-bottom: 2px solid #dee2e6; color: #495057; font-size: 14px;">값</th>
-        </tr>
-        <tr>
-            <td style="padding: 6px 8px; border-bottom: 1px solid #f1f3f5; font-size: 14px;">총 소비 (정상 거래)</td>
-            <td style="text-align: right; padding: 6px 8px; border-bottom: 1px solid #f1f3f5; font-weight: bold; font-size: 14px;">{total_amount_formatted}</td>
-        </tr>
-        <tr>
-            <td style="padding: 6px 8px; border-bottom: 1px solid #f1f3f5; font-size: 14px;">거래 건수</td>
-            <td style="text-align: right; padding: 6px 8px; border-bottom: 1px solid #f1f3f5; font-size: 14px;">{transaction_count}</td>
-        </tr>
-        <tr>
-            <td style="padding: 6px 8px; border-bottom: 1px solid #f1f3f5; font-size: 14px;">전기 대비</td>
-            <td style="text-align: right; padding: 6px 8px; border-bottom: 1px solid #f1f3f5; font-size: 14px; color: {change_color};">{change_text}</td>
-        </tr>
-    </table>
+    {stats_html}
 
-    <h3 style="margin: 24px 0 12px 0; font-size: 15px; color: #495057; border-bottom: 1px solid #dee2e6; padding-bottom: 8px;">상위 지출 카테고리</h3>
-    <table style="width: 100%; border-collapse: collapse; margin-bottom: 0;">
+    <div style="margin-top: 40px; margin-bottom: 15px;">
+        <h3 style="font-size: 18px; color: #1a202c; font-weight: 800; margin-bottom: 20px; border-left: 4px solid #667eea; padding-left: 12px;">📊 상위 지출 카테고리</h3>
         {categories_html}
-    </table>
+    </div>
 
     {ai_insight_html}
     """

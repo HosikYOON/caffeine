@@ -51,33 +51,56 @@ async def call_gemini_api(prompt: str) -> str:
 
 def generate_report_prompt(report_type: str, data: Dict[str, Any]) -> str:
     """
-    리포트 데이터를 바탕으로 AI 프롬프트를 생성합니다.
+    CEO/C-Level 대상의 프리미엄 전략 보고서 생성을 위한 AI 프롬프트.
+    HTML 슬라이드 자동 생성을 위해 엄격한 마크다운 구조를 사용합니다.
     """
     categories_text = "\n".join([
-        f"- {cat['name']}: {int(cat['amount']):,}원" 
+        f"- {cat['name']}: {int(cat['amount']):,}원 ({cat['percent']:.1f}%)" 
         for cat in data.get("top_categories", [])
     ])
 
+    max_tx_text = "N/A"
+    if data.get('max_transaction'):
+        max_tx = data['max_transaction']
+        max_tx_text = f"{max_tx['merchant_name']} ({int(max_tx['amount']):,}원) - {max_tx['category']} 분야"
+
     return f"""
-Role: 당신은 이 금융 플랫폼의 **관리자(Administrator)**이자 **데이터 분석가**입니다.
-Task: 플랫폼 전체의 {report_type} 소비 트렌드를 분석하여, 관리자에게 **마케팅 전략**이나 **비즈니스 인사이트**를 제안해 주세요.
-Input: 아래 통계는 특정 개인이 아니라, 플랫폼 내에서 발생한 **전체 거래 데이터 요약**입니다.
+Role: Senior Strategic Consultant & BI Developer
+Context: 'Caffeine' Project (Vertex AI-based Financial Command Center)
 
-[통계 데이터]
-- 기간: {data.get('period_start')} ~ {data.get('period_end')}
-- 총 거래액: {int(data.get('total_amount', 0)):,}원
-- 총 거래 건수: {data.get('transaction_count', 0)}건
-- 전기간 대비 증감률: {data.get('change_rate', 0)}%
-- 상위 소비 카테고리 (인기 항목):
+당신은 데이터의 비즈니스 가치를 극대화하는 **전략 컨설턴트**입니다.
+제공된 [Raw 데이터]를 분석하여 아래 **4가지 핵심 섹션**에 대한 내용을 작성하십시오.
+각 섹션은 HTML 슬라이드로 변환되므로 **지정된 헤더(##)**를 정확히 지켜야 합니다.
+
+[분석 데이터 (Fact)]
+- 기간: {data['period_start']} ~ {data['period_end']}
+- 총 지출: {int(data['total_amount']):,}원 (전기 대비 {data['change_rate']}%)
+- 상위 카테고리:
 {categories_text}
+- 최대 지출 트랜잭션: {max_tx_text}
 
-[작성 가이드]
-1. 리포트의 맨 첫 줄에 **"Headline: [한 줄 요약]"**을 반드시 작성하세요. (예: "Headline: 식비 지출이 전월 대비 20% 증가했습니다.")
-2. 그 다음 줄부터 본문을 작성하되, **"어떤 카테고리가 인기 있으니 어떤 마케팅을 하면 좋겠다"**는 식의 관리자 관점 조언을 작성하세요.
-3. 예시: "식비와 외식 카테고리 거래가 급증했습니다. 주말 외식 쿠폰 프로모션을 진행하여 트래픽을 더 확보하는 전략이 유효해 보입니다."
-4. 가독성을 위해 **번호 매기기(1. 2. 3.)** 형식을 반드시 사용하고, **핵심 키워드는 굵게(`**키워드**`) 표시**하세요.
-5. **키워드 뒤에는 줄바꿈**이 들어가도록 의도해 주세요 (프론트엔드에서 처리 예정).
-6. 예시 포맷:
-Headline: [헤드라인 내용]
-1. **[전략 이름]:** [내용]
+[작성 섹션 및 가이드]
+
+## 1. Executive Summary
+- 단순 현황 보고가 아닌, **리스크와 기회 요인**을 짚어주는 경영진 요약.
+- 줄글 금지. **핵심 3가지를 불렛 포인트(-)**로 요약할 것.
+
+## 2. B2C Consumer Insight
+- 유저 데이터({categories_text})를 기반으로 '소비 맥락'과 '라이프스타일' 분석.
+- **긴 문단 절대 금지**. 3~4개의 핵심 인사이트를 **불렛 포인트(-)**로 명확히 분리하여 작성.
+- 예: "- (Insight 1) 교통비 비중 35% -> 모빌리티 중심의 라이프스타일..."
+
+## 3. B2B Partnership Strategy
+- 지출 비중이 높은 분야에서 실제 수익을 창출할 수 있는 **구체적 제휴 대상** 제안.
+- 카카오T, 쿠팡, 배달의민족, 스타벅스 등 실존 기업명과 **제휴 아이템** 명시.
+- 각 제안은 **불렛 포인트(-)**로 구분하여 가독성 확보.
+
+## 4. Partnership Metrics
+- 위 B2B 전략 실행 시 기대되는 KPI 변화를 반드시 **Markdown Table**로 작성.
+| 타겟 기업 | 예상 수익 모델 | 기대 KPI (ROAS/Lock-in) |
+|---|---|---|
+| (기업명) | (모델명) | (수치) |
+
+※ **Tone & Manner**: 객관적, 비판적, 수치 기반(Evidence-based).
+※ **Format**: **모든 섹션은 가독성을 위해 불렛 포인트(-) 위주로 작성.** 한 문단이 3줄을 넘지 않도록 문장 길이를 조절하십시오.
 """
