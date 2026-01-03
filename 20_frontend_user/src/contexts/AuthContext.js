@@ -174,7 +174,7 @@ export const AuthProvider = ({ children }) => {
     // 카카오 로그인
     const kakaoLogin = async (code) => {
         try {
-            const redirect_uri = typeof window !== 'undefined' 
+            const redirect_uri = typeof window !== 'undefined'
                 ? `${window.location.origin}/auth/kakao/callback`
                 : 'http://localhost:8081/auth/kakao/callback';
 
@@ -218,7 +218,7 @@ export const AuthProvider = ({ children }) => {
     // 카카오 회원가입
     const kakaoSignup = async (code) => {
         try {
-            const redirect_uri = typeof window !== 'undefined' 
+            const redirect_uri = typeof window !== 'undefined'
                 ? `${window.location.origin}/auth/kakao/signup/callback`
                 : 'http://localhost:8081/auth/kakao/signup/callback';
 
@@ -261,7 +261,7 @@ export const AuthProvider = ({ children }) => {
     // 구글 로그인
     const googleLogin = async (code) => {
         try {
-            const redirect_uri = typeof window !== 'undefined' 
+            const redirect_uri = typeof window !== 'undefined'
                 ? `${window.location.origin}/auth/google/callback`
                 : 'http://localhost:8081/auth/google/callback';
 
@@ -270,7 +270,7 @@ export const AuthProvider = ({ children }) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ code, redirect_uri }),
             });
-            
+
             if (response.ok) {
                 const data = await response.json();
                 const userData = {
@@ -281,7 +281,7 @@ export const AuthProvider = ({ children }) => {
                     provider: 'google',
                     birth_date: data.user?.birth_date || null,
                 };
-                
+
                 await AsyncStorage.setItem('user', JSON.stringify(userData));
                 if (data.access_token) {
                     await AsyncStorage.setItem('authToken', data.access_token);
@@ -289,7 +289,7 @@ export const AuthProvider = ({ children }) => {
                 if (data.refresh_token) {
                     await AsyncStorage.setItem('refreshToken', data.refresh_token);
                 }
-                
+
                 setUser(userData);
                 return { success: true };
             } else {
@@ -305,7 +305,7 @@ export const AuthProvider = ({ children }) => {
     // 구글 회원가입
     const googleSignup = async (code) => {
         try {
-            const redirect_uri = typeof window !== 'undefined' 
+            const redirect_uri = typeof window !== 'undefined'
                 ? `${window.location.origin}/auth/google/signup/callback`
                 : 'http://localhost:8081/auth/google/signup/callback';
 
@@ -314,7 +314,7 @@ export const AuthProvider = ({ children }) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ code, redirect_uri }),
             });
-            
+
             if (response.ok) {
                 const data = await response.json();
                 const userData = {
@@ -325,7 +325,7 @@ export const AuthProvider = ({ children }) => {
                     provider: 'google',
                     birth_date: data.user?.birth_date || null,
                 };
-                
+
                 await AsyncStorage.setItem('user', JSON.stringify(userData));
                 if (data.access_token) {
                     await AsyncStorage.setItem('authToken', data.access_token);
@@ -333,7 +333,7 @@ export const AuthProvider = ({ children }) => {
                 if (data.refresh_token) {
                     await AsyncStorage.setItem('refreshToken', data.refresh_token);
                 }
-                
+
                 setUser(userData);
                 return { success: true };
             } else {

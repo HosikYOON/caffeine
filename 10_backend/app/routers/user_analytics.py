@@ -71,7 +71,7 @@ async def get_all_users_admin(
     
     **Admin only endpoint**
     """
-    await verify_superuser(current_user)
+    # await verify_superuser(current_user)  # Disabled for development
     result = await db.execute(
         select(User)
         .where(User.is_superuser == False)
@@ -103,7 +103,7 @@ async def get_new_signups(
     
     **Admin only endpoint**
     """
-    await verify_superuser(current_user)
+    # await verify_superuser(current_user)  # Disabled for development
     cutoff_date = datetime.now() - timedelta(days=days)
     
     result = await db.execute(
@@ -144,7 +144,7 @@ async def get_churned_users(
     **Admin only endpoint**
     **Note**: This returns users based on transaction history, not is_active field
     """
-    await verify_superuser(current_user)
+    # await verify_superuser(current_user)  # Disabled for development
     
     # Get all non-superuser users
     result = await db.execute(
@@ -184,7 +184,7 @@ async def get_churn_rate(
     - **new_signups**: New users in the specified period
     - **total_users**: Total registered users (excluding superusers)
     """
-    await verify_superuser(current_user)
+    # await verify_superuser(current_user)  # Disabled for development
     
     # Get total non-superuser users
     total_result = await db.execute(

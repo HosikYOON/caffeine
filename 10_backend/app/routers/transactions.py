@@ -224,15 +224,16 @@ async def get_transactions(
     db: AsyncSession = Depends(get_db)
 ):
     try:
-        # user_id가 없으면 빈 목록 반환 (인증되지 않은 경우)
-        if user_id is None:
-            return TransactionList(
-                total=0,
-                page=page,
-                page_size=page_size,
-                transactions=[],
-                data_source="DB"
-            )
+        # # user_id가 없으면 빈 목록 반환 (인증되지 않은 경우)
+        # # DISABLED FOR ADMIN: Allow fetching all transactions when user_id is None
+        # if user_id is None:
+        #     return TransactionList(
+        #         total=0,
+        #         page=page,
+        #         page_size=page_size,
+        #         transactions=[],
+        #         data_source="DB"
+        #     )
         
         # 기본 쿼리 및 카운트 쿼리 생성
         query = select(Transaction).options(selectinload(Transaction.category))

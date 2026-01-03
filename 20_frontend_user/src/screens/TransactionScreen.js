@@ -119,9 +119,11 @@ export default function TransactionScreen({ navigation, route }) {
     const fetchPrediction = async () => {
         try {
             if (!transactions || transactions.length < 5) {
-                alert('예측을 위해 최소 5건 이상의 거래 데이터가 필요합니다.');
+                Alert.alert('데이터 부족', '예측을 위해 최소 5건 이상의 거래 데이터가 필요합니다.');
                 return;
             }
+
+            setIsPredicting(true); // 로딩 시작
 
             // 거래 데이터를 CSV 형식으로 변환
             const csvHeader = '날짜,시간,타입,대분류,소분류,내용,금액,화폐,결제수단,메모\n';
@@ -204,7 +206,9 @@ export default function TransactionScreen({ navigation, route }) {
 
         } catch (error) {
             console.error('Prediction failed:', error);
-            Alert.alert('오류', '예측 실패: ' + (error.response?.data?.detail || error.message));
+            Alert.alert('예측 실패', '예측 중 오류가 발생했습니다.\n\n' + (error.response?.data?.detail || error.message));
+        } finally {
+            setIsPredicting(false); // 로딩 종료
         }
     };
 
