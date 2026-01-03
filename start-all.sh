@@ -16,3 +16,4 @@ echo ''
 echo '[프론트엔드 시작] http://localhost:8081'
 cd /root/caffeine/20_frontend_user
 npm start
+
