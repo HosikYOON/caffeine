@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Modal, TextInput, Alert, Platform, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Modal, TextInput, Alert, Platform, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { apiClient } from '../api/client';
@@ -119,9 +119,11 @@ export default function TransactionScreen({ navigation, route }) {
     const fetchPrediction = async () => {
         try {
             if (!transactions || transactions.length < 5) {
-                alert('예측을 위해 최소 5건 이상의 거래 데이터가 필요합니다.');
+                Alert.alert('데이터 부족', '예측을 위해 최소 5건 이상의 거래 데이터가 필요합니다.');
                 return;
             }
+
+            setIsPredicting(true); // 로딩 시작
 
             // 거래 데이터를 CSV 형식으로 변환
             const csvHeader = '날짜,시간,타입,대분류,소분류,내용,금액,화폐,결제수단,메모\n';
@@ -204,7 +206,9 @@ export default function TransactionScreen({ navigation, route }) {
 
         } catch (error) {
             console.error('Prediction failed:', error);
-            Alert.alert('오류', '예측 실패: ' + (error.response?.data?.detail || error.message));
+            Alert.alert('예측 실패', '예측 중 오류가 발생했습니다.\n\n' + (error.response?.data?.detail || error.message));
+        } finally {
+            setIsPredicting(false); // 로딩 종료
         }
     };
 
@@ -405,97 +409,119 @@ export default function TransactionScreen({ navigation, route }) {
                     <Text style={{ marginTop: 10, color: colors.textSecondary }}>이상거래 내역 불러오는 중...</Text>
                 </View>
             ) : (
-                <ScrollView style={{ flex: 1 }}>
-                    {/* AI Prediction Card - 이상거래 모드에서는 숨김 */}
-                    {!anomalyMode && transactions.length > 0 && (
-                        <View style={styles(colors).predictionCard}>
-                            <View style={styles(colors).predictionHeader}>
-                                <Text style={styles(colors).predictionIcon}>🤖</Text>
-                                <Text style={styles(colors).predictionTitle}>AI 다음 소비 예측</Text>
-                            </View>
+                <FlatList
+                    data={filteredTransactions}
+                    renderItem={renderItem}
+                    keyExtractor={item => item.id}
+                    contentContainerStyle={s.listContainer}
+                    showsVerticalScrollIndicator={false}
+                    ListHeaderComponent={
+                        <>
+                            {/* AI Prediction Card - 이상거래 모드에서는 숨김 */}
+                            {!anomalyMode && transactions.length > 0 && (
+                                <View style={styles(colors).predictionCard}>
+                                    <View style={styles(colors).predictionHeader}>
+                                        <Text style={styles(colors).predictionIcon}>🤖</Text>
+                                        <Text style={styles(colors).predictionTitle}>AI 다음 소비 예측</Text>
+                                    </View>
 
-                            {prediction !== null ? (
-                                <Text style={styles(colors).predictionText}>
-                                    현재 소비 패턴 분석 결과, 다음 거래는
-                                    <Text style={{ fontWeight: '800', color: '#2563EB', fontSize: 18, backgroundColor: '#DBEAFE', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>
-                                        {prediction}
-                                    </Text>
-                                    카테고리일 확률이 높습니다.
-                                </Text>
-                            ) : (
-                                <Text style={styles(colors).predictionText}>
-                                    최근 거래 데이터를 분석하여 다음 소비 패턴을 예측합니다.
-                                </Text>
+                                    {prediction !== null ? (
+                                        <Text style={styles(colors).predictionText}>
+                                            현재 소비 패턴 분석 결과, 다음 거래는
+                                            <Text style={{ fontWeight: '800', color: '#2563EB', fontSize: 18, backgroundColor: '#DBEAFE', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>
+                                                {prediction}
+                                            </Text>
+                                            카테고리일 확률이 높습니다.
+                                        </Text>
+                                    ) : (
+                                        <Text style={styles(colors).predictionText}>
+                                            최근 거래 데이터를 분석하여 다음 소비 패턴을 예측합니다.
+                                        </Text>
+                                    )}
+
+                                    <TouchableOpacity
+                                        style={styles(colors).predictionButton}
+                                        onPress={fetchPrediction}
+                                    >
+                                        <Text style={styles(colors).predictionButtonText}>
+                                            {prediction !== null ? '다시 예측하기' : '다음 소비 예측하기'}
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
                             )}
 
-                            <TouchableOpacity
-                                style={styles(colors).predictionButton}
-                                onPress={fetchPrediction}
-                            >
-                                <Text style={styles(colors).predictionButtonText}>
-                                    {prediction !== null ? '다시 예측하기' : '다음 소비 예측하기'}
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                    )}
-
-                    {/* 쿠폰 발급 알림 배너 */}
-                    {couponNotification && (
-                        <View style={styles(colors).couponBannerTop}>
-                            <TouchableOpacity onPress={() => setCouponNotification(null)} style={styles(colors).couponBannerCloseTop}>
-                                <Text style={{ fontSize: 20, color: '#1E40AF' }}>✕</Text>
-                            </TouchableOpacity>
-                            <Text style={styles(colors).couponBannerTitleTop}>🎉 추천 쿠폰 도착!</Text>
-                            <View style={styles(colors).couponBannerCouponTop}>
-                                <Text style={styles(colors).couponBannerMerchant}>{couponNotification.couponInfo.merchant}</Text>
-                                <Text style={styles(colors).couponBannerDiscount}>{couponNotification.couponInfo.discount.toLocaleString()}원 할인</Text>
-                            </View>
-                            <View style={styles(colors).couponBannerInfoTop}>
-                                <Text style={styles(colors).couponBannerInfoText}>다음 소비 예측: <Text style={{ fontWeight: 'bold' }}>{couponNotification.category}</Text></Text>
-                                <Text style={styles(colors).couponBannerInfoText}>신뢰도: {(couponNotification.confidence * 100).toFixed(1)}%</Text>
-                            </View>
-                            <TouchableOpacity
-                                style={styles(colors).couponBannerButtonTop}
-                                onPress={async () => {
-                                    try {
-                                        // API로 쿠폰 발급
-                                        const { issueCoupon } = await import('../api/coupons');
-                                        await issueCoupon(
-                                            couponNotification.couponInfo.merchant,
-                                            couponNotification.couponInfo.discount
-                                        );
-                                        alert('쿠폰이 발급되었습니다!');
-                                    } catch (error) {
-                                        // 중복 발급 등 에러 메시지 표시
-                                        const message = error.response?.data?.detail || '쿠폰 발급에 실패했습니다.';
-                                        alert(message);
-                                    }
-                                    navigation.navigate('쿠폰함');
-                                    setCouponNotification(null);
-                                }}
-                            >
-                                <Text style={styles(colors).couponBannerButtonTextTop}>쿠폰함에서 확인하기 →</Text>
-                            </TouchableOpacity>
-                        </View>
-                    )}
-
-                    {/* Transaction List - Nested approach or ScrollView wrap depends on platform, but FlatList should be outside or scrollEnabled={false} if inside ScrollView */}
-                    <FlatList
-                        data={filteredTransactions}
-                        renderItem={renderItem}
-                        keyExtractor={item => item.id}
-                        contentContainerStyle={s.listContainer}
-                        ListEmptyComponent={
+                            {/* 쿠폰 발급 알림 배너 */}
+                            {couponNotification && (
+                                <View style={styles(colors).couponBannerTop}>
+                                    <TouchableOpacity onPress={() => setCouponNotification(null)} style={styles(colors).couponBannerCloseTop}>
+                                        <Text style={{ fontSize: 20, color: '#1E40AF' }}>✕</Text>
+                                    </TouchableOpacity>
+                                    <Text style={styles(colors).couponBannerTitleTop}>🎉 추천 쿠폰 도착!</Text>
+                                    <View style={styles(colors).couponBannerCouponTop}>
+                                        <Text style={styles(colors).couponBannerMerchant}>{couponNotification.couponInfo.merchant}</Text>
+                                        <Text style={styles(colors).couponBannerDiscount}>{couponNotification.couponInfo.discount.toLocaleString()}원 할인</Text>
+                                    </View>
+                                    <View style={styles(colors).couponBannerInfoTop}>
+                                        <Text style={styles(colors).couponBannerInfoText}>다음 소비 예측: <Text style={{ fontWeight: 'bold' }}>{couponNotification.category}</Text></Text>
+                                        <Text style={styles(colors).couponBannerInfoText}>신뢰도: {(couponNotification.confidence * 100).toFixed(1)}%</Text>
+                                    </View>
+                                    <TouchableOpacity
+                                        style={styles(colors).couponBannerButtonTop}
+                                        onPress={async () => {
+                                            try {
+                                                // API로 쿠폰 발급
+                                                const { issueCoupon } = await import('../api/coupons');
+                                                await issueCoupon(
+                                                    couponNotification.couponInfo.merchant,
+                                                    couponNotification.couponInfo.discount
+                                                );
+                                                alert('쿠폰이 발급되었습니다!');
+                                            } catch (error) {
+                                                // 중복 발급 등 에러 메시지 표시
+                                                const message = error.response?.data?.detail || '쿠폰 발급에 실패했습니다.';
+                                                alert(message);
+                                            }
+                                            navigation.navigate('쿠폰함');
+                                            setCouponNotification(null);
+                                        }}
+                                    >
+                                        <Text style={styles(colors).couponBannerButtonTextTop}>쿠폰함에서 확인하기 →</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            )}
+                        </>
+                    }
+                    ListEmptyComponent={
+                        anomalyMode ? (
                             <EmptyState
-                                title={anomalyMode ? "탐지된 이상거래가 없습니다" : "연동된 거래내역이 없습니다"}
-                                description={anomalyMode ? "모든 거래가 안전합니다." : "프로필에서 데이터를 동기화하여\n소비 분석을 시작하세요"}
-                                actionText={anomalyMode ? "전체 거래 보기" : "동기화 하러 가기"}
-                                onAction={() => anomalyMode ? setAnomalyMode(false) : navigation.navigate('프로필')}
+                                title="탐지된 이상거래가 없습니다"
+                                description="모든 거래가 안전합니다."
+                                actionText="전체 거래 보기"
+                                onAction={() => setAnomalyMode(false)}
                             />
-                        }
-                        scrollEnabled={false}
-                    />
-                </ScrollView>
+                        ) : (
+                            <EmptyState
+                                title="연동된 거래내역이 없습니다"
+                                description={"프로필에서 데이터를 동기화하여\n소비 분석을 시작하세요"}
+                                actionText="동기화 하러 가기"
+                                onAction={() => navigation.navigate('프로필')}
+                                secondaryActionText="📥 테스트 데이터 불러오기"
+                                onSecondaryAction={async () => {
+                                    try {
+                                        const response = await apiClient.post('/transactions/test-data?count=100');
+                                        if (response.data.status === 'success') {
+                                            Alert.alert('성공', `${response.data.created_count}건의 테스트 데이터가 생성되었습니다!`);
+                                            if (refresh) await refresh();
+                                        }
+                                    } catch (error) {
+                                        console.error('테스트 데이터 로드 실패:', error);
+                                        Alert.alert('오류', '테스트 데이터 로드에 실패했습니다.');
+                                    }
+                                }}
+                            />
+                        )
+                    }
+                />
             )}
 
             {/* Floating Action Button for Add Transaction */}

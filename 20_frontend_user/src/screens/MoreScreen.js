@@ -31,7 +31,7 @@ export default function MoreScreen({ navigation, route }) {
 
     // 대시보드에서 "잠깐만" 버튼 누르면 바로 챗봇 시작
     useEffect(() => {
-        if (route?.params?.openChat) {
+        if (route?.params?.openChat === true) {
             startChat();
             navigation?.setParams({ openChat: false });
         }
