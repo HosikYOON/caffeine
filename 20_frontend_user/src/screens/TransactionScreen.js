@@ -37,6 +37,7 @@ export default function TransactionScreen({ navigation, route }) {
     const [editedNote, setEditedNote] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const [prediction, setPrediction] = useState(null);
+    const [isPredicting, setIsPredicting] = useState(false); // 예측 로딩 상태
     const [couponNotification, setCouponNotification] = useState(null); // 쿠폰 발급 알림
 
     // Anomaly Mode State
