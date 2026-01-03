@@ -92,6 +92,123 @@ class AnomalyReport(BaseModel):
     reason: str
     severity: str = "medium"  # low/medium/high
 
+class TestDataResponse(BaseModel):
+    """테스트 데이터 로드 응답 스키마"""
+    status: str
+    created_count: int
+    message: str
+
+# 테스트 데이터 불러오기 API (발표/시연용)
+@router.post("/test-data", response_model=TestDataResponse)
+async def load_test_data(
+    count: int = Query(100, ge=50, le=500, description="불러올 거래 건수 (50~500)"),
+    db: AsyncSession = Depends(get_db),
+    user_id: int = Depends(get_current_user_id)
+):
+
+    import random
+    import csv
+    import os
+    from sqlalchemy import insert
+    
+    try:
+        # CSV 파일 경로
+        possible_paths = [
+            os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "synthetic_transactions_3000_2026.csv"),  # 10_backend 기준 (우선)
+            "/app/synthetic_transactions_3000_2026.csv",  # Docker 컨테이너 경로
+            os.path.join(os.getcwd(), "synthetic_transactions_3000_2026.csv"),  # 현재 디렉토리
+            os.path.join(os.path.dirname(__file__), "..", "..", "synthetic_transactions_3000_2026.csv"),  # routers 기준
+            os.path.join(os.path.dirname(os.path.dirname(__file__)), "synthetic_transactions_3000_2026.csv"),  # app 기준
+        ]
+        
+        csv_path = None
+        for path in possible_paths:
+            if os.path.exists(path):
+                csv_path = path
+                break
+        
+        if not csv_path:
+            raise HTTPException(status_code=500, detail=f"테스트 데이터 CSV 파일을 찾을 수 없습니다. 시도한 경로: {possible_paths}")
+        
+        # CSV 파일 읽기
+        transactions_from_csv = []
+        with open(csv_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                transactions_from_csv.append(row)
+        
+        if len(transactions_from_csv) < count:
+            count = len(transactions_from_csv)
+        
+        # 랜덤으로 선택
+        selected_rows = random.sample(transactions_from_csv, count)
+        
+        # 기존 사용자 거래 삭제 (새로 시작)
+        delete_stmt = delete(Transaction).where(Transaction.user_id == user_id)
+        await db.execute(delete_stmt)
+        
+        # 카테고리 조회
+        cat_query = select(Category)
+        cat_result = await db.execute(cat_query)
+        categories = {c.name: c.id for c in cat_result.scalars().all()}
+        
+        if not categories:
+            raise HTTPException(status_code=500, detail="카테고리 데이터가 없습니다.")
+        
+        created_count = 0
+        
+        for row in selected_rows:
+            try:
+                # CSV 필드: 날짜,시간,타입,대분류,소분류,내용,금액,화폐,결제수단,메모
+                date_str = row.get('날짜', '')
+                time_str = row.get('시간', '')
+                category_name = row.get('대분류', '생활')
+                merchant = row.get('내용', '알수없음')
+                amount = float(row.get('금액', 0))
+                currency = row.get('화폐', 'KRW')
+                
+                # 날짜 파싱
+                try:
+                    tx_time = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
+                except:
+                    tx_time = datetime.now()
+                
+                # 카테고리 ID 찾기
+                category_id = categories.get(category_name) or categories.get('생활') or list(categories.values())[0]
+                
+                insert_stmt = insert(Transaction).values(
+                    user_id=user_id,
+                    category_id=category_id,
+                    amount=amount,
+                    currency=currency,
+                    merchant_name=merchant,
+                    description=None,
+                    status="completed",
+                    transaction_time=tx_time,
+                    is_fraudulent=False
+                )
+                await db.execute(insert_stmt)
+                created_count += 1
+                
+            except Exception as e:
+                logger.warning(f"테스트 데이터 개별 생성 실패: {e}")
+                continue
+        
+        await db.commit()
+        
+        return TestDataResponse(
+            status="success",
+            created_count=created_count,
+            message=f"테스트 거래 {created_count}건이 생성되었습니다."
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"테스트 데이터 생성 실패: {e}")
+        await db.rollback()
+        raise HTTPException(status_code=500, detail=f"테스트 데이터 생성 실패: {str(e)}")
+
 # 거래 내역 조회 API
 @router.get("", response_model=TransactionList)
 async def get_transactions(

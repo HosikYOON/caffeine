@@ -1,11 +1,22 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../contexts/ThemeContext';
 
+// 팀 로고 이미지 (로그인 화면과 동일)
+const CaffeineLogo = require('../../assets/images/caffeine_logo.png');
 
 // 빈 상태 화면을 표시하는 컴포넌트
-export default function EmptyState({ icon = '📊', title, description, actionText, onAction }) {
+export default function EmptyState({ 
+    icon = '', 
+    title, 
+    description, 
+    actionText, 
+    onAction,
+    secondaryActionText,
+    onSecondaryAction,
+    showLogo = true  // 로고 표시 여부 (기본: true)
+}) {
     const { colors } = useTheme();
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const scaleAnim = useRef(new Animated.Value(0.9)).current;
@@ -78,10 +89,14 @@ export default function EmptyState({ icon = '📊', title, description, actionTe
                     },
                 ]}
             >
-                {/* Icon Container */}
+                {/* Logo/Icon Container */}
                 <View style={styles.iconContainer}>
                     <View style={[styles.iconCircle, { backgroundColor: colors.cardBackground }]}>
-                        <Text style={styles.icon}>{icon}</Text>
+                        {showLogo ? (
+                            <Image source={CaffeineLogo} style={styles.logoImage} resizeMode="contain" />
+                        ) : icon ? (
+                            <Text style={styles.icon}>{icon}</Text>
+                        ) : null}
                     </View>
                 </View>
 
@@ -91,7 +106,7 @@ export default function EmptyState({ icon = '📊', title, description, actionTe
                     <Text style={[styles.description, { color: colors.textSecondary }]}>{description}</Text>
                 )}
 
-                {/* Action Button */}
+                {/* Primary Action Button */}
                 {actionText && onAction && (
                     <TouchableOpacity
                         style={styles.buttonContainer}
@@ -106,6 +121,19 @@ export default function EmptyState({ icon = '📊', title, description, actionTe
                         >
                             <Text style={styles.buttonText}>{actionText}</Text>
                         </LinearGradient>
+                    </TouchableOpacity>
+                )}
+
+                {/* Secondary Action Button (테스트 데이터 불러오기 등) */}
+                {secondaryActionText && onSecondaryAction && (
+                    <TouchableOpacity
+                        style={[styles.secondaryButton, { borderColor: colors.border }]}
+                        onPress={onSecondaryAction}
+                        activeOpacity={0.7}
+                    >
+                        <Text style={[styles.secondaryButtonText, { color: colors.textSecondary }]}>
+                            {secondaryActionText}
+                        </Text>
                     </TouchableOpacity>
                 )}
 
@@ -150,9 +178,9 @@ const styles = StyleSheet.create({
         marginBottom: 32,
     },
     iconCircle: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
+        width: 140,
+        height: 140,
+        borderRadius: 70,
         backgroundColor: '#FFFFFF',
         justifyContent: 'center',
         alignItems: 'center',
@@ -164,6 +192,10 @@ const styles = StyleSheet.create({
     },
     icon: {
         fontSize: 56,
+    },
+    logoImage: {
+        width: 100,
+        height: 100,
     },
     title: {
         fontSize: 24,
@@ -205,6 +237,27 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         fontFamily: 'Inter_700Bold',
         letterSpacing: 0.5,
+    },
+    secondaryButton: {
+        marginTop: 16,
+        paddingHorizontal: 24,
+        paddingVertical: 14,
+        borderRadius: 12,
+        backgroundColor: '#EFF6FF',  // 연한 파란색 배경
+        borderWidth: 2,
+        borderColor: '#3B82F6',
+        minWidth: 220,
+        alignItems: 'center',
+        shadowColor: '#3B82F6',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    secondaryButtonText: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: '#2563EB',  // 진한 파란색 텍스트
     },
     decorativeContainer: {
         flexDirection: 'row',
