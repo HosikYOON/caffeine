@@ -13,6 +13,7 @@ import AnimatedButton from '../components/AnimatedButton';
 import EmptyState from '../components/EmptyState';
 import { SkeletonStats, SkeletonChart } from '../components/SkeletonCard';
 import { getAnomalies } from '../api/anomalies';
+import { apiClient } from '../api/client';
 
 import { formatCurrency } from '../utils/currency';
 import { CHART_COLORS, ANIMATION_DELAY } from '../constants';
@@ -386,13 +387,31 @@ export default function DashboardScreen({ navigation }) {
 
     // 거래 데이터가 없을 때 Empty State
     if (!transactions || transactions.length === 0) {
+        const handleLoadTestData = async () => {
+            try {
+                const response = await apiClient.post('/transactions/test-data?count=100');
+                if (response.data.status === 'success') {
+                    alert(`${response.data.created_count}건의 테스트 데이터가 생성되었습니다!`);
+                    // 거래 데이터 새로고침
+                    if (refresh) {
+                        await refresh();
+                    }
+                }
+            } catch (error) {
+                console.error('테스트 데이터 로드 실패:', error);
+                alert('테스트 데이터 로드에 실패했습니다.');
+            }
+        };
+
         return (
             <EmptyState
-                icon="📊"
+                icon=""
                 title="연동된 거래내역이 없습니다"
                 description={"프로필에서 데이터를 동기화하여\n소비 분석을 시작하세요"}
                 actionText="동기화 하러 가기"
                 onAction={() => navigation?.navigate('프로필')}
+                secondaryActionText="📥 테스트 데이터 불러오기"
+                onSecondaryAction={handleLoadTestData}
             />
         );
     }
