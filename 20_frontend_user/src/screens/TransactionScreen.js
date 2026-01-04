@@ -102,19 +102,69 @@ export default function TransactionScreen({ navigation, route }) {
         }
     }, [transactions.length, anomalyMode]);
 
-    // 카테고리별 쿠폰 정보 매핑
+    // 카테고리별 쿠폰 정보 매핑 (복수 가맹점 지원)
     const CATEGORY_COUPONS = {
-        '식료품': { merchant: '이마트', discount: 3000, description: '마트 할인 쿠폰' },
-        '주유': { merchant: 'SK에너지', discount: 3000, description: '주유 할인 쿠폰' },
-        '교통': { merchant: '카카오택시', discount: 2000, description: '택시비 할인 쿠폰' },
-        '식비': { merchant: '배달의민족', discount: 3000, description: '배달 할인 쿠폰' },
-        '외식': { merchant: '스타벅스', discount: 2000, description: '카페 할인 쿠폰' },
-        '쇼핑': { merchant: '쿠팡', discount: 5000, description: '쇼핑 할인 쿠폰' },
-        '편의점': { merchant: 'GS25', discount: 1000, description: '편의점 할인 쿠폰' },
-        '여가': { merchant: 'CGV', discount: 3000, description: '영화 할인 쿠폰' },
-        '문화': { merchant: '인터파크', discount: 5000, description: '공연 할인 쿠폰' },
-        '의료': { merchant: '약국', discount: 2000, description: '약국 할인 쿠폰' },
-        '기타': { merchant: '올리브영', discount: 2000, description: '뷰티 할인 쿠폰' },
+        '식료품': [
+            { merchant: '이마트', discount: 3000, description: '마트 할인 쿠폰' },
+            { merchant: '롯데마트', discount: 2500, description: '마트 할인 쿠폰' },
+            { merchant: 'GS더프레시', discount: 2000, description: '마트 할인 쿠폰' },
+        ],
+        '주유': [
+            { merchant: 'SK에너지', discount: 3000, description: '주유 할인 쿠폰' },
+            { merchant: 'GS칼텍스', discount: 2500, description: '주유 할인 쿠폰' },
+            { merchant: 'S-OIL', discount: 2000, description: '주유 할인 쿠폰' },
+        ],
+        '교통': [
+            { merchant: '카카오택시', discount: 2000, description: '택시비 할인 쿠폰' },
+            { merchant: '티머니', discount: 1500, description: '교통카드 할인 쿠폰' },
+        ],
+        '식비': [
+            { merchant: '배달의민족', discount: 3000, description: '배달 할인 쿠폰' },
+            { merchant: '요기요', discount: 2500, description: '배달 할인 쿠폰' },
+            { merchant: '쿠팡이츠', discount: 2000, description: '배달 할인 쿠폰' },
+        ],
+        '외식': [
+            { merchant: '스타벅스', discount: 2000, description: '카페 할인 쿠폰' },
+            { merchant: '투썸플레이스', discount: 2000, description: '카페 할인 쿠폰' },
+            { merchant: '버거킹', discount: 3000, description: '패스트푸드 할인 쿠폰' },
+        ],
+        '쇼핑': [
+            { merchant: '쿠팡', discount: 5000, description: '쇼핑 할인 쿠폰' },
+            { merchant: '11번가', discount: 4000, description: '쇼핑 할인 쿠폰' },
+            { merchant: '네이버쇼핑', discount: 3000, description: '쇼핑 할인 쿠폰' },
+        ],
+        '편의점': [
+            { merchant: 'GS25', discount: 1000, description: '편의점 할인 쿠폰' },
+            { merchant: 'CU', discount: 1000, description: '편의점 할인 쿠폰' },
+            { merchant: '세븐일레븐', discount: 1000, description: '편의점 할인 쿠폰' },
+        ],
+        '여가': [
+            { merchant: 'CGV', discount: 3000, description: '영화 할인 쿠폰' },
+            { merchant: '메가박스', discount: 3000, description: '영화 할인 쿠폰' },
+            { merchant: '롯데시네마', discount: 2500, description: '영화 할인 쿠폰' },
+        ],
+        '문화': [
+            { merchant: '인터파크', discount: 5000, description: '공연 할인 쿠폰' },
+            { merchant: '예스24', discount: 4000, description: '공연/도서 할인 쿠폰' },
+        ],
+        '의료': [
+            { merchant: '올리브영', discount: 2000, description: '헬스케어 할인 쿠폰' },
+            { merchant: '약국할인', discount: 1500, description: '약국 할인 쿠폰' },
+        ],
+        '생활': [
+            { merchant: '다이소', discount: 1000, description: '생활용품 할인 쿠폰' },
+            { merchant: '무신사', discount: 3000, description: '패션 할인 쿠폰' },
+        ],
+        '기타': [
+            { merchant: '올리브영', discount: 2000, description: '뷰티 할인 쿠폰' },
+            { merchant: '카카오선물하기', discount: 2000, description: '선물 할인 쿠폰' },
+        ],
+    };
+
+    // 카테고리에서 랜덤 쿠폰 선택
+    const getRandomCoupon = (category) => {
+        const coupons = CATEGORY_COUPONS[category] || CATEGORY_COUPONS['기타'];
+        return coupons[Math.floor(Math.random() * coupons.length)];
     };
 
     const fetchPrediction = async () => {
@@ -180,8 +230,8 @@ export default function TransactionScreen({ navigation, route }) {
             setPrediction(predictedCategory);
 
 
-            // 예측된 카테고리에 맞는 쿠폰 발급 알림
-            const couponInfo = CATEGORY_COUPONS[predictedCategory] || CATEGORY_COUPONS['기타'];
+            // 예측된 카테고리에 맞는 쿠폰 랜덤 발급
+            const couponInfo = getRandomCoupon(predictedCategory);
 
             // 새 쿠폰 객체 생성
             const newCoupon = {
