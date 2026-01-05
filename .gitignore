@@ -83,7 +83,6 @@ production_models/*.json
 *.joblib.bak
 *.pth
 *.h5
-*.csv
 *.csv.gz
 
 # IDE
