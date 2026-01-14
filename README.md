@@ -1,210 +1,195 @@
- README.md (팀원 실행 가이드 완성본)
+<div align="center">
 
-<<<<<<< HEAD
-복사 → 프로젝트 루트에 README.md 로 저장하면 끝!
-=======
-복사  프로젝트 루트에 README.md 로 저장하면 끝
->>>>>>> develop-psh
+# ☕ Caffeine
 
- CAF_FI 프로젝트 개발 환경 구성 가이드
+### **"A DROP OF DATA, A SHOT OF INSIGHT"**
 
-(팀원용 · 로컬에서 전체 시스템 실행 가능)
+AI 기반 소비 패턴 분석 및 이상 거래 탐지 플랫폼
 
- 1. 현재 프로젝트 구조
+[![Deploy Status](https://img.shields.io/badge/deploy-live-brightgreen?style=flat-square)](https://caffeineai.net)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104.1-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
+[![React Native](https://img.shields.io/badge/React_Native-0.81-61DAFB?style=flat-square&logo=react)](https://reactnative.dev/)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)](https://nextjs.org/)
+[![AWS](https://img.shields.io/badge/AWS-ECS_Fargate-FF9900?style=flat-square&logo=amazon-aws)](https://aws.amazon.com/)
+
+[Live Demo](https://caffeineai.net) · [Admin Dashboard](https://admin.caffeineai.net) · [API Docs](https://api.caffeineai.net/docs)
+
+</div>
+
+---
+
+## 📌 프로젝트 소개
+
+**Caffeine**은 개인 소비자의 거래 데이터를 분석하여 소비 패턴을 파악하고, 다음 소비를 예측하며, 이상 거래를 실시간으로 탐지하는 AI 기반 금융 분석 플랫폼입니다.
+
+### 🎯 해결하고자 한 문제
+
+| 문제점 | 솔루션 |
+|--------|--------|
+| 소비자가 본인의 소비 패턴을 정확히 파악하기 어려움 | ML 기반 소비 분석 및 카테고리별 통계 제공 |
+| 이상 거래(사기)에 취약하고 사후 대응만 가능 | XGBoost + 휴리스틱 기반 실시간 이상 거래 탐지 |
+| 기존 가계부 앱은 단순 기록만 제공 | LLM 기반 맞춤형 인사이트 리포트 자동 생성 |
+
+---
+
+## ✨ 주요 기능
+
+### 🔮 다음 거래 예측 (ML)
+- XGBoost 모델 기반 다음 소비 카테고리 예측
+- Feature Engineering: 시간대, 요일, 카테고리, 금액 정규화
+- **정확도: 73.47%**
+
+### 🚨 이상 거래 탐지 (Fraud Detection)
+- ML 모델 + 휴리스틱 규칙 결합 (Hybrid Approach)
+- 평균 지출 100배 초과 시 자동 탐지
+- 카테고리별 컷오프 기준 적용 (Cold Start 대응)
+
+### 💬 AI 챗봇 (잔소리 시스템)
+- Google Gemini 2.0 Flash API 기반
+- 거래 금액별 차별화된 페르소나
+- 실시간 소비 상담 및 개선 팁 제공
+
+### 📊 AI 소비 분석 리포트
+- LLM 기반 주간/월간/일간 리포트 자동 생성
+- PDF 생성 (ReportLab) + HTML 슬라이드 덱
+- APScheduler 기반 이메일 자동 발송
+
+### 👔 관리자 대시보드
+- 전체 사용자 연령대/성별 소비 통계
+- Recharts 기반 인터랙티브 시각화
+- 이상 거래 관리 및 리포트 발송
+
+---
+
+## 🏗️ 시스템 아키텍처
+
 ```
-CAF_FI/
-├── 00_docs_core/              # 문서, ERD, API 명세 등
-│   └── .gitkeep
-│
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           AWS CloudFront (CDN)                                   │
+│   caffeineai.net (User)  │  admin.caffeineai.net (Admin)  │  api.caffeineai.net │
+└─────────────────────────────────────────────────────────────────────────────────┘
+               │                         │                         │
+               ▼                         ▼                         ▼
+┌──────────────────────┐  ┌──────────────────────┐  ┌─────────────────────────────┐
+│      S3 Bucket       │  │      S3 Bucket       │  │  Application Load Balancer  │
+│  (React Native/Expo) │  │  (Next.js Static)    │  │           (ALB)             │
+└──────────────────────┘  └──────────────────────┘  └──────────────┬──────────────┘
+                                                                    │
+                                                                    ▼
+                                                   ┌─────────────────────────────┐
+                                                   │     AWS ECS Fargate         │
+                                                   │     Docker Container        │
+                                                   │     (FastAPI Backend)       │
+                                                   └──────────────┬──────────────┘
+                                                                  │
+                    ┌─────────────────────────────────────────────┼─────────────────┐
+                    │                                             │                 │
+                    ▼                                             ▼                 ▼
+      ┌─────────────────────────┐             ┌─────────────────────────┐  ┌───────────────────┐
+      │     AWS RDS             │             │     XGBoost ML Model    │  │  Google Gemini    │
+      │     PostgreSQL          │             │     (예측 / Fraud)       │  │  API (LLM)        │
+      └─────────────────────────┘             └─────────────────────────┘  └───────────────────┘
+```
+
+---
+
+## 🛠️ 기술 스택
+
+| 분류 | 기술 |
+|------|------|
+| **Backend** | FastAPI, SQLAlchemy 2.0 (Async), Pydantic v2, APScheduler, Uvicorn |
+| **Frontend (User)** | React Native, Expo, Victory Native, React Navigation |
+| **Frontend (Admin)** | Next.js 16, TypeScript, Tailwind CSS v4, Recharts |
+| **Database** | PostgreSQL (AWS RDS), AsyncPG |
+| **ML/AI** | XGBoost, Scikit-learn, Pandas, NumPy |
+| **LLM** | Google Gemini 2.0 Flash API |
+| **인증** | JWT (python-jose), OAuth2 (Google/Kakao), Bcrypt |
+| **보안** | Fernet 암호화, Rate Limiting (SlowAPI), Security Headers |
+| **Email** | aiosmtplib, Jinja2 Template, ReportLab (PDF) |
+| **DevOps** | Docker, GitHub Actions, AWS (ECR, ECS, S3, CloudFront, RDS, ALB) |
+
+---
+
+## 🚀 CI/CD 파이프라인
+
+### Backend (ECS Fargate)
+```
+Push to main → GitHub Actions → OIDC Auth → Docker Build → ECR Push → ECS Deploy
+```
+
+### Frontend (S3 + CloudFront)
+```
+Push to main → GitHub Actions → npm build → S3 Sync → CloudFront Invalidation
+```
+
+**주요 특징:**
+- OIDC 기반 AWS 인증 (Access Key 없이 보안 인증)
+- 환경변수는 GitHub Secrets → ECS Task Definition 주입
+- 경로 기반 독립 파이프라인 (Frontend/Backend 분리)
+
+---
+
+## 📁 프로젝트 구조
+
+```
+caffeine/
+├── 00_docs_core/              # 문서, ERD, API 명세
 ├── 10_backend/                # FastAPI 백엔드
 │   ├── app/
 │   │   ├── core/              # 환경설정, 보안, 미들웨어
-│   │   ├── db/
-│   │   │   ├── crud/          # CRUD 로직
-│   │   │   ├── model/         # SQLAlchemy 모델
-│   │   │   └── schema/        # Pydantic 스키마
+│   │   ├── db/                # Database (Model, Schema, CRUD)
 │   │   ├── routers/           # API 라우터
-│   │   ├── services/          # 비즈니스 로직
-│   │   └── main.py
+│   │   └── services/          # 비즈니스 로직
 │   ├── Dockerfile
 │   └── requirements.txt
-│
-├── 20_frontend_user/          # 사용자용 React 웹
-│   ├── src/
-│   ├── public/
-│   ├── Dockerfile
-│   └── package.json
-│
-├── 21_frontend_admin/         # 관리자용 React 웹
-│   ├── src/
-│   ├── public/
-│   ├── Dockerfile
-│   └── package.json
-│
-├── 30_nginx/                  # Reverse Proxy + API Gateway
-│   ├── default.conf
-│   └── Dockerfile
-│
-├── 40_ml_next/                # 다음 소비 예측 모델 서버
-│   ├── app.py
-│   ├── requirements.txt
-│   └── Dockerfile
-│
-├── 41_ml_fraud/               # 이상거래 탐지 모델 서버
-│   ├── app.py
-│   ├── requirements.txt
-│   └── Dockerfile
-│
-├── 50_llm_category/           # LLM 카테고리 자동 분류 서버 (외부 LLM 호출)
-│   ├── app.py
-│   ├── requirements.txt
-│   └── Dockerfile
-│
-├── 51_llm_analysis/           # LLM 소비 분석/요약 API
-│   ├── app.py
-│   ├── requirements.txt
-│   └── Dockerfile
-│
-├── 52_llm_cleo/               # (옵션) Cleo-like 대화형 LLM 서버
-│   ├── app.py
-│   ├── requirements.txt
-│   └── Dockerfile
-│
-└── docker-compose.yml         # 전체 서비스 로컬 실행 orchestration
+├── 20_frontend_user/          # React Native (Expo) 사용자 앱
+├── 21_frontend_admin/         # Next.js 관리자 대시보드
+├── 30_nginx/                  # 로컬 테스트용 Reverse Proxy
+├── .github/workflows/         # GitHub Actions CI/CD
+├── docker-compose.yml         # 로컬 개발 환경
+└── ecs-task-definition.json   # AWS ECS 배포 설정
 ```
- 2. 팀원이 따라할 전체 실행 절차
- Step 1. 프로젝트 클론
-
-팀원 PC에서:
-
-git clone https://github.com/your-team-repo/caffeine.git
-cd caffeine
-
-
- 개인 깃허브에서 팀 레포로 옮기면 여기 URL만 변경하면 됨
-
- Step 2. (선택) Node / Python 설치
-
-팀 전체가 버전 통일하도록 권장:
-
-NodeJS 20.x
-
-React 프런트엔드 실행용
-
-Python 3.10.x
-
-FastAPI + ML 서버 실행용
-
- Step 3. Docker Desktop 설치
-
-프로젝트는 무조건 Docker 기반으로 실행됨.
-
-설치 후 실행:
-https://www.docker.com/products/docker-desktop/
-
-Docker 엔진이 꺼져 있으면 docker-compose 실행 불가
-
- Step 4. 전체 서비스 실행
-
-프로젝트 루트(caffeine/)에서:
-
-docker-compose up --build
-
-
- 실행되면 자동으로 아래 서버가 생성됨:
-
-| 서비스 이름 | URL | 설명 |
-|------------|-----|------|
-| **Backend (FastAPI)** | http://localhost:8000/docs | 백엔드 API |
-| **User Front (React)** | http://localhost:3000 | 사용자 웹앱 |
-| **Admin Front (React)** | http://localhost:3001 | 관리자 웹앱 |
-| **ML Next** | http://localhost:9001/docs | 다음 소비 예측 모델 |
-| **ML Fraud** | http://localhost:9002/docs | 이상 결제 탐지 모델 |
-| **LLM Category** | http://localhost:9011/docs | LLM 기반 MCC/카테고리 분류 |
-| **LLM Analysis** | http://localhost:9012/docs | 소비 분석 LLM |
-| **LLM Cleo (옵션)** | http://localhost:9013/docs | 대화형 챗봇/LLM |
 
 ---
- Step 5. 첫 실행 시 필요한 도커 이미지 자동 설치
 
-docker-compose up --build 실행 시 자동으로:
+## 🖥️ 실행 방법
 
-python:3.10.18-slim 이미지 pull
+### 로컬 개발 환경 (Docker)
 
-node:20 이미지 pull
+```bash
+# 1. 저장소 클론
+git clone https://github.com/your-repo/caffeine.git
+cd caffeine
 
-nginx:latest 이미지 pull
+# 2. 환경변수 설정
+cp .env.example .env
+# .env 파일에 필요한 값 입력 (DB, API Keys 등)
 
-requirements.txt 패키지 설치
-
-팀원이 따로 pip install 할 필요 없음.
-
- 3. 서비스별 local.env (선택)
-
-LLM 서버에서 실제 API 필요하면 추가:
-
-파일 생성:
-
-50_llm_category/.env
-51_llm_analysis/.env
-52_llm_cleo/.env
-
-
-내용 예:
-
-OPENAI_API_KEY=여기에키
-
- 4. 개발 시 변경된 파일 반영 방법
-
-코드를 수정하면:
-
-1) 백엔드 / ML / LLM 서비스
-
- 자동 reload 없음
- 새로 빌드 필요:
-
+# 3. Docker Compose 실행
 docker-compose up --build
 
-2) 프론트엔드 (React)
+# 4. 접속
+# Backend API: http://localhost:8001/docs
+# Admin Dashboard: http://localhost:3001
+```
 
- 수정 후 자동 반영됨 (vite hot reload)
+---
 
- 5. 팀 개발 워크플로우 (중요)
- Branch 전략
-main   운영(Production)
-develop  통합 개발 브랜치
-feature/*  개인 작업 브랜치
+## 📊 주요 성과
 
+- **ML 예측 정확도**: 73.47% (XGBoost 기반 6개 카테고리 분류)
+- **실제 운영 배포**: AWS ECS Fargate + CloudFront (caffeineai.net)
+- **완전 자동화 CI/CD**: OIDC 기반 보안 인증, Zero-downtime 배포
+- **Dev = Prod 환경**: Docker 컨테이너 기반 환경 동일성 보장
 
-예:
+---
 
-feature/login
-feature/analysis-llm
-feature/user-page
+## 📅 프로젝트 기간
 
+**2025.11.17 ~ 2026.05**
 
-PR은 반드시 develop 으로 보내기.
+---
 
- 6. 더미 데이터 추가 (개발용)
-백엔드에서만 사용되는 더미는
+## 📝 라이선스
 
-dummy_data/ 폴더를 만들어 두면 좋음:
-
-예:
-
-10_backend/app/dummy_data/users.json
-10_backend/app/dummy_data/transactions.json
-
-
-그리고 코드에는 반드시 주석 붙이기:
-
-# TODO: [DUMMY_DATA] 개발용 더미 데이터. 실제 배포 시 제거 예정.
-
- 7. 팀원이 반드시 지켜야 할 규칙
-
- Docker Desktop 켠 상태에서만 서버 구동
- docker-compose 로만 실행할 것
- 각 서비스는 절대 개별 실행 금지
- LLM API 키는 절대 커밋 금지
- Git branch 전략 준수
- 모델 파일(.pkl)은 S3 업로드 후 경로로 불러오기 (Git에 올리지 않음)
+This project is licensed under the MIT License.
